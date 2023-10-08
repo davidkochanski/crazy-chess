@@ -1,24 +1,22 @@
 import { useState } from "react";
 import Tile from "./Tile";
+import { MovementOptions, getMovementOptions, isWhite } from "./Moves";
 
-type MovementOptions = {
-    canMoveDiagonally: boolean;
-    canMoveOrthagonally: boolean;
-    canMoveAsKnight: boolean;
-    canMoveAsKing: boolean;
-    canMoveAsPawn: boolean;
-}
 
 const Board = () => {
     const [selectedX, setSelectedX] = useState<number | null>(null);
     const [selectedY, setSelectedY] = useState<number | null>(null);
+
+    const [castlingRights, setCastingRights] = useState<Array<boolean>>([true, true, true, true]);
+    const [enPassantSquare, setEnPassantSquare] = useState<Array<number | null>>([null, null]);
+
 
     const [pieces, setPieces] = useState<Array<Array<String>>>(
         [
             ['R', 'P', '-', '-', '-', '-', 'p', 'r'],
             ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
             ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-            ['Q', 'P', '-', '-', '-', '-', 'p', 'q'],
+            ['C', 'P', '-', '-', '-', '-', 'p', 'c'],
             ['K', 'P', '-', '-', '-', '-', 'p', 'k'],
             ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
             ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
@@ -27,54 +25,8 @@ const Board = () => {
     );
 
     const [highlighted, setHighlighted] = useState<Array<Array<boolean>>>(Array.from({ length: 8 }, () => Array(8).fill(false)))
-
     const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
 
-
-    const getMovementOptions = (piece: String) => {
-
-        piece = piece.toLowerCase();
-
-        let options: MovementOptions = { canMoveAsKnight: false, canMoveDiagonally: false, canMoveOrthagonally: false, canMoveAsKing: false, canMoveAsPawn: false };
-
-        switch (piece) {
-            case "b":
-                options.canMoveDiagonally = true;
-                break;
-            case "q":
-                options.canMoveDiagonally = true;
-                options.canMoveOrthagonally = true;
-                break;
-            case "r":
-                options.canMoveOrthagonally = true;
-                break;
-            case "n":
-                options.canMoveAsKnight = true;
-                break;
-            case "k":
-                options.canMoveAsKing = true;
-                break;
-            case "p":
-                options.canMoveAsPawn = true;
-                break;
-            case "a":
-                options.canMoveAsKnight = true;
-                options.canMoveDiagonally = true;
-                options.canMoveOrthagonally = true;
-                break;
-            case "l":
-                options.canMoveAsKnight = true;
-                options.canMoveDiagonally = true;
-                options.canMoveOrthagonally = true;
-                options.canMoveAsPawn = true;
-        }
-
-        return options;
-    }
-
-    const isWhite = (piece: String) => {
-        return piece.toUpperCase() === piece;
-    }
 
     const generateLegalMoves = (x: number, y: number, movements: MovementOptions) => {
         const MAX = 7;
@@ -137,15 +89,7 @@ const Board = () => {
         }
 
         if(movements.canMoveAsKnight) {
-            const possibleMoves = [
-                [x + 1, y + 2],
-                [x + 2, y + 1],
-                [x + 2, y - 1],
-                [x + 1, y - 2],
-                [x - 1, y - 2],
-                [x - 2, y - 1],
-                [x - 2, y + 1],
-                [x - 1, y + 2],
+            const possibleMoves = [[x + 1, y + 2],[x + 2, y + 1],[x + 2, y - 1],[x + 1, y - 2],[x - 1, y - 2],[x - 2, y - 1],[x - 2, y + 1],[x - 1, y + 2],
               ];
 
             possibleMoves.forEach((move) => {
@@ -159,18 +103,9 @@ const Board = () => {
         }
 
         if(movements.canMoveAsKing) {
-            const possibleMoves = [
-                [x + 1, y],
-                [x - 1, y],
-                [x, y + 1],
-                [x, y - 1],
-                [x + 1, y + 1],
-                [x + 1, y - 1],
-                [x - 1, y + 1],
-                [x - 1, y - 1],
-              ];
+            const possibleMoves = [[x + 1, y],[x - 1, y],[x, y + 1],[x, y - 1],[x + 1, y + 1],[x + 1, y - 1],[x - 1, y + 1],[x - 1, y - 1]];
 
-              possibleMoves.forEach((move) => {
+            possibleMoves.forEach((move) => {
                 let x = move[0];
                 let y = move[1];
 
@@ -178,6 +113,25 @@ const Board = () => {
                     updateLegalMoves(x, y);
                 }
             })
+
+            if(isWhite(movingPiece)) {
+                if(castlingRights[0] && pieces[1][0] === '-' && pieces[2][0] === '-' && pieces[3][0] === '-') {
+                    updateLegalMoves(2, 0);
+                }
+
+                if(castlingRights[1] && pieces[5][0] === '-' && pieces[6][0] === '-') {
+                    updateLegalMoves(6, 0);
+                }
+
+            } else {
+                if(castlingRights[2] && pieces[1][7] === '-' && pieces[2][7] === '-' && pieces[3][7] === '-') {
+                    updateLegalMoves(2, 7);
+                }
+
+                if(castlingRights[3] && pieces[5][7] === '-' && pieces[6][7] === '-') {
+                    updateLegalMoves(6, 7);
+                }
+            }
         }
 
         if(movements.canMoveAsPawn) {
@@ -218,18 +172,31 @@ const Board = () => {
             }
         }
 
+        if(movements.canMoveAsCamel) {
+            const possibleMoves = [[x + 1, y + 3],[x + 3, y + 1],[x + 3, y - 1],[x + 1, y - 3],[x - 1, y - 3],[x - 3, y - 1],[x - 3, y + 1],[x - 1, y + 3]];
+
+            possibleMoves.forEach((move) => {
+                let x = move[0];
+                let y = move[1];
+
+                if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
+                    updateLegalMoves(x, y);
+                }
+            })
+        }
+
         return legalMoves;
     };
 
-    const handleTileSelect = (x: number, y: number) => {
+    const handleTileSelect = (nextX: number, nextY: number) => {
         // Highlighting a new piece
         if (selectedX === null || selectedY === null) {
-            setSelectedX(x);
-            setSelectedY(y);
+            setSelectedX(nextX);
+            setSelectedY(nextY);
 
-            const movingPiece = pieces[x][y];
+            const movingPiece = pieces[nextX][nextY];
             const movements: MovementOptions = getMovementOptions(movingPiece.toLowerCase());
-            const legalMoves: number[][] = generateLegalMoves(x, y, movements);
+            const legalMoves: number[][] = generateLegalMoves(nextX, nextY, movements);
 
             let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(false));
             
@@ -240,7 +207,7 @@ const Board = () => {
         
 
         // Deselecting
-        } else if (selectedX === x && selectedY === y) {
+        } else if (selectedX === nextX && selectedY === nextY) {
 
             setSelectedX(null);
             setSelectedY(null);
@@ -250,39 +217,36 @@ const Board = () => {
         // Clicking other square after selected another one
         } else {
             const newPieces = [...pieces];
-
+            
             if(newPieces[selectedX][selectedY] === '-') {
                 setSelectedX(null);
                 setSelectedY(null);
                 return;
             }
 
+            // Verify if move is legal
             const movingPiece = newPieces[selectedX][selectedY];
             const movements: MovementOptions = getMovementOptions(movingPiece.toLowerCase());
             const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, movements);
             
             for(let i = 0; i < legalMoves.length; i++) {
-                if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([x, y]))) {
-                    newPieces[x][y] = movingPiece;
+                if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
+                    newPieces[nextX][nextY] = movingPiece;
                     newPieces[selectedX][selectedY] = '-';
 
                     let newPreviousMove = Array.from({ length: 8 }, () => Array(8).fill(0))
         
                     newPreviousMove[selectedX][selectedY] = 2; // Destination
-                    newPreviousMove[x][y] = 1 // origin
+                    newPreviousMove[nextX][nextY] = 1 // origin
 
-                    console.log(newPreviousMove);
-        
                     setPreviousMove(newPreviousMove);
                     break;
                     
                 }
             }
 
-            setSelectedX(null);
-            setSelectedY(null);
 
-
+            // Pawn promotion
             for(let i = 0; i < pieces.length; i++) {
                 if(pieces[i][0] === 'p') {
                     pieces[i][0] = 'q';
@@ -293,8 +257,53 @@ const Board = () => {
             }
 
 
+            // Move rook if castling
+            if(castlingRights[0] && movingPiece === 'K' && nextX === 2 && nextY === 0) {
+                pieces[0][0] = '-';
+                pieces[3][0] = 'R';
+            }
+
+            if(castlingRights[1] && movingPiece === 'K' && nextX === 6 && nextY === 0) {
+                pieces[7][0] = '-';
+                pieces[5][0] = 'R';
+            }
+
+            if(castlingRights[2] && movingPiece === 'k' && nextX === 2 && nextY === 7) {
+                pieces[0][7] = '-';
+                pieces[3][7] = 'r';
+            }
+
+            if(castlingRights[3] && movingPiece === 'k' && nextX === 6 && nextY === 7) {
+                pieces[7][7] = '-';
+                pieces[5][7] = 'r';
+            }
+
+
+
+            // Update castling rights
+            const newRights = [...castlingRights];
+            
+            if(movingPiece === 'K') {
+                newRights[0] = false;
+                newRights[1] = false;
+            }
+
+            if(movingPiece === 'k') {
+                newRights[2] = false;
+                newRights[3] = false;
+            }
+
+            if(pieces[0][0] !== 'R') newRights[0] = false;
+            if(pieces[7][0] !== 'R') newRights[1] = false;
+            if(pieces[0][7] !== 'r') newRights[2] = false;
+            if(pieces[7][7] !== 'r') newRights[3] = false;
+
+            setCastingRights(newRights);
 
             setPieces(newPieces);
+            
+            setSelectedX(null);
+            setSelectedY(null);
             setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
         }
     }
