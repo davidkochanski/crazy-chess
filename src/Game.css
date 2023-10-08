@@ -1,0 +1,12 @@
+.game {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    place-content: center;
+    align-items: center;
+}
+
+.game > * {
+    flex-grow: 1;
+    flex-shrink: 1;
+}

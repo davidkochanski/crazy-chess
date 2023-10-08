@@ -1,0 +1,18 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100vh;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+body {
+    background-color: #0e0d17;
+    min-height: 100%;
+}
