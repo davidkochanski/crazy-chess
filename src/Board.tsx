@@ -136,7 +136,6 @@ const Board = () => {
 
         if(movements.canMoveAsPawn) {
             if(isWhite(movingPiece)) {
-
                 if((y <= 1) && pieces[x][y+1] === '-' && pieces[x][y+2] === '-') {
                     legalMoves.push([x, y+2])
                 }
@@ -150,6 +149,14 @@ const Board = () => {
                 }
 
                 if(x-1 >= MIN && areDifferentColours(pieces[x-1][y+1], pieces[x][y])) {
+                    legalMoves.push([x-1, y+1])
+                }
+
+                if(y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) {
+                    legalMoves.push([x+1, y+1])
+                }
+
+                if(y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) {
                     legalMoves.push([x-1, y+1])
                 }
 
@@ -167,6 +174,15 @@ const Board = () => {
                 }
 
                 if(x-1 >= MIN && areDifferentColours(pieces[x-1][y-1], pieces[x][y])) {
+                    legalMoves.push([x-1, y-1])
+                }
+
+                
+                if(y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) {
+                    legalMoves.push([x+1, y-1])
+                }
+
+                if(y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) {
                     legalMoves.push([x-1, y-1])
                 }
             }
@@ -256,6 +272,25 @@ const Board = () => {
                 }
             }
 
+            // Played en passant
+            if(movingPiece === 'P' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+                pieces[nextX][nextY-1] = "-";
+            }
+
+            if(movingPiece === 'p' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+                pieces[nextX][nextY+1] = "-";
+            }
+
+            // En passant square
+            setEnPassantSquare([null, null]);
+
+            if(movingPiece === 'P' && selectedY === 1 && nextY === 3) {
+                setEnPassantSquare([nextX, nextY-1]);
+            }
+
+            if(movingPiece === 'p' && selectedY === 6 && nextY === 4) {
+                setEnPassantSquare([nextX, nextY+1]);
+            }
 
             // Move rook if castling
             if(castlingRights[0] && movingPiece === 'K' && nextX === 2 && nextY === 0) {
@@ -277,8 +312,6 @@ const Board = () => {
                 pieces[7][7] = '-';
                 pieces[5][7] = 'r';
             }
-
-
 
             // Update castling rights
             const newRights = [...castlingRights];
