@@ -10,13 +10,15 @@ const Board = () => {
     const [castlingRights, setCastingRights] = useState<Array<boolean>>([true, true, true, true]);
     const [enPassantSquare, setEnPassantSquare] = useState<Array<number | null>>([null, null]);
 
+    const [whiteToPlay, setWhiteToPlay] = useState(true);
+
 
     const [pieces, setPieces] = useState<Array<Array<String>>>(
         [
             ['R', 'P', '-', '-', '-', '-', 'p', 'r'],
             ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
             ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-            ['C', 'P', '-', '-', '-', '-', 'p', 'c'],
+            ['A', 'P', '-', '-', '-', '-', 'p', 'a'],
             ['K', 'P', '-', '-', '-', '-', 'p', 'k'],
             ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
             ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
@@ -242,8 +244,13 @@ const Board = () => {
 
             // Verify if move is legal
             const movingPiece = newPieces[selectedX][selectedY];
+
+            if((whiteToPlay && !isWhite(movingPiece)) || !whiteToPlay && isWhite(movingPiece)) return;
+
             const movements: MovementOptions = getMovementOptions(movingPiece.toLowerCase());
             const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, movements);
+
+            let movePlayed = false;
             
             for(let i = 0; i < legalMoves.length; i++) {
                 if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
@@ -256,11 +263,11 @@ const Board = () => {
                     newPreviousMove[nextX][nextY] = 1 // origin
 
                     setPreviousMove(newPreviousMove);
-                    break;
                     
+                    movePlayed = true;
+                    break;
                 }
             }
-
 
             // Pawn promotion
             for(let i = 0; i < pieces.length; i++) {
@@ -333,11 +340,40 @@ const Board = () => {
 
             setCastingRights(newRights);
 
+
+            if(movePlayed) setWhiteToPlay(!whiteToPlay);
             setPieces(newPieces);
             
             setSelectedX(null);
             setSelectedY(null);
             setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
+
+            let whiteKingIsAlive = false;
+            let blackKingIsAlive = false;
+
+            pieces.forEach((col) => {
+                col.forEach((piece) => {
+                    if(piece === "K") whiteKingIsAlive = true;
+                    if(piece === "k") blackKingIsAlive = true;
+                })
+            })
+
+            if(!whiteKingIsAlive && !blackKingIsAlive) {
+                setTimeout(() => {alert("DRAW")}, 50)
+                return;
+            }
+
+            if(!whiteKingIsAlive) {
+                setTimeout(() => {alert("Black wins!")}, 50)
+
+                return
+            }
+
+            if(!blackKingIsAlive) {
+                setTimeout(() => {alert("White wins!")}, 50)
+
+            }
+
         }
     }
 
