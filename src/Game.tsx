@@ -6,8 +6,6 @@ const Game = () => {
     return (
         <div className="game">
             <Board/>
-    
-    
         </div>
     )
 }

@@ -16,6 +16,7 @@
     background-color: #F0D9B5;
     position: relative;
     box-sizing: content-box;
+    user-select: none;
 }
 
 .tile.dark {
@@ -74,6 +75,13 @@
 
 .tile-cross {
     scale: 1;
+}
+
+#dragging-piece {
+    display: none;
+    position: absolute;
+    z-index: 621000;
+    pointer-events: none;
 }
 
 
