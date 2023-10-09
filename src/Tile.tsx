@@ -35,7 +35,7 @@ const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, id, previou
 
     return (
         <div onMouseDown={handleClick} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${previousMove === 2 ? "origin" : ""} ${previousMove === 1 ? "destination" : ""}`}>
-            <img className="piece-img" src={"img/" + decodePiece(piece) + ".svg"} alt="" />
+            <img className="piece-img" src={"img/" + decodePiece(piece) + ".png"} alt="" />
             {putHighlightedMarker()}
         </div>
     )
