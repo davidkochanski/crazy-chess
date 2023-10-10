@@ -56,9 +56,9 @@ export const getBehaviour = (piece: String) => {
             break;
         case "l":
             options.canMoveAsKnight = true;
+            options.canMoveAsCamel = true;
             options.canMoveDiagonally = true;
             options.canMoveOrthagonally = true;
-            options.canMoveAsPawn = true;
             break;
         case "c":
             options.canMoveAsCamel = true;

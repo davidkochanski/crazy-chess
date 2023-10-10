@@ -130,11 +130,11 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
                 legalMoves.push([x-1, y+1])
             }
 
-            if(y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) {
+            if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
                 legalMoves.push([x+1, y+1])
             }
 
-            if(y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) {
+            if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) ||(y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x-1))) {
                 legalMoves.push([x-1, y+1])
             }
 
@@ -156,11 +156,11 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
             }
 
             
-            if(y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) {
+            if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
                 legalMoves.push([x+1, y-1])
             }
 
-            if(y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) {
+            if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x-1))) {
                 legalMoves.push([x-1, y-1])
             }
         }
@@ -220,11 +220,11 @@ export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _
     // En passant square
     enPassantSquare = [null, null];
 
-    if(movingPiece === 'P' && selectedY === 1 && nextY === 3) {
+    if(movingPiece === 'P' && (selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2)) {
         enPassantSquare = [nextX, nextY-1];
     }
 
-    if(movingPiece === 'p' && selectedY === 6 && nextY === 4) {
+    if(movingPiece === 'p' && (selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5)) {
         enPassantSquare = [nextX, nextY+1];
     }
 

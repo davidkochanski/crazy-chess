@@ -17,16 +17,27 @@ const Board = () => {
 
     const [pieces, setPieces] = useState<Array<Array<String>>>(
         [
-            ['R', 'P', '-', '-', '-', '-', 'p', 'r'],
-            ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
-            ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-            ['Q', 'P', '-', '-', '-', '-', 'p', 'q'],
-            ['K', 'P', '-', 'f', '-', '-', 'p', 'k'],
-            ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-            ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
-            ['R', 'P', '-', '-', '-', '-', 'p', 'r']
+            ['P', '-', '-', '-', '-', '-', '-', 'p'],
+            ['P', '-', '-', '-', '-', '-', '-', 'p'],
+            ['P', '-', '-', '-', '-', '-', '-', 'p'],
+            ['P', '-', '-', '-', '-', 'L', '-', 'p'],
+            ['K', 'P', '-', '-', '-', '-', 'p', 'p'],
+            ['B', 'P', '-', '-', '-', '-', 'p', 'p'],
+            ['N', 'P', '-', '-', '-', '-', 'p', 'p'],
+            ['R', '-', '-', '-', 'k', '-', '-', 'r']
         ]
     );
+
+    // [
+    //     ['R', 'P', '-', '-', '-', '-', 'p', 'r'],
+    //     ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
+    //     ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
+    //     ['Q', 'P', '-', '-', '-', '-', 'p', 'q'],
+    //     ['K', 'P', '-', '-', '-', '-', 'p', 'k'],
+    //     ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
+    //     ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
+    //     ['R', 'P', '-', '-', '-', '-', 'p', 'r']
+    // ]
 
     const [squares, setSquares] = useState<Array<Array<String>>>(Array.from({ length: 8 }, () => Array(8).fill('-')));
 
@@ -150,10 +161,8 @@ const Board = () => {
     }
 
     const handleTileSelect = (nextX: number, nextY: number) => {
-        setDragging(true);
         // Highlighting a new piece
         if (selectedX === null || selectedY === null) {
-
             const legalMoves: number[][] = generateLegalMoves(nextX, nextY, pieces, castlingRights, enPassantSquare);
 
             setSelectedX(nextX);
@@ -176,46 +185,50 @@ const Board = () => {
         }
     }
 
-    const handlePieceDragging = (e: MouseEvent) => {
-        if (selectedX === null || selectedY === null || !isDragging) return;
-      
-        const draggingImg = document.getElementById("dragging-piece") as HTMLImageElement;
+    const updateDraggingPiece = () => {
+        const draggingPiece = document.getElementById("dragging-piece") as HTMLImageElement;
+        const sampleTile = document.getElementsByClassName("tile")[0] as HTMLDivElement;
+
+        draggingPiece.style.width = `${sampleTile.clientWidth}px`;
+        draggingPiece.style.height = `${sampleTile.clientHeight}px`;
+        draggingPiece.style.display = isDragging ? "block" : "none";
+    }
+
+    const putPieceOnCursor = (e: MouseEvent) => {
+        const draggingPiece = document.getElementById("dragging-piece") as HTMLImageElement;
+        const sampleTile = document.getElementsByClassName("tile")[0] as HTMLDivElement;
+
         const board = document.getElementById("board");
-      
-        draggingImg.src = "img/" + decodePiece(pieces[selectedX][selectedY]) + ".png";
-      
-        // Calculate the offset to position the image at the cursor
         const rect = board?.getBoundingClientRect();
 
         if(rect === undefined) return;
 
-        // Get the absolute mouse position
         const mouseX = e.clientX;
         const mouseY = e.clientY;
 
-        // Calculate the relative position
-        const relativeX = mouseX - rect.left - (draggingImg.width / 2);
-        const relativeY = mouseY - rect.top - (draggingImg.height / 2);
-      
-        // Use transform to apply translation relative to the cursor
-        draggingImg.style.transform = `translate(${relativeX}px, ${relativeY}px)`;
+        const relativeX = mouseX - rect.left - (sampleTile.clientWidth / 2)
+        const relativeY = mouseY - rect.top - (sampleTile.clientWidth / 2)
 
-        console.log(`translate(${relativeX}px, ${relativeY}px)`);
+        draggingPiece.style.transform = `translate(${relativeX}px, ${relativeY}px)`
+    }
+
+
+    const handlePieceDown = (e: MouseEvent) => {
+        setDragging(true);
+
+        updateDraggingPiece();
+        putPieceOnCursor(e);
+        
+    }
+
+    const handlePieceDragging = (e: MouseEvent) => {
+        if (selectedX === null || selectedY === null || !isDragging) return;
+
+        putPieceOnCursor(e);
       }
       
     useEffect(() => {
-        const draggingImg = document.getElementById("dragging-piece") as HTMLImageElement;
-        const sampleTile = document.getElementsByClassName("tile")[0];
-
-        draggingImg.style.width = `${sampleTile.clientWidth}px`;
-
-        if(isDragging) {
-            draggingImg.style.display = "block";
-        } else {
-            draggingImg.src = "img/empty.png";
-            draggingImg.style.display = "none";
-        }
-
+        updateDraggingPiece();
     }, [isDragging])
 
     const tilesBlueprint = Array.from({ length: 64 }, (_, index) => ({
@@ -228,7 +241,7 @@ const Board = () => {
     }));
 
     return (
-        <div id="board" onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
+        <div id="board" style={isDragging ? {cursor: "grabbing"} : {}} onMouseDown={handlePieceDown} onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
             {tilesBlueprint.map(tile => (
                 <Tile
                     key={tile.key}
@@ -244,7 +257,7 @@ const Board = () => {
                     piece={pieces[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
                 />
             ))}
-        <img id="dragging-piece" src="" alt="" />
+        <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
 
         </div>
 
