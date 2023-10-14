@@ -80,3 +80,34 @@ export const getBehaviour = (piece: String) => {
 
     return options;
 }
+
+
+
+export type TileOptions = {
+    isBlocking: boolean;
+    isOccupyable: boolean;
+}
+
+export const getTileBehaviour = (tile: String) => {
+    tile = tile.toLowerCase();
+
+    let options: TileOptions = {
+        isBlocking: false,
+        isOccupyable: true
+    }
+
+    switch(tile) {
+        case "wall":
+            options.isBlocking = true;
+            break;
+    }
+
+    return options;
+
+
+
+
+
+
+
+}

@@ -12,9 +12,10 @@ type TileProps = {
     onSelect: (x: number, y: number, movingPiece: String) => void;
     onSelectUp: (x: number, y: number, movingPiece: String) => void;
     piece: String;
+    tile: String;
 }
 
-const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDragged, id, previousMove, onSelect, onSelectUp, piece}) => {
+const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDragged, tile, previousMove, onSelect, onSelectUp, piece}) => {
 
     const getColour = () => {
         if((x + y + 1) % 2 === 0) {
@@ -40,7 +41,7 @@ const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDrag
     }
 
     return (
-        <div onMouseDown={handleClick} onMouseUp={handleUp} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${previousMove === 2 ? "origin" : ""} ${previousMove === 1 ? "destination" : ""}`}>
+        <div style={{backgroundImage: tile !== '-' ? `url(img/${tile}.png)` : ""}} onMouseDown={handleClick} onMouseUp={handleUp} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${previousMove === 2 ? "origin" : ""} ${previousMove === 1 ? "destination" : ""}`}>
             {!isBeingDragged ? <img draggable={false} className="piece-img" src={"img/" + decodePiece(piece) + ".png"} alt="" /> : <></>}
             {putHighlightedMarker()}
         </div>

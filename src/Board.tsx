@@ -17,14 +17,14 @@ const Board = () => {
 
     const [pieces, setPieces] = useState<Array<Array<String>>>(
         [
-            ['P', '-', '-', '-', '-', '-', '-', 'p'],
-            ['P', '-', '-', '-', '-', '-', '-', 'p'],
-            ['P', '-', '-', '-', '-', '-', '-', 'p'],
-            ['P', '-', '-', '-', '-', 'L', '-', 'p'],
-            ['K', 'P', '-', '-', '-', '-', 'p', 'p'],
-            ['B', 'P', '-', '-', '-', '-', 'p', 'p'],
-            ['N', 'P', '-', '-', '-', '-', 'p', 'p'],
-            ['R', '-', '-', '-', 'k', '-', '-', 'r']
+            ['R', 'P', '-', '-', '-', '-', 'p', 'r'],
+            ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
+            ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
+            ['Q', 'P', '-', '-', '-', '-', 'p', 'q'],
+            ['K', 'P', '-', '-', '-', '-', 'p', 'k'],
+            ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
+            ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
+            ['R', 'P', '-', '-', '-', '-', 'p', 'r']
         ]
     );
 
@@ -39,7 +39,23 @@ const Board = () => {
     //     ['R', 'P', '-', '-', '-', '-', 'p', 'r']
     // ]
 
-    const [squares, setSquares] = useState<Array<Array<String>>>(Array.from({ length: 8 }, () => Array(8).fill('-')));
+    const [tiles, setTiles] = useState<Array<Array<String>>>(Array.from({ length: 8 }, () => Array(8).fill('-')));
+
+    // test
+    useEffect(() => {
+        setTiles(    [
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', 'wall', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-']
+        ])
+    
+    }, []) 
+
 
     const [highlighted, setHighlighted] = useState<Array<Array<boolean>>>(Array.from({ length: 8 }, () => Array(8).fill(false)))
     const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
@@ -84,7 +100,7 @@ const Board = () => {
             return;
         }
 
-        const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, pieces, castlingRights, enPassantSquare);
+        const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, pieces, tiles, castlingRights, enPassantSquare);
         let movePlayed = false;
         
         for(let i = 0; i < legalMoves.length; i++) {
@@ -163,7 +179,7 @@ const Board = () => {
     const handleTileSelect = (nextX: number, nextY: number) => {
         // Highlighting a new piece
         if (selectedX === null || selectedY === null) {
-            const legalMoves: number[][] = generateLegalMoves(nextX, nextY, pieces, castlingRights, enPassantSquare);
+            const legalMoves: number[][] = generateLegalMoves(nextX, nextY, pieces, tiles, castlingRights, enPassantSquare);
 
             setSelectedX(nextX);
             setSelectedY(nextY);
@@ -255,6 +271,7 @@ const Board = () => {
                     isHighlighted={highlighted[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
                     previousMove={previousMove[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
                     piece={pieces[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
+                    tile={tiles[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
                 />
             ))}
         <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />

@@ -1,6 +1,6 @@
-import { getBehaviour, MovementOptions } from "./PiecesBehaviours";
+import { getBehaviour, getTileBehaviour, MovementOptions } from "./PiecesBehaviours";
 
-export const generateLegalMoves = (x: number, y: number, board: Array<Array<String>>, castlingRights: Array<boolean>, enPassantSquare: Array<number | null>) => {
+export const generateLegalMoves = (x: number, y: number, board: Array<Array<String>>, tiles: Array<Array<String>>, castlingRights: Array<boolean>, enPassantSquare: Array<number | null>) => {
     const MAX = 7;
     const MIN = 0;
 
@@ -10,7 +10,7 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
 
     const areDifferentColours = (piece1: String, piece2: String) => {
         if(getBehaviour(piece1).isNeutral || getBehaviour(piece2).isNeutral) {
-            return true;
+            return false;
         }
 
         if(piece1 === '-' || piece2 === '-') return false;
@@ -18,6 +18,8 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
     }
 
     const updateLegalMoves = (x: number, y: number) => {
+        if(getTileBehaviour(tiles[x][y]).isBlocking) return true;
+
         if(board[x][y] !== "-") {
             if(getBehaviour(board[x][y]).isCapturable && areDifferentColours(board[x][y], movingPiece)) {
                 legalMoves.push([x,y]);
@@ -115,53 +117,54 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
     if(movements.canMoveAsPawn) {
         if(isWhite(movingPiece)) {
             if((y <= 1) && board[x][y+1] === '-' && board[x][y+2] === '-') {
-                legalMoves.push([x, y+2])
+                updateLegalMoves(x, y+2);
+                // legalMoves.push([x, y+2])
             }
 
             if(board[x][y+1] === '-') {
-                legalMoves.push([x, y+1])
+                updateLegalMoves(x, y+1);
             }
             
             if(x+1 <= MAX && areDifferentColours(board[x+1][y+1], board[x][y])) {
-                legalMoves.push([x+1, y+1])
+                updateLegalMoves(x+1, y+1);
             }
 
             if(x-1 >= MIN && areDifferentColours(board[x-1][y+1], board[x][y])) {
-                legalMoves.push([x-1, y+1])
+                updateLegalMoves(x-1, y+1);
             }
 
             if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
-                legalMoves.push([x+1, y+1])
+                updateLegalMoves(x+1, y+1);
             }
 
             if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) ||(y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x-1))) {
-                legalMoves.push([x-1, y+1])
+                updateLegalMoves(x-1, y+1);
             }
 
         } else {
             if((y >= 6) && board[x][y-1] === '-' && board[x][y-2] === '-') {
-                legalMoves.push([x, y-2])
+                updateLegalMoves(x, y-2);
             }
 
             if(board[x][y-1] === '-') {
-                legalMoves.push([x, y-1])
+                updateLegalMoves(x, y-1);
             }
 
             if(x+1 <= MAX && areDifferentColours(board[x+1][y-1], board[x][y])) {
-                legalMoves.push([x+1, y-1])
+                updateLegalMoves(x+1, y-1);
             }
 
             if(x-1 >= MIN && areDifferentColours(board[x-1][y-1], board[x][y])) {
-                legalMoves.push([x-1, y-1])
+                updateLegalMoves(x-1, y-1);
             }
 
             
             if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
-                legalMoves.push([x+1, y-1])
+                updateLegalMoves(x+1, y-1);
             }
 
             if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x-1))) {
-                legalMoves.push([x-1, y-1])
+                updateLegalMoves(x-1, y-1);
             }
         }
     }
