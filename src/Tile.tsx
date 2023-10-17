@@ -36,14 +36,24 @@ const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDrag
     const putHighlightedMarker = () => {
         if(!isHighlighted) return;
 
+        if(tile !== '-') return <img className="tile-ring" src="img/ring.png"/>
+
         return piece === "-" ? <img className="tile-dot" src="img/dot.png"/>
                              : <img className="tile-cross" src="img/cross.png"/>
     }
 
+    const putTileEffect = () => {
+        if(tile !== '-') {
+            return <img draggable={false} className="tile-img" src={`img/${tile}.png`} alt="" />
+        }
+    }
+
     return (
-        <div style={{backgroundImage: tile !== '-' ? `url(img/${tile}.png)` : ""}} onMouseDown={handleClick} onMouseUp={handleUp} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${previousMove === 2 ? "origin" : ""} ${previousMove === 1 ? "destination" : ""}`}>
+        <div onMouseDown={handleClick} onMouseUp={handleUp} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${previousMove === 2 ? "origin" : ""} ${previousMove === 1 ? "destination" : ""}`}>
+            
             {!isBeingDragged ? <img draggable={false} className="piece-img" src={"img/" + decodePiece(piece) + ".png"} alt="" /> : <></>}
             {putHighlightedMarker()}
+            {putTileEffect()}
         </div>
     )
 }

@@ -9,6 +9,7 @@ export type MovementOptions = {
     isMovableByPlayer: boolean;
     isNeutral: boolean;
     isCapturable: boolean;
+    maximumRange: number;
 }
 
 
@@ -26,12 +27,14 @@ export const getBehaviour = (piece: String) => {
         canMoveAsCamel: false, 
         isMovableByPlayer: true, 
         isNeutral: false, 
-        isCapturable: true
+        isCapturable: true,
+        maximumRange: Infinity
     };
 
     switch (piece) {
         case "bishop":
             options.canMoveDiagonally = true;
+            options.maximumRange = 1;
             break;
         case "queen":
             options.canMoveDiagonally = true;
@@ -62,6 +65,14 @@ export const getBehaviour = (piece: String) => {
             break;
         case "camel":
             options.canMoveAsCamel = true;
+            break;
+        case "knook":
+            options.canMoveAsKnight = true;
+            options.canMoveOrthagonally = true;
+            break;
+        case "archbishop":
+            options.canMoveAsKnight = true;
+            options.canMoveDiagonally = true;
             break;
         case "fox":
             options.isMovableByPlayer = false;

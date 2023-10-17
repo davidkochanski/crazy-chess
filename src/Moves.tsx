@@ -1,5 +1,15 @@
 import { getBehaviour, getTileBehaviour, MovementOptions } from "./PiecesBehaviours";
 
+export const areDifferentColours = (piece1: String, piece2: String) => {
+    if(getBehaviour(piece1).isNeutral || getBehaviour(piece2).isNeutral) {
+        return false;
+    }
+
+    if(piece1 === '-' || piece2 === '-') return false;
+    return (isWhite(piece1) && !isWhite(piece2)) || (!isWhite(piece1) && isWhite(piece2));
+}
+
+
 export const generateLegalMoves = (x: number, y: number, board: Array<Array<String>>, tiles: Array<Array<String>>, castlingRights: Array<boolean>, enPassantSquare: Array<number | null>) => {
     const MAX = 7;
     const MIN = 0;
@@ -7,15 +17,6 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
     const movingPiece = board[x][y];
 
     const movements: MovementOptions = getBehaviour(movingPiece);
-
-    const areDifferentColours = (piece1: String, piece2: String) => {
-        if(getBehaviour(piece1).isNeutral || getBehaviour(piece2).isNeutral) {
-            return false;
-        }
-
-        if(piece1 === '-' || piece2 === '-') return false;
-        return (isWhite(piece1) && !isWhite(piece2)) || (!isWhite(piece1) && isWhite(piece2));
-    }
 
     const updateLegalMoves = (x: number, y: number) => {
         if(getTileBehaviour(tiles[x][y]).isBlocking) return true;
@@ -33,37 +34,45 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
     let legalMoves: Array<Array<number>> = [];
 
     if (movements.canMoveDiagonally) {
-        for (let i = x + 1, j = y + 1; i <= MAX && j <= MAX; i++, j++) {
+        for (let i = x + 1, j = y + 1, range = 0; i <= MAX && j <= MAX; i++, j++, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
-        for (let i = x + 1, j = y - 1; i <= MAX && j >= MIN; i++, j--) {
+        for (let i = x + 1, j = y - 1, range = 0; i <= MAX && j >= MIN; i++, j--, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
-        for (let i = x - 1, j = y + 1; i >= MIN && j <= MAX; i--, j++) {
+        for (let i = x - 1, j = y + 1, range = 0; i >= MIN && j <= MAX; i--, j++, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
-        for (let i = x - 1, j = y - 1; i >= MIN && j >= MIN; i--, j--) {
+        for (let i = x - 1, j = y - 1, range = 0; i >= MIN && j >= MIN; i--, j--, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
     }
 
     if(movements.canMoveOrthagonally) {
-        for (let i = x + 1, j = y; i <= MAX && j <= MAX; i++) {
+        for (let i = x + 1, j = y, range = 0; i <= MAX && j <= MAX; i++, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
-        for (let i = x, j = y - 1; i <= MAX && j >= MIN; j--) {
+        for (let i = x, j = y - 1, range = 0; i <= MAX && j >= MIN; j--, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
-        for (let i = x, j = y + 1; i >= MIN && j <= MAX; j++) {
+        for (let i = x, j = y + 1, range = 0; i >= MIN && j <= MAX; j++, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
-        for (let i = x - 1, j = y; i >= MIN && j >= MIN; i--) {
+        for (let i = x - 1, j = y, range = 0; i >= MIN && j >= MIN; i--, range++) {
+            if(range >= movements.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
     }
@@ -72,99 +81,113 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
         const possibleMoves = [[x + 1, y + 2],[x + 2, y + 1],[x + 2, y - 1],[x + 1, y - 2],[x - 1, y - 2],[x - 2, y - 1],[x - 2, y + 1],[x - 1, y + 2],
           ];
 
-        possibleMoves.forEach((move) => {
-            let x = move[0];
-            let y = move[1];
+        if(movements.maximumRange > 2) {
+            possibleMoves.forEach((move) => {
+                let x = move[0];
+                let y = move[1];
+    
+                if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
+                    updateLegalMoves(x, y);
+                }
+            })
+        }
 
-            if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
-                updateLegalMoves(x, y);
-            }
-        })
+
     }
 
     if(movements.canMoveAsKing) {
         const possibleMoves = [[x + 1, y],[x - 1, y],[x, y + 1],[x, y - 1],[x + 1, y + 1],[x + 1, y - 1],[x - 1, y + 1],[x - 1, y - 1]];
 
-        possibleMoves.forEach((move) => {
-            let x = move[0];
-            let y = move[1];
-
-            if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
-                updateLegalMoves(x, y);
+        if(movements.maximumRange > 0) {
+            possibleMoves.forEach((move) => {
+                let x = move[0];
+                let y = move[1];
+    
+                if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
+                    updateLegalMoves(x, y);
+                }
+            })
+    
+            if(isWhite(movingPiece)) {
+                if(castlingRights[0] && board[1][0] === '-' && board[2][0] === '-' && board[3][0] === '-') {
+                    updateLegalMoves(2, 0);
+                }
+    
+                if(castlingRights[1] && board[5][0] === '-' && board[6][0] === '-') {
+                    updateLegalMoves(6, 0);
+                }
+    
+            } else {
+                if(castlingRights[2] && board[1][7] === '-' && board[2][7] === '-' && board[3][7] === '-') {
+                    updateLegalMoves(2, 7);
+                }
+    
+                if(castlingRights[3] && board[5][7] === '-' && board[6][7] === '-') {
+                    updateLegalMoves(6, 7);
+                }
             }
-        })
-
-        if(isWhite(movingPiece)) {
-            if(castlingRights[0] && board[1][0] === '-' && board[2][0] === '-' && board[3][0] === '-') {
-                updateLegalMoves(2, 0);
-            }
-
-            if(castlingRights[1] && board[5][0] === '-' && board[6][0] === '-') {
-                updateLegalMoves(6, 0);
-            }
-
-        } else {
-            if(castlingRights[2] && board[1][7] === '-' && board[2][7] === '-' && board[3][7] === '-') {
-                updateLegalMoves(2, 7);
-            }
-
-            if(castlingRights[3] && board[5][7] === '-' && board[6][7] === '-') {
-                updateLegalMoves(6, 7);
-            }
-        }
+        } 
     }
 
     if(movements.canMoveAsPawn) {
         if(isWhite(movingPiece)) {
-            if((y <= 1) && board[x][y+1] === '-' && board[x][y+2] === '-') {
-                updateLegalMoves(x, y+2);
-                // legalMoves.push([x, y+2])
+            if(movements.maximumRange >= 2) {
+                if((y <= 1) && board[x][y+1] === '-' && board[x][y+2] === '-') {
+                    updateLegalMoves(x, y+2);
+                }
             }
 
-            if(board[x][y+1] === '-') {
-                updateLegalMoves(x, y+1);
-            }
-            
-            if(x+1 <= MAX && areDifferentColours(board[x+1][y+1], board[x][y])) {
-                updateLegalMoves(x+1, y+1);
+            if(movements.maximumRange >= 1) {
+                if(board[x][y+1] === '-') {
+                    updateLegalMoves(x, y+1);
+                }
+                
+                if(x+1 <= MAX && areDifferentColours(board[x+1][y+1], board[x][y])) {
+                    updateLegalMoves(x+1, y+1);
+                }
+    
+                if(x-1 >= MIN && areDifferentColours(board[x-1][y+1], board[x][y])) {
+                    updateLegalMoves(x-1, y+1);
+                }
+    
+                if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
+                    updateLegalMoves(x+1, y+1);
+                }
+    
+                if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) ||(y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x-1))) {
+                    updateLegalMoves(x-1, y+1);
+                }
             }
 
-            if(x-1 >= MIN && areDifferentColours(board[x-1][y+1], board[x][y])) {
-                updateLegalMoves(x-1, y+1);
-            }
-
-            if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
-                updateLegalMoves(x+1, y+1);
-            }
-
-            if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) ||(y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x-1))) {
-                updateLegalMoves(x-1, y+1);
-            }
-
+    
         } else {
-            if((y >= 6) && board[x][y-1] === '-' && board[x][y-2] === '-') {
-                updateLegalMoves(x, y-2);
+            if(movements.maximumRange >= 2) {
+                if((y >= 6) && board[x][y-1] === '-' && board[x][y-2] === '-') {
+                    updateLegalMoves(x, y-2);
+                }
+    
+                if(board[x][y-1] === '-') {
+                    updateLegalMoves(x, y-1);
+                }
             }
 
-            if(board[x][y-1] === '-') {
-                updateLegalMoves(x, y-1);
-            }
-
-            if(x+1 <= MAX && areDifferentColours(board[x+1][y-1], board[x][y])) {
-                updateLegalMoves(x+1, y-1);
-            }
-
-            if(x-1 >= MIN && areDifferentColours(board[x-1][y-1], board[x][y])) {
-                updateLegalMoves(x-1, y-1);
-            }
-
-            
-            if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
-                updateLegalMoves(x+1, y-1);
-            }
-
-            if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x-1))) {
-                updateLegalMoves(x-1, y-1);
+            if(movements.maximumRange >= 1) {
+                if(x+1 <= MAX && areDifferentColours(board[x+1][y-1], board[x][y])) {
+                    updateLegalMoves(x+1, y-1);
+                }
+    
+                if(x-1 >= MIN && areDifferentColours(board[x-1][y-1], board[x][y])) {
+                    updateLegalMoves(x-1, y-1);
+                }
+    
+                
+                if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
+                    updateLegalMoves(x+1, y-1);
+                }
+    
+                if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x-1))) {
+                    updateLegalMoves(x-1, y-1);
+                }
             }
         }
     }
@@ -172,14 +195,16 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
     if(movements.canMoveAsCamel) {
         const possibleMoves = [[x + 1, y + 3],[x + 3, y + 1],[x + 3, y - 1],[x + 1, y - 3],[x - 1, y - 3],[x - 3, y - 1],[x - 3, y + 1],[x - 1, y + 3]];
 
-        possibleMoves.forEach((move) => {
-            let x = move[0];
-            let y = move[1];
-
-            if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
-                updateLegalMoves(x, y);
-            }
-        })
+        if(movements.maximumRange >= 4) {
+            possibleMoves.forEach((move) => {
+                let x = move[0];
+                let y = move[1];
+    
+                if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
+                    updateLegalMoves(x, y);
+                }
+            })
+        }
     }
 
     return legalMoves;
