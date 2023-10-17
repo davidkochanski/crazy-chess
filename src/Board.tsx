@@ -17,44 +17,44 @@ const Board = () => {
 
     const [pieces, setPieces] = useState<Array<Array<String>>>(
         [
-            ['R', 'P', '-', '-', '-', '-', 'p', 'r'],
-            ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
-            ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-            ['Q', 'P', '-', '-', '-', '-', 'p', 'q'],
-            ['K', 'P', '-', '-', '-', '-', 'p', 'k'],
-            ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-            ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
-            ['R', 'P', '-', '-', '-', '-', 'p', 'r']
+            ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
+            ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+            ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
+            ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
+            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+            ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+            ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
         ]
     );
 
     // [
-    //     ['R', 'P', '-', '-', '-', '-', 'p', 'r'],
-    //     ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
-    //     ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-    //     ['Q', 'P', '-', '-', '-', '-', 'p', 'q'],
-    //     ['K', 'P', '-', '-', '-', '-', 'p', 'k'],
-    //     ['B', 'P', '-', '-', '-', '-', 'p', 'b'],
-    //     ['N', 'P', '-', '-', '-', '-', 'p', 'n'],
-    //     ['R', 'P', '-', '-', '-', '-', 'p', 'r']
+    //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
+    //     ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+    //     ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+    //     ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
+    //     ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
+    //     ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+    //     ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+    //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
     // ]
 
     const [tiles, setTiles] = useState<Array<Array<String>>>(Array.from({ length: 8 }, () => Array(8).fill('-')));
 
     // test
-    useEffect(() => {
-        setTiles(    [
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', 'wall', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-']
-        ])
+    // useEffect(() => {
+    //     setTiles(    [
+    //         ['-', '-', '-', 'wall', '', '-', '-', '-'],
+    //         ['-', '-', '-', '', 'wall', '-', '-', '-'],
+    //         ['-', '-', '-', 'wall', '', '-', '-', '-'],
+    //         ['-', '-', '-', '', 'wall', '-', '-', '-'],
+    //         ['-', '-', '-', 'wall', '', '-', '-', '-'],
+    //         ['-', '-', '-', '', 'wall', '-', '-', '-'],
+    //         ['-', '-', '-', 'wall', '', '-', '-', '-'],
+    //         ['-', '-', '-', '', 'wall', '-', '-', '-']
+    //     ])
     
-    }, []) 
+    // }, []) 
 
 
     const [highlighted, setHighlighted] = useState<Array<Array<boolean>>>(Array.from({ length: 8 }, () => Array(8).fill(false)))
@@ -147,8 +147,8 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
 
 
-        let whiteKingIsAlive = boardHasAtLeastOne('K');
-        let blackKingIsAlive = boardHasAtLeastOne('k');
+        let whiteKingIsAlive = boardHasAtLeastOne('KING');
+        let blackKingIsAlive = boardHasAtLeastOne('king');
 
         if(!whiteKingIsAlive && !blackKingIsAlive) {
             setTimeout(() => {alert("DRAW")}, 50)

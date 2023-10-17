@@ -30,40 +30,40 @@ export const getBehaviour = (piece: String) => {
     };
 
     switch (piece) {
-        case "b":
+        case "bishop":
             options.canMoveDiagonally = true;
             break;
-        case "q":
+        case "queen":
             options.canMoveDiagonally = true;
             options.canMoveOrthagonally = true;
             break;
-        case "r":
+        case "rook":
             options.canMoveOrthagonally = true;
             break;
-        case "n":
+        case "knight":
             options.canMoveAsKnight = true;
             break;
-        case "k":
+        case "king":
             options.canMoveAsKing = true;
             break;
-        case "p":
+        case "pawn":
             options.canMoveAsPawn = true;
             break;
-        case "a":
+        case "amazon":
             options.canMoveAsKnight = true;
             options.canMoveDiagonally = true;
             options.canMoveOrthagonally = true;
             break;
-        case "l":
+        case "lisek":
             options.canMoveAsKnight = true;
             options.canMoveAsCamel = true;
             options.canMoveDiagonally = true;
             options.canMoveOrthagonally = true;
             break;
-        case "c":
+        case "camel":
             options.canMoveAsCamel = true;
             break;
-        case "f":
+        case "fox":
             options.isMovableByPlayer = false;
             options.isNeutral = true;
             options.action = (currX: number, currY: number, pieces: Array<Array<String>>) => {
@@ -103,11 +103,5 @@ export const getTileBehaviour = (tile: String) => {
     }
 
     return options;
-
-
-
-
-
-
 
 }

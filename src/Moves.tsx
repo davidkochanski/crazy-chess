@@ -203,116 +203,80 @@ export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _
 
     // Pawn promotion
     for(let i = 0; i < pieces.length; i++) {
-        if(pieces[i][0] === 'p') {
-            pieces[i][0] = 'q';
+        if(pieces[i][0] === 'pawn') {
+            pieces[i][0] = 'queen';
         }
-        if(pieces[i][7] === 'P') {
-            pieces[i][7] = 'Q';
+        if(pieces[i][7] === 'PAWN') {
+            pieces[i][7] = 'QUEEN';
         }
     }
 
     // Played en passant
-    if(movingPiece === 'P' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+    if(movingPiece === 'PAWN' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
         pieces[nextX][nextY-1] = "-";
     }
 
-    if(movingPiece === 'p' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+    if(movingPiece === 'pawn' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
         pieces[nextX][nextY+1] = "-";
     }
 
     // En passant square
     enPassantSquare = [null, null];
 
-    if(movingPiece === 'P' && (selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2)) {
+    if(movingPiece === 'PAWN' && (selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2)) {
         enPassantSquare = [nextX, nextY-1];
     }
 
-    if(movingPiece === 'p' && (selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5)) {
+    if(movingPiece === 'pawn' && (selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5)) {
         enPassantSquare = [nextX, nextY+1];
     }
 
     // Move rook if castling
-    if(castlingRights[0] && movingPiece === 'K' && nextX === 2 && nextY === 0) {
+    if(castlingRights[0] && movingPiece === 'KING' && nextX === 2 && nextY === 0) {
         pieces[0][0] = '-';
-        pieces[3][0] = 'R';
+        pieces[3][0] = 'ROOK';
     }
 
-    if(castlingRights[1] && movingPiece === 'K' && nextX === 6 && nextY === 0) {
+    if(castlingRights[1] && movingPiece === 'KING' && nextX === 6 && nextY === 0) {
         pieces[7][0] = '-';
-        pieces[5][0] = 'R';
+        pieces[5][0] = 'ROOK';
     }
 
-    if(castlingRights[2] && movingPiece === 'k' && nextX === 2 && nextY === 7) {
+    if(castlingRights[2] && movingPiece === 'king' && nextX === 2 && nextY === 7) {
         pieces[0][7] = '-';
-        pieces[3][7] = 'r';
+        pieces[3][7] = 'rook';
     }
 
-    if(castlingRights[3] && movingPiece === 'k' && nextX === 6 && nextY === 7) {
+    if(castlingRights[3] && movingPiece === 'king' && nextX === 6 && nextY === 7) {
         pieces[7][7] = '-';
-        pieces[5][7] = 'r';
+        pieces[5][7] = 'rook';
     }
 
     // Update castling rights
-    if(movingPiece === 'K') {
+    if(movingPiece === 'KING') {
         castlingRights[0] = false;
         castlingRights[1] = false;
     }
 
-    if(movingPiece === 'k') {
+    if(movingPiece === 'king') {
         castlingRights[2] = false;
         castlingRights[3] = false;
     }
 
-    if(pieces[0][0] !== 'R') castlingRights[0] = false;
-    if(pieces[7][0] !== 'R') castlingRights[1] = false;
-    if(pieces[0][7] !== 'r') castlingRights[2] = false;
-    if(pieces[7][7] !== 'r') castlingRights[3] = false;
+    if(pieces[0][0] !== 'ROOK') castlingRights[0] = false;
+    if(pieces[7][0] !== 'ROOK') castlingRights[1] = false;
+    if(pieces[0][7] !== 'rook') castlingRights[2] = false;
+    if(pieces[7][7] !== 'rook') castlingRights[3] = false;
 
     return {pieces: pieces, castlingRights: castlingRights, enPassantSquare: enPassantSquare};
 }
 
 export const decodePiece = (s: String) => {
-    if(s.length !== 1) return;
+    if(s === '-') return "empty";
 
     let out = s.toUpperCase() === s ? "white-" : "black-";
 
     s = s.toLowerCase();
 
-    switch(s) {
-        case 'k':
-            out += 'king';
-            break;
-        case 'q':
-            out += 'queen';
-            break;
-        case 'r':
-            out += 'rook';
-            break;
-        case 'b':
-            out += 'bishop';
-            break;
-        case 'n':
-            out += 'knight';
-            break;
-        case 'p':
-            out += 'pawn';
-            break;
-        case 'c':
-            out += 'camel';
-            break;
-        case 'a':
-            out += 'amazon';
-            break;
-        case 'l':
-            out += 'lisek';
-            break;
-        case 'f':
-            return 'fox';
-        case '-':
-            return 'empty';
-        default:
-            return 'unknown';
-    }
-
-    return out;
+    return out + s;
 }
