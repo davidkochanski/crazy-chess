@@ -18,6 +18,7 @@ export const getBehaviour = (piece: String) => {
     piece = piece.toLowerCase();
 
     let options: MovementOptions = {
+        // @ts-ignore
         action: (currX: number, currY: number, pieces: Array<Array<String>>) => {return pieces},
         canMoveAsKnight: false, 
         canMoveDiagonally: false, 
