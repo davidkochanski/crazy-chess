@@ -22,7 +22,8 @@ export const generateLegalMoves = (x: number, y: number, board: Array<Array<Stri
         if(getTileBehaviour(tiles[x][y]).isBlocking) return true;
 
         if(board[x][y] !== "-") {
-            if(getBehaviour(board[x][y]).isCapturable && areDifferentColours(board[x][y], movingPiece)) {
+            if(!getBehaviour(board[x][y]).isCapturable) return true;
+            if(areDifferentColours(board[x][y], movingPiece) || getBehaviour(board[x][y]).isNeutral) {
                 legalMoves.push([x,y]);
             }
             return true;

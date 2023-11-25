@@ -17,14 +17,14 @@ const Board = () => {
 
     const [pieces, setPieces] = useState<Array<Array<String>>>(
         [
-            ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'knook'],
+            ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
-            ['ARCHBISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
-            ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
+            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+            ['QUEEN', 'PAWN', '-', 'FOX', '-', '-', 'pawn', 'queen'],
             ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
-            ['ARCHBISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
+            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
-            ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'knook']
+            ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
         ]
     );
 

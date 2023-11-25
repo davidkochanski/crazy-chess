@@ -35,7 +35,6 @@ export const getBehaviour = (piece: String) => {
     switch (piece) {
         case "bishop":
             options.canMoveDiagonally = true;
-            options.maximumRange = 1;
             break;
         case "queen":
             options.canMoveDiagonally = true;
@@ -78,13 +77,16 @@ export const getBehaviour = (piece: String) => {
         case "fox":
             options.isMovableByPlayer = false;
             options.isNeutral = true;
+            options.isCapturable = true;
             options.action = (currX: number, currY: number, pieces: Array<Array<String>>) => {
                 const x = Math.floor(Math.random() * 8);
                 const y = Math.floor(Math.random() * 8);
+
+                console.log(x, y);
                 
                 pieces[currX][currY] = '-';
 
-                pieces[x][y] = 'f';
+                pieces[x][y] = 'FOX';
 
                 return pieces;
             }
