@@ -131,18 +131,17 @@ const Board = () => {
         setCastingRights(updatedGameState.castlingRights);
         setEnPassantSquare(updatedGameState.enPassantSquare);
 
-        let bufferPieces = updatedGameState.pieces;
-        
-        // Call action function on each piece.
-        for(let x = 0; x < 8; x++) {
-            for(let y = 0; y < 8; y++) {
-                bufferPieces = getBehaviour(pieces[x][y]).action(x, y, newPieces);
+        let bufferPieces = [...newPieces.map(row => [...row])];
+
+        for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 8; y++) {
+                bufferPieces = getBehaviour(pieces[x][y]).action(x, y, bufferPieces);
             }
         }
 
-        // Update state
-        if(movePlayed) setWhiteToPlay(!whiteToPlay);
         setPieces(bufferPieces);
+        
+        if (movePlayed) setWhiteToPlay(!whiteToPlay);
         
         setSelectedX(null);
         setSelectedY(null);
