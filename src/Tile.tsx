@@ -48,8 +48,21 @@ const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDrag
         }
     }
 
+    const styleTile = () => {
+        switch(previousMove) {
+            case 1:
+                return "destination"
+            case 2:
+                return "origin"
+            case 3:
+                return "check"
+            default:
+                return ""
+        }
+    }
+
     return (
-        <div onMouseDown={handleClick} onMouseUp={handleUp} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${previousMove === 2 ? "origin" : ""} ${previousMove === 1 ? "destination" : ""}`}>
+        <div onMouseDown={handleClick} onMouseUp={handleUp} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${styleTile()} ${previousMove === 1 ? "destination" : ""}`}>
             
             {!isBeingDragged ? <img draggable={false} className="piece-img" src={"img/" + decodePiece(piece) + ".png"} alt="" /> : <></>}
             {putHighlightedMarker()}

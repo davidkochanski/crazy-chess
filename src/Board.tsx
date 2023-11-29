@@ -20,7 +20,7 @@ const Board = () => {
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-            ['QUEEN', 'PAWN', '-', 'FOX', '-', '-', 'pawn', 'queen'],
+            ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
             ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
@@ -87,6 +87,27 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
     }
 
+    const getAllSeenSquares = (byWhite: boolean) => {
+
+        let allMoves: number[][] = [];
+
+        pieces.forEach((row, i) => {
+            row.forEach((piece, j) => {
+                if(isWhite(piece) && !byWhite || !isWhite(piece) && byWhite) return;
+
+                let moves = generateLegalMoves(i, j, pieces, tiles, castlingRights, enPassantSquare);
+
+                for(const tuple of moves) {
+                    if(!allMoves.includes(tuple)) {
+                        allMoves.push(tuple);
+                    }
+                }
+            })
+        })
+
+        return allMoves;
+    }
+
     const validateAndUpdateGame = (nextX: number, nextY: number) => {
         if(selectedX === null || selectedY === null) return;
 
@@ -112,6 +133,15 @@ const Board = () => {
     
                 newPreviousMove[selectedX][selectedY] = 2; // Destination
                 newPreviousMove[nextX][nextY] = 1 // origin
+                
+                getAllSeenSquares(whiteToPlay).forEach((coords) => {
+                    let x = coords[0];
+                    let y = coords[1];
+
+                    if(!whiteToPlay && newPieces[x][y] === "KING" || whiteToPlay && newPieces[x][y] === "king") {
+                        newPreviousMove[x][y] = 3; // check
+                    }
+                })
 
                 setPreviousMove(newPreviousMove);
                 

@@ -76,6 +76,10 @@
     background-color: rgb(226, 85, 33);
 }
 
+.tile.check {
+    background-color: #880808;
+}
+
 
 .tile-dot {
     scale: 0.5;
