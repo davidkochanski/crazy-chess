@@ -1,16 +1,20 @@
 import { getBehaviour, getTileBehaviour, MovementOptions } from "./PiecesBehaviours";
 
-export const areDifferentColours = (piece1: String, piece2: String) => {
-    if(getBehaviour(piece1).isNeutral || getBehaviour(piece2).isNeutral) {
+export const areDifferentColours = (attacker: String, defender: String) => {
+    const behaviour1 = getBehaviour(attacker);
+    const behaviour2 = getBehaviour(defender);
+
+    if(behaviour1.isNeutral || behaviour2.isNeutral) {
+        if(!behaviour2.isCapturable) return false;
         return true;
     }
 
-    if(piece1 === '-' || piece2 === '-') return false;
-    return (isWhite(piece1) && !isWhite(piece2)) || (!isWhite(piece1) && isWhite(piece2));
+    if(attacker === '-' || defender === '-') return false;
+    return (isWhite(attacker) && !isWhite(defender)) || (!isWhite(attacker) && isWhite(defender));
 }
 
 
-export const generateLegalMoves = (x: number, y: number, board: Array<Array<String>>, tiles: Array<Array<String>>, castlingRights: Array<boolean>, enPassantSquare: Array<number | null>) => {
+export const generateLegalMoves = (x: number, y: number, board: string[][], tiles: string[][], castlingRights: Array<boolean>, enPassantSquare: Array<number | null>) => {
     const MAX = 7;
     const MIN = 0;
 
@@ -217,13 +221,13 @@ export const isWhite = (piece: String) => {
 }
 
 interface HandledGameState {
-    pieces: String[][];
+    pieces: string[][];
     castlingRights: boolean[];
     enPassantSquare: (number | null)[];
 }
 
 export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _: number, selectedY: number, 
-                                                 pieces: Array<Array<String>>, castlingRights: Array<boolean>, enPassantSquare: Array<number | null>)
+                                                 pieces: string[][], castlingRights: Array<boolean>, enPassantSquare: Array<number | null>)
                                                  : HandledGameState => {
     const movingPiece = pieces[nextX][nextY];
 

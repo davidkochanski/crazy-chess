@@ -1,7 +1,7 @@
 import { useState, MouseEvent, useRef, useEffect } from "react";
 import Tile from "./Tile";
 import { isWhite, generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece } from "./Moves";
-import { getBehaviour } from "./PiecesBehaviours";
+import { getBehaviour, getTileBehaviour } from "./PiecesBehaviours";
 
 
 const Board = () => {
@@ -15,13 +15,13 @@ const Board = () => {
 
     const [isDragging, setDragging] = useState(false);
 
-    const [pieces, setPieces] = useState<Array<Array<String>>>(
+    const [pieces, setPieces] = useState<string[][]>(
         [
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
-            ['BISHOP', 'PAWN', '-', '-', '-', 'FOX', 'pawn', 'bishop'],
+            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
             ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
-            ['KING', 'PAWN', 'FOX', '-', '-', '-', 'pawn', 'king'],
+            ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
@@ -39,22 +39,20 @@ const Board = () => {
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
     // ]
 
-    const [tiles, setTiles] = useState<Array<Array<String>>>(Array.from({ length: 8 }, () => Array(8).fill('-')));
-
-    // test
-    // useEffect(() => {
-    //     setTiles(    [
-    //         ['-', '-', '-', 'wall', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', 'wall', '-', '-', '-'],
-    //         ['-', '-', '-', 'wall', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', 'wall', '-', '-', '-'],
-    //         ['-', '-', '-', 'wall', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', 'wall', '-', '-', '-'],
-    //         ['-', '-', '-', 'wall', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', 'wall', '-', '-', '-']
-    //     ])
+    const [tiles, setTiles] = useState<string[][]>(Array.from({ length: 8 }, () => Array(8).fill('-')));
+    useEffect(() => {
+        setTiles(    [
+            ['-', '-', 'blue-portal', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', 'orange-portal', '-', '-']
+        ])
     
-    // }, []) 
+    }, []) 
 
 
     const [highlighted, setHighlighted] = useState<Array<Array<boolean>>>(Array.from({ length: 8 }, () => Array(8).fill(false)))
@@ -87,7 +85,7 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
     }
 
-    const getAllSeenSquares = (byWhite: boolean) => {
+    const getAllSeenSquares = (pieces: string[][], byWhite: boolean) => {
 
         let allMoves: number[][] = [];
 
@@ -128,22 +126,6 @@ const Board = () => {
             if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
                 newPieces[nextX][nextY] = movingPiece;
                 newPieces[selectedX][selectedY] = '-';
-
-                let newPreviousMove = Array.from({ length: 8 }, () => Array(8).fill(0))
-    
-                newPreviousMove[selectedX][selectedY] = 2; // Destination
-                newPreviousMove[nextX][nextY] = 1 // origin
-                
-                getAllSeenSquares(whiteToPlay).forEach((coords) => {
-                    let x = coords[0];
-                    let y = coords[1];
-
-                    if(!whiteToPlay && newPieces[x][y] === "KING" || whiteToPlay && newPieces[x][y] === "king") {
-                        newPreviousMove[x][y] = 3; // check
-                    }
-                })
-
-                setPreviousMove(newPreviousMove);
                 
                 movePlayed = true;
                 break;
@@ -161,6 +143,7 @@ const Board = () => {
         setCastingRights(updatedGameState.castlingRights);
         setEnPassantSquare(updatedGameState.enPassantSquare);
 
+        // Special pieces
         let bufferPieces = [...newPieces.map(row => [...row])];
 
         for (let x = 0; x < 8; x++) {
@@ -168,9 +151,27 @@ const Board = () => {
                 bufferPieces = getBehaviour(pieces[x][y]).onMoveEnd(x, y, bufferPieces);
             }
         }
-
-        setPieces(bufferPieces);
         
+        // Special tiles
+        bufferPieces = getTileBehaviour(tiles[nextX][nextY]).onPieceLandHere(nextX, nextY, bufferPieces, tiles);
+        setPieces(bufferPieces);
+
+        // Check if in check :)
+        let newPreviousMove = Array.from({ length: 8 }, () => Array(8).fill(0))
+        newPreviousMove[selectedX][selectedY] = 2; // Destination
+        newPreviousMove[nextX][nextY] = 1 // origin
+        
+        getAllSeenSquares(bufferPieces, whiteToPlay).forEach((coords) => {
+            let x = coords[0];
+            let y = coords[1];
+
+            if(!whiteToPlay && pieces[x][y] === "KING" || whiteToPlay && pieces[x][y] === "king") {
+                newPreviousMove[x][y] = 3; // check
+            }
+        })
+        setPreviousMove(newPreviousMove);
+
+
         if (movePlayed) setWhiteToPlay(!whiteToPlay);
         
         setSelectedX(null);

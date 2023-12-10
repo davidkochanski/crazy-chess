@@ -1,5 +1,5 @@
 export type MovementOptions = {
-    onMoveEnd: (currX: number, currY: number, pieces: Array<Array<String>>) => Array<Array<String>>,
+    onMoveEnd: (currX: number, currY: number, pieces: string[][]) => string[][],
     canMoveDiagonally: boolean;
     canMoveOrthagonally: boolean;
     canMoveAsKnight: boolean;
@@ -19,7 +19,7 @@ export const getBehaviour = (piece: String) => {
 
     let options: MovementOptions = {
         // @ts-ignore
-        onMoveEnd: (currX: number, currY: number, pieces: Array<Array<String>>) => {return pieces},
+        onMoveEnd: (currX: number, currY: number, pieces: string[][]) => {return pieces},
         canMoveAsKnight: false, 
         canMoveDiagonally: false, 
         canMoveOrthagonally: false, 
@@ -78,16 +78,37 @@ export const getBehaviour = (piece: String) => {
             options.isMovableByPlayer = false;
             options.isNeutral = true;
             options.isCapturable = true;
-            options.onMoveEnd = (currX: number, currY: number, pieces: Array<Array<String>>) => {
+            options.onMoveEnd = (currX: number, currY: number, pieces: string[][]) => {
                 const x = Math.floor(Math.random() * 8);
                 const y = Math.floor(Math.random() * 8);
-
-                console.log(x, y);
                 
                 pieces[currX][currY] = '-';
 
                 pieces[x][y] = 'FOX';
 
+                return pieces;
+            }
+            break;
+        case "snake":
+            options.isMovableByPlayer = false;
+            options.isNeutral = true;
+            options.isCapturable = true;
+
+            options.onMoveEnd = (currX: number, currY: number, pieces: string[][]) => {
+                let x, y;
+                
+                // Wow, an actual usecase for a do while...
+                do {
+                    const deltaX = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                    const deltaY = Math.floor(Math.random() * 3) - 1;
+                
+                    x = currX + deltaX;
+                    y = currY + deltaY;
+                } while (!(x >= 0 && x <= 7 && y >= 0 && y <= 7));
+                
+                pieces[currX][currY] = "-";
+                pieces[x][y] = "SNAKE";
+                
                 return pieces;
             }
     }
@@ -100,20 +121,76 @@ export const getBehaviour = (piece: String) => {
 export type TileOptions = {
     isBlocking: boolean;
     isOccupyable: boolean;
+    onPieceLandHere: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => string[][],
 }
 
 export const getTileBehaviour = (tile: String) => {
     tile = tile.toLowerCase();
 
     let options: TileOptions = {
+        // @ts-ignore
+        onPieceLandHere: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {return pieces},
         isBlocking: false,
-        isOccupyable: true
+        isOccupyable: true,
+
     }
 
     switch(tile) {
         case "wall":
             options.isBlocking = true;
             break;
+
+        case "blue-portal":
+            options.onPieceLandHere = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                let destX, destY;
+
+                tiles.forEach((row, x) => {
+                    row.forEach((tile, y) => {
+                        if(tile === "orange-portal") {
+                            destX = x;
+                            destY = y;
+                        }
+                    })
+                })
+
+                if(destX === undefined || destY === undefined) return pieces;
+
+                console.log(destX, destY);
+
+                const movingPiece = pieces[currX][currY]
+
+                pieces[currX][currY] = "-";
+                pieces[destX][destY] = movingPiece;
+
+                return pieces;
+            }
+            break;
+        case "orange-portal":
+            options.onPieceLandHere = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                let destX, destY;
+
+                tiles.forEach((row, x) => {
+                    row.forEach((tile, y) => {
+                        if(tile === "blue-portal") {
+                            destX = x;
+                            destY = y;
+                        }
+                    })
+                })
+
+                console.log(destX, destY);
+
+                if(destX === undefined || destY === undefined) return pieces;
+
+                const movingPiece = pieces[currX][currY]
+
+                pieces[currX][currY] = "-";
+                pieces[destX][destY] = movingPiece;
+
+                return pieces;
+            }
+            break;
+            
     }
 
     return options;
