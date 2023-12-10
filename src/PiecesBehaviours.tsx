@@ -135,62 +135,35 @@ export const getTileBehaviour = (tile: String) => {
 
     }
 
-    switch(tile) {
+    switch (tile) {
         case "wall":
             options.isBlocking = true;
             break;
 
         case "blue-portal":
-            options.onPieceLandHere = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
-                let destX, destY;
-
-                tiles.forEach((row, x) => {
-                    row.forEach((tile, y) => {
-                        if(tile === "orange-portal") {
-                            destX = x;
-                            destY = y;
-                        }
-                    })
-                })
-
-                if(destX === undefined || destY === undefined) return pieces;
-
-                console.log(destX, destY);
-
-                const movingPiece = pieces[currX][currY]
-
-                pieces[currX][currY] = "-";
-                pieces[destX][destY] = movingPiece;
-
-                return pieces;
-            }
-            break;
         case "orange-portal":
             options.onPieceLandHere = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                const portalType = tile === "blue-portal" ? "orange-portal" : "blue-portal";
                 let destX, destY;
 
                 tiles.forEach((row, x) => {
                     row.forEach((tile, y) => {
-                        if(tile === "blue-portal") {
+                        if (tile === portalType) {
                             destX = x;
                             destY = y;
                         }
-                    })
-                })
-
-                console.log(destX, destY);
+                    });
+                });
 
                 if(destX === undefined || destY === undefined) return pieces;
-
-                const movingPiece = pieces[currX][currY]
+                const movingPiece = pieces[currX][currY];
 
                 pieces[currX][currY] = "-";
                 pieces[destX][destY] = movingPiece;
 
                 return pieces;
-            }
+            };
             break;
-            
     }
 
     return options;
