@@ -1,4 +1,4 @@
-import { getBehaviour, getTileBehaviour, MovementOptions } from "./PiecesBehaviours";
+import { getBehaviour, getCardAction, getTileBehaviour, MovementOptions } from "./PiecesBehaviours";
 
 export const areDifferentColours = (attacker: String, defender: String) => {
     const behaviour1 = getBehaviour(attacker);
@@ -262,65 +262,69 @@ interface HandledGameState {
     enPassantSquare: (number | null)[];
 }
 
-export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _: number, selectedY: number, 
+export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: number | null, _: number | null, selectedY: number | null, 
                                                  pieces: string[][], castlingRights: Array<boolean>, enPassantSquare: Array<number | null>)
                                                  : HandledGameState => {
-    const movingPiece = pieces[nextX][nextY];
+    const movingPiece = nextX !== null && nextY !== null ? pieces[nextX][nextY] : null;
 
-    // Pawn promotion
-    for(let i = 0; i < pieces.length; i++) {
-        if(pieces[i][0] === 'pawn') {
-            pieces[i][0] = 'queen';
+    // null will be if no piece is moved (i.e. an action was played).
+    if(nextX !== null && nextY !== null) {
+        // Pawn promotion
+        for(let i = 0; i < pieces.length; i++) {
+            if(pieces[i][0] === 'pawn') {
+                pieces[i][0] = 'queen';
+            }
+            if(pieces[i][7] === 'PAWN') {
+                pieces[i][7] = 'QUEEN';
+            }
         }
-        if(pieces[i][7] === 'PAWN') {
-            pieces[i][7] = 'QUEEN';
+
+        // Played en passant
+        if(movingPiece === 'PAWN' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+            pieces[nextX][nextY-1] = "-";
+        }
+
+        if(movingPiece === 'pawn' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+            pieces[nextX][nextY+1] = "-";
+        }
+
+        // En passant square
+        enPassantSquare = [null, null];
+
+        if(movingPiece === 'PAWN' && (selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2)) {
+            enPassantSquare = [nextX, nextY-1];
+        }
+
+        if(movingPiece === 'pawn' && (selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5)) {
+            enPassantSquare = [nextX, nextY+1];
+        }
+
+        // Move rook if castling
+        if(castlingRights[0] && movingPiece === 'KING' && nextX === 2 && nextY === 0) {
+            const castlingPiece = pieces[0][0];
+            pieces[0][0] = '-';
+            pieces[3][0] = castlingPiece;
+        }
+
+        if(castlingRights[1] && movingPiece === 'KING' && nextX === 6 && nextY === 0) {
+            const castlingPiece = pieces[7][0];
+            pieces[7][0] = '-';
+            pieces[5][0] = castlingPiece;
+        }
+
+        if(castlingRights[2] && movingPiece === 'king' && nextX === 2 && nextY === 7) {
+            const castlingPiece = pieces[0][7];
+            pieces[0][7] = '-';
+            pieces[3][7] = castlingPiece;
+        }
+
+        if(castlingRights[3] && movingPiece === 'king' && nextX === 6 && nextY === 7) {
+            const castlingPiece = pieces[7][7];
+            pieces[7][7] = '-';
+            pieces[5][7] = castlingPiece;
         }
     }
-
-    // Played en passant
-    if(movingPiece === 'PAWN' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
-        pieces[nextX][nextY-1] = "-";
-    }
-
-    if(movingPiece === 'pawn' && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
-        pieces[nextX][nextY+1] = "-";
-    }
-
-    // En passant square
-    enPassantSquare = [null, null];
-
-    if(movingPiece === 'PAWN' && (selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2)) {
-        enPassantSquare = [nextX, nextY-1];
-    }
-
-    if(movingPiece === 'pawn' && (selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5)) {
-        enPassantSquare = [nextX, nextY+1];
-    }
-
-    // Move rook if castling
-    if(castlingRights[0] && movingPiece === 'KING' && nextX === 2 && nextY === 0) {
-        const castlingPiece = pieces[0][0];
-        pieces[0][0] = '-';
-        pieces[3][0] = castlingPiece;
-    }
-
-    if(castlingRights[1] && movingPiece === 'KING' && nextX === 6 && nextY === 0) {
-        const castlingPiece = pieces[7][0];
-        pieces[7][0] = '-';
-        pieces[5][0] = castlingPiece;
-    }
-
-    if(castlingRights[2] && movingPiece === 'king' && nextX === 2 && nextY === 7) {
-        const castlingPiece = pieces[0][7];
-        pieces[0][7] = '-';
-        pieces[3][7] = castlingPiece;
-    }
-
-    if(castlingRights[3] && movingPiece === 'king' && nextX === 6 && nextY === 7) {
-        const castlingPiece = pieces[7][7];
-        pieces[7][7] = '-';
-        pieces[5][7] = castlingPiece;
-    }
+    
 
     // Update castling rights
     if(movingPiece === 'KING') {
@@ -340,6 +344,43 @@ export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _
 
     return {pieces: pieces, castlingRights: castlingRights, enPassantSquare: enPassantSquare};
 }
+
+export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: string[][]): number[][] => {
+    const actions = getCardAction(card);
+
+    const out: number[][] = [];
+
+    actions.areaOfUsage.forEach((coord) => {
+        out.push(coord);
+    })
+
+    for(let x = 0; x < 8; x++) {
+        for(let y = 0; y < 8; y++) {
+            if(actions.canBeUsedOnEmptySquares && board[x][y] === "-") {
+                out.push([x, y]);
+                continue;
+            }
+
+            if(whiteToPlay) {
+                if(actions.canBeUsedOnFriendlyPieces && (isWhite(board[x][y])|| getBehaviour(board[x][y]).isNeutral)
+                || actions.canBeUsedOnEnemyPieces && (!isWhite(board[x][y]))|| getBehaviour(board[x][y]).isNeutral) {
+                    out.push([x,y]);
+            }
+
+
+            } else {
+                if(actions.canBeUsedOnFriendlyPieces && (!isWhite(board[x][y])|| getBehaviour(board[x][y]).isNeutral)
+                || actions.canBeUsedOnEnemyPieces && (isWhite(board[x][y]))|| getBehaviour(board[x][y]).isNeutral) {
+                    out.push([x,y]);
+            }
+            }
+        }
+    }
+
+    return out;
+    
+}
+
 
 export const decodePiece = (s: String) => {
     if(s === '-') return "empty";

@@ -1,13 +1,14 @@
 import { useState, MouseEvent, useRef, useEffect } from "react";
 import Tile from "./Tile";
-import { isWhite, generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece } from "./Moves";
-import { getBehaviour, getTileBehaviour } from "./PiecesBehaviours";
+import { isWhite, generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays } from "./Moves";
+import { getBehaviour, getCardAction, getTileBehaviour } from "./PiecesBehaviours";
 import Card from "./Card";
 
 
 const Board = () => {
     const [selectedX, setSelectedX] = useState<number | null>(null);
     const [selectedY, setSelectedY] = useState<number | null>(null);
+    const [selectingAction, setSelectingAction] = useState<string | null>(null);
 
     const [castlingRights, setCastingRights] = useState<Array<boolean>>([true, true, true, true]);
     const [enPassantSquare, setEnPassantSquare] = useState<Array<number | null>>([null, null]);
@@ -30,7 +31,7 @@ const Board = () => {
         ]
     );
 
-    const [cards, setCards] = useState<string[]>(["atomic-bomb"]);
+    const [cards, setCards] = useState<string[]>(["atomic-bomb", "place-wall", "place-wall", "place-wall", "place-wall"]);
 
     // [
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
@@ -111,33 +112,52 @@ const Board = () => {
     }
 
     const validateAndUpdateGame = (nextX: number, nextY: number) => {
-        if(selectedX === null || selectedY === null) return;
-
         let newPieces = [...pieces];
-
-        // Verify if move is legal
-        const movingPiece = newPieces[selectedX][selectedY];
-
-        if(!getBehaviour(movingPiece).isNeutral && ((whiteToPlay && !isWhite(movingPiece)) || !whiteToPlay && isWhite(movingPiece))) {
-            deselectAll();
-            return;
-        }
-
-        const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, pieces, tiles, castlingRights, enPassantSquare);
+        let newTiles = [...tiles];
         let movePlayed = false;
-        
-        for(let i = 0; i < legalMoves.length; i++) {
-            if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
-                newPieces[nextX][nextY] = movingPiece;
-                newPieces[selectedX][selectedY] = '-';
-                
-                movePlayed = true;
-                break;
-            }
-        }
 
-        if(!movePlayed) {
-            deselectAll();
+        if(selectedX !== null && selectedY !== null) {
+            // Verify if move is legal
+            const movingPiece = newPieces[selectedX][selectedY];
+    
+            if(!getBehaviour(movingPiece).isNeutral && ((whiteToPlay && !isWhite(movingPiece)) || !whiteToPlay && isWhite(movingPiece))) {
+                deselectAll();
+                return;
+            }
+    
+            const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, pieces, tiles, castlingRights, enPassantSquare);
+            
+            for(let i = 0; i < legalMoves.length; i++) {
+                if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
+                    newPieces[nextX][nextY] = movingPiece;
+                    newPieces[selectedX][selectedY] = '-';
+                    
+                    movePlayed = true;
+                    break;
+                }
+            }
+    
+            if(!movePlayed) {
+                deselectAll();
+                return;
+            }
+        } else if (selectingAction !== null) {
+            // An action card was played; no piece was moved.
+
+            // Do the card's effect
+            [newPieces, newTiles] = getCardAction(selectingAction).onUse(nextX, nextY, newPieces, tiles);
+
+            // Update state
+            const newCards = [...cards];
+            const idx = cards.indexOf(selectingAction);
+            if(idx !== -1) newCards.splice(idx, 1);
+            setCards(newCards)
+            setTiles(newTiles);
+
+            setSelectedX(null);
+            setSelectedY(null);
+            movePlayed = true;
+        } else {
             return;
         }
 
@@ -157,20 +177,25 @@ const Board = () => {
         }
         
         // Special tiles
-        bufferPieces = getTileBehaviour(tiles[nextX][nextY]).onPieceLandHere(nextX, nextY, bufferPieces, tiles);
+        bufferPieces = getTileBehaviour(newTiles[nextX][nextY]).onPieceLandHere(nextX, nextY, bufferPieces, newTiles);
 
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 8; y++) {
-                bufferPieces = getTileBehaviour(tiles[x][y]).onMoveEnd(x, y, bufferPieces, tiles);
+                bufferPieces = getTileBehaviour(newTiles[x][y]).onMoveEnd(x, y, bufferPieces, newTiles);
             }
         }
 
         setPieces(bufferPieces);
+        setTiles(newTiles);
 
         // Check if in check :)
         let newPreviousMove = Array.from({ length: 8 }, () => Array(8).fill(0))
-        newPreviousMove[selectedX][selectedY] = 2; // Destination
-        newPreviousMove[nextX][nextY] = 1 // origin
+
+        if (selectedX !== null && selectedY !== null) {
+            newPreviousMove[selectedX][selectedY] = 2; // Destination
+            newPreviousMove[nextX][nextY] = 1 // origin
+        }
+
         
         getAllSeenSquares(bufferPieces, whiteToPlay).forEach((coords) => {
             let x = coords[0];
@@ -187,6 +212,7 @@ const Board = () => {
         
         setSelectedX(null);
         setSelectedY(null);
+        setSelectingAction(null);
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
 
 
@@ -220,8 +246,21 @@ const Board = () => {
     }
 
     const handleTileSelect = (nextX: number, nextY: number) => {
+        if(selectingAction !== null) {
+            deselectAll();
+            const legalPlays: number[][] = generateLegalPlays(selectingAction, whiteToPlay, pieces);
+
+            // Check if we're trying to play on a square where this action allows it
+            const check = [nextX, nextY]
+            
+            if(!legalPlays.some(coord => coord.every((value, idx) => value === check[idx]))) {
+                setSelectingAction(null);
+                return;
+            }
+            validateAndUpdateGame(nextX, nextY);
+            
         // Highlighting a new piece
-        if (selectedX === null || selectedY === null) {
+        } else if (selectedX === null || selectedY === null) {
             const legalMoves: number[][] = generateLegalMoves(nextX, nextY, pieces, tiles, castlingRights, enPassantSquare);
 
             setSelectedX(nextX);
@@ -232,8 +271,8 @@ const Board = () => {
             legalMoves.forEach((move) => {
                 newHighlighted[move[0]][move[1]] = true;
             })
-            setHighlighted(newHighlighted);
-        
+            setHighlighted(newHighlighted);    
+
         // Deselecting
         } else if (selectedX === nextX && selectedY === nextY) {
             deselectAll();
@@ -242,6 +281,26 @@ const Board = () => {
         } else {
             validateAndUpdateGame(nextX, nextY);
         }
+    }
+
+    const handleCardSelect = (card: string) => {
+        if(selectingAction) {
+            setSelectingAction(null);
+            deselectAll();
+            return;
+        } 
+
+        setSelectingAction(card);
+
+        const legalPlays: number[][] = generateLegalPlays(card, whiteToPlay, pieces);
+
+        let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(false));
+            
+        legalPlays.forEach((move) => {
+            newHighlighted[move[0]][move[1]] = true;
+        })
+        setHighlighted(newHighlighted);
+    
     }
 
     const updateDraggingPiece = () => {
@@ -327,8 +386,7 @@ const Board = () => {
                         key={i}
                         name={card}
                         description="woaodwkaduwda"
-                        onClick={() => {console.log("Clicked!")}}
-                    
+                        onClick={() => {handleCardSelect(card)}}
                     />
                 ))}
             </div>

@@ -237,13 +237,15 @@ export const getTileBehaviour = (tile: String) => {
 }
 
 export type CardAction = {
-    onUse: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => string[][];
+    onUse: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => [string[][], string[][]];
     usedAutomatically: boolean;
     canBeUsedOnFriendlyPieces: boolean;
     canBeUsedOnEnemyPieces: boolean;
     canBeUsedOnEmptySquares: boolean;
     areaOfUsage: number[][];
 }
+
+const ANYWHERE = Array.from({ length: 8 }, (_, i) => Array.from({ length: 8 }, (_, j) => [i, j])).flat();
 
 export const getCardAction = (card: string): CardAction => {
     card = card.toLowerCase();
@@ -252,10 +254,10 @@ export const getCardAction = (card: string): CardAction => {
         // @ts-ignore
         onUse: (activeX: number, activeY: number, pieces: string[][], tiles: string[][]) => pieces,
         usedAutomatically: false,
-        canBeUsedOnFriendlyPieces: true,
+        canBeUsedOnFriendlyPieces: false,
         canBeUsedOnEnemyPieces: true,
         canBeUsedOnEmptySquares: true,
-        areaOfUsage: Array.from({ length: 8 }, (_, i) => Array.from({ length: 8 }, (_, j) => [i, j])).flat()
+        areaOfUsage: []
     }
 
     switch (card) {
@@ -268,10 +270,17 @@ export const getCardAction = (card: string): CardAction => {
                         pieces[i][j] = "-";
                     }
                 }
-                return pieces;
+                return [pieces, tiles];
             }
             break;
-
+        case "place-wall":
+            options.canBeUsedOnEmptySquares = true;
+            options.canBeUsedOnEnemyPieces = false;
+            options.canBeUsedOnFriendlyPieces = false;
+            options.onUse = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                tiles[currX][currY] = "wall";
+                return [pieces, tiles];
+            }
 
     }
 
