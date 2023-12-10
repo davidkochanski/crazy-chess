@@ -85,8 +85,7 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
     }
 
     if(movements.canMoveAsKnight) {
-        const possibleMoves = [[x + 1, y + 2],[x + 2, y + 1],[x + 2, y - 1],[x + 1, y - 2],[x - 1, y - 2],[x - 2, y - 1],[x - 2, y + 1],[x - 1, y + 2],
-          ];
+        const possibleMoves = [[x + 1, y + 2],[x + 2, y + 1],[x + 2, y - 1],[x + 1, y - 2],[x - 1, y - 2],[x - 2, y - 1],[x - 2, y + 1],[x - 1, y + 2]];
 
         if(movements.maximumRange > 2) {
             possibleMoves.forEach((move) => {
@@ -98,8 +97,21 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
                 }
             })
         }
+    }
 
+    if(movements.canMoveAsRotatedKnight) {
+        const possibleMoves = [[x + 2, y + 2],[x, y + 2],[x - 2, y + 2],[x + 2, y],[x - 2, y],[x - 2, y - 2],[x, y - 2],[x + 2, y - 2]];
 
+        if(movements.maximumRange >= 2) {
+            possibleMoves.forEach((move) => {
+                let x = move[0];
+                let y = move[1];
+    
+                if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
+                    updateLegalMoves(x, y);
+                }
+            })
+        }
     }
 
     if(movements.canMoveAsKing) {
@@ -116,20 +128,20 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
             })
     
             if(isWhite(movingPiece)) {
-                if(castlingRights[0] && board[1][0] === '-' && board[2][0] === '-' && board[3][0] === '-') {
+                if(castlingRights[0] && board[1][0] === '-' && board[2][0] === '-' && board[3][0] === '-' && getBehaviour(board[0][0]).isCastleable) {
                     updateLegalMoves(2, 0);
                 }
     
-                if(castlingRights[1] && board[5][0] === '-' && board[6][0] === '-') {
+                if(castlingRights[1] && board[5][0] === '-' && board[6][0] === '-' && getBehaviour(board[7][0]).isCastleable) {
                     updateLegalMoves(6, 0);
                 }
     
             } else {
-                if(castlingRights[2] && board[1][7] === '-' && board[2][7] === '-' && board[3][7] === '-') {
+                if(castlingRights[2] && board[1][7] === '-' && board[2][7] === '-' && board[3][7] === '-' && getBehaviour(board[0][7]).isCastleable) {
                     updateLegalMoves(2, 7);
                 }
     
-                if(castlingRights[3] && board[5][7] === '-' && board[6][7] === '-') {
+                if(castlingRights[3] && board[5][7] === '-' && board[6][7] === '-' && getBehaviour(board[7][7]).isCastleable) {
                     updateLegalMoves(6, 7);
                 }
             }
@@ -287,23 +299,27 @@ export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _
 
     // Move rook if castling
     if(castlingRights[0] && movingPiece === 'KING' && nextX === 2 && nextY === 0) {
+        const castlingPiece = pieces[0][0];
         pieces[0][0] = '-';
-        pieces[3][0] = 'ROOK';
+        pieces[3][0] = castlingPiece;
     }
 
     if(castlingRights[1] && movingPiece === 'KING' && nextX === 6 && nextY === 0) {
+        const castlingPiece = pieces[7][0];
         pieces[7][0] = '-';
-        pieces[5][0] = 'ROOK';
+        pieces[5][0] = castlingPiece;
     }
 
     if(castlingRights[2] && movingPiece === 'king' && nextX === 2 && nextY === 7) {
+        const castlingPiece = pieces[0][7];
         pieces[0][7] = '-';
-        pieces[3][7] = 'rook';
+        pieces[3][7] = castlingPiece;
     }
 
     if(castlingRights[3] && movingPiece === 'king' && nextX === 6 && nextY === 7) {
+        const castlingPiece = pieces[7][7];
         pieces[7][7] = '-';
-        pieces[5][7] = 'rook';
+        pieces[5][7] = castlingPiece;
     }
 
     // Update castling rights
@@ -317,10 +333,10 @@ export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _
         castlingRights[3] = false;
     }
 
-    if(pieces[0][0] !== 'ROOK') castlingRights[0] = false;
-    if(pieces[7][0] !== 'ROOK') castlingRights[1] = false;
-    if(pieces[0][7] !== 'rook') castlingRights[2] = false;
-    if(pieces[7][7] !== 'rook') castlingRights[3] = false;
+    if(!getBehaviour(pieces[0][0]).isCastleable) castlingRights[0] = false;
+    if(!getBehaviour(pieces[7][0]).isCastleable) castlingRights[1] = false;
+    if(!getBehaviour(pieces[0][7]).isCastleable) castlingRights[2] = false;
+    if(!getBehaviour(pieces[7][7]).isCastleable) castlingRights[3] = false;
 
     return {pieces: pieces, castlingRights: castlingRights, enPassantSquare: enPassantSquare};
 }

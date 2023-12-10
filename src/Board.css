@@ -5,8 +5,8 @@
     aspect-ratio: 1/1;
 
     min-width: 256px;
-    max-width: min(100vh, 100vw);
-    max-height: min(100vh, 100vw);
+    max-width: min(75vh, 75vw);
+    max-height: min(75vh, 75vw);
 }
 
 

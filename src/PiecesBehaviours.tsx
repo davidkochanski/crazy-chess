@@ -9,6 +9,8 @@ export type MovementOptions = {
     canMoveAnywhere: boolean;
     canMoveAsGold: boolean;
     isMovableByPlayer: boolean;
+    isCastleable: boolean;
+    canMoveAsRotatedKnight: boolean;
     isNeutral: boolean;
     isCapturable: boolean;
     maximumRange: number;
@@ -30,7 +32,9 @@ export const getBehaviour = (piece: String) => {
         canMoveAsCamel: false, 
         canMoveAnywhere: false,
         canMoveAsGold: false,
-        isMovableByPlayer: true, 
+        canMoveAsRotatedKnight: false,
+        isMovableByPlayer: true,
+        isCastleable: false,
         isNeutral: false, 
         isCapturable: true,
         maximumRange: Infinity
@@ -38,14 +42,22 @@ export const getBehaviour = (piece: String) => {
 
     switch (piece) {
         case "bishop":
-        case "rotated-rook":
             options.canMoveDiagonally = true;
             break;
+        case "rotated-rook":
+            options.canMoveDiagonally = true;
+            options.isCastleable = true;
+            break;
         case "queen":
+        case "rotated-queen":
             options.canMoveDiagonally = true;
             options.canMoveOrthagonally = true;
             break;
         case "rook":
+            options.canMoveOrthagonally = true;
+            options.isCastleable = true;
+            break;
+        case "rotated-bishop":
             options.canMoveOrthagonally = true;
             break;
         case "knight":
@@ -67,6 +79,7 @@ export const getBehaviour = (piece: String) => {
             options.canMoveAsCamel = true;
             options.canMoveDiagonally = true;
             options.canMoveOrthagonally = true;
+            options.canMoveAnywhere = true;
             break;
         case "camel":
             options.canMoveAsCamel = true;
@@ -74,6 +87,7 @@ export const getBehaviour = (piece: String) => {
         case "knook":
             options.canMoveAsKnight = true;
             options.canMoveOrthagonally = true;
+            options.isCastleable = true;
             break;
         case "archbishop":
             options.canMoveAsKnight = true;
@@ -125,6 +139,9 @@ export const getBehaviour = (piece: String) => {
             break;
         case "gold":
             options.canMoveAsGold = true;
+            break;
+        case "rotated-knight":
+            options.canMoveAsRotatedKnight = true;
     }
 
     return options;
@@ -155,6 +172,7 @@ export const getTileBehaviour = (tile: String) => {
     switch (tile) {
         case "wall":
             options.isBlocking = true;
+            options.isOccupyable = false;
             break;
 
         case "blue-portal":

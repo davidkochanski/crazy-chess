@@ -14,17 +14,17 @@ const Board = () => {
     const [whiteToPlay, setWhiteToPlay] = useState(true);
 
     const [isDragging, setDragging] = useState(false);
-    const [moveCount, setMoveCount] = useState(0);
+    // const [moveCount, setMoveCount] = useState(0);
 
     const [pieces, setPieces] = useState<string[][]>(
         [
-            ['ROTATED-ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
-            ['KNIGHT', 'PAWN', '-', 'AXOLOTL', '-', '-', 'pawn', 'knight'],
-            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-            ['QUEEN', 'GOLD', '-', '-', '-', '-', 'gold', 'queen'],
-            ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
-            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
+            ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+            ['ROTATED-QUEEN', '-', '-', '-', '-', '-', 'pawn', 'rotated-queen'],
+            ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
+            ['ROTATED-BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
+            ['ROTATED-KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
         ]
     );
@@ -43,14 +43,14 @@ const Board = () => {
     const [tiles, setTiles] = useState<string[][]>(Array.from({ length: 8 }, () => Array(8).fill('-')));
     useEffect(() => {
         setTiles(    [
-            ['-', '-', 'blue-portal', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', 'bomb'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', 'bomb', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', 'trap', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', 'bomb'],
-            ['-', '-', 'bomb', '-', '-', 'orange-portal', '-', '-']
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', 'blue-portal', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', 'orange-portal', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-']
         ])
     
     }, []) 
