@@ -235,3 +235,45 @@ export const getTileBehaviour = (tile: String) => {
     return options;
 
 }
+
+export type CardAction = {
+    onUse: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => string[][];
+    usedAutomatically: boolean;
+    canBeUsedOnFriendlyPieces: boolean;
+    canBeUsedOnEnemyPieces: boolean;
+    canBeUsedOnEmptySquares: boolean;
+    areaOfUsage: number[][];
+}
+
+export const getCardAction = (card: string): CardAction => {
+    card = card.toLowerCase();
+
+    let options: CardAction = {
+        // @ts-ignore
+        onUse: (activeX: number, activeY: number, pieces: string[][], tiles: string[][]) => pieces,
+        usedAutomatically: false,
+        canBeUsedOnFriendlyPieces: true,
+        canBeUsedOnEnemyPieces: true,
+        canBeUsedOnEmptySquares: true,
+        areaOfUsage: Array.from({ length: 8 }, (_, i) => Array.from({ length: 8 }, (_, j) => [i, j])).flat()
+    }
+
+    switch (card) {
+        case "atomic-bomb":
+            options.onUse = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                pieces[currX][currY] = "-";
+
+                for (let i = Math.max(0, currX - 1); i <= Math.min(7, currX + 1); i++) {
+                    for (let j = Math.max(0, currY - 1); j <= Math.min(7, currY + 1); j++) {
+                        pieces[i][j] = "-";
+                    }
+                }
+                return pieces;
+            }
+            break;
+
+
+    }
+
+    return options;
+}

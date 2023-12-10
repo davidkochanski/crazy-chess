@@ -2,6 +2,7 @@ import { useState, MouseEvent, useRef, useEffect } from "react";
 import Tile from "./Tile";
 import { isWhite, generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece } from "./Moves";
 import { getBehaviour, getTileBehaviour } from "./PiecesBehaviours";
+import Card from "./Card";
 
 
 const Board = () => {
@@ -18,16 +19,18 @@ const Board = () => {
 
     const [pieces, setPieces] = useState<string[][]>(
         [
-            ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
+            ['ROOK', 'PAWN', '-', 'DUCK', '-', '-', 'pawn', 'rotated-rook'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-            ['ROTATED-QUEEN', '-', '-', '-', '-', '-', 'pawn', 'rotated-queen'],
-            ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
+            ['ROTATED-QUEEN', 'PAWN', '-', 'AXOLOTL', '-', '-', 'pawn', 'rotated-queen'],
+            ['KING', 'PAWN', '-', '-', '-', 'FOX', 'pawn', 'king'],
             ['ROTATED-BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
-            ['ROTATED-KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+            ['ROTATED-KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'gold'],
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
         ]
     );
+
+    const [cards, setCards] = useState<string[]>(["atomic-bomb"]);
 
     // [
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
@@ -44,13 +47,13 @@ const Board = () => {
     useEffect(() => {
         setTiles(    [
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', 'blue-portal', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', 'orange-portal', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-']
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', 'orange-portal', '-', '-', '-']
         ])
     
     }, []) 
@@ -297,27 +300,39 @@ const Board = () => {
     }));
 
     return (
-        <div id="board" style={isDragging ? {cursor: "grabbing"} : {}} onMouseDown={handlePieceDown} onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
-            {tilesBlueprint.map(tile => (
-                <Tile
-                    key={tile.key}
-                    id={tile.id}
-                    x={tile.x}
-                    y={tile.y}
-                    isSelected={tile.isSelected}
-                    isBeingDragged={isDragging && tile.isSelected}
-                    onSelect={handleTileSelect}
-                    onSelectUp={handleTileSelectUp}
-                    isHighlighted={highlighted[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
-                    previousMove={previousMove[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
-                    piece={pieces[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
-                    tile={tiles[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
-                />
-            ))}
-        <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
+        <>
+            <div id="board" style={isDragging ? {cursor: "grabbing"} : {}} onMouseDown={handlePieceDown} onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
+                {tilesBlueprint.map(tile => (
+                    <Tile
+                        key={tile.key}
+                        id={tile.id}
+                        x={tile.x}
+                        y={tile.y}
+                        isSelected={tile.isSelected}
+                        isBeingDragged={isDragging && tile.isSelected}
+                        onSelect={handleTileSelect}
+                        onSelectUp={handleTileSelectUp}
+                        isHighlighted={highlighted[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
+                        previousMove={previousMove[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
+                        piece={pieces[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
+                        tile={tiles[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
+                    />
+                ))}
+            <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
 
-        </div>
-
+            </div>
+            <div className="cards">
+                {cards.map((card, i) => (
+                    <Card
+                        key={i}
+                        name={card}
+                        description="woaodwkaduwda"
+                        onClick={() => {console.log("Clicked!")}}
+                    
+                    />
+                ))}
+            </div>
+        </>
     )
 };
 
