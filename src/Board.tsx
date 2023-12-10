@@ -14,11 +14,12 @@ const Board = () => {
     const [whiteToPlay, setWhiteToPlay] = useState(true);
 
     const [isDragging, setDragging] = useState(false);
+    const [moveCount, setMoveCount] = useState(0);
 
     const [pieces, setPieces] = useState<string[][]>(
         [
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
-            ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+            ['KNIGHT', 'PAWN', '-', 'AXOLOTL', '-', '-', 'pawn', 'knight'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
             ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
             ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
@@ -43,13 +44,13 @@ const Board = () => {
     useEffect(() => {
         setTiles(    [
             ['-', '-', 'blue-portal', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', 'bomb'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', 'bomb', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', 'trap', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', 'orange-portal', '-', '-']
+            ['-', '-', '-', '-', '-', '-', '-', 'bomb'],
+            ['-', '-', 'bomb', '-', '-', 'orange-portal', '-', '-']
         ])
     
     }, []) 
@@ -114,7 +115,7 @@ const Board = () => {
         // Verify if move is legal
         const movingPiece = newPieces[selectedX][selectedY];
 
-        if((whiteToPlay && !isWhite(movingPiece)) || !whiteToPlay && isWhite(movingPiece)) {
+        if(!getBehaviour(movingPiece).isNeutral && ((whiteToPlay && !isWhite(movingPiece)) || !whiteToPlay && isWhite(movingPiece))) {
             deselectAll();
             return;
         }
@@ -154,6 +155,13 @@ const Board = () => {
         
         // Special tiles
         bufferPieces = getTileBehaviour(tiles[nextX][nextY]).onPieceLandHere(nextX, nextY, bufferPieces, tiles);
+
+        for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 8; y++) {
+                bufferPieces = getTileBehaviour(tiles[x][y]).onMoveEnd(x, y, bufferPieces, tiles);
+            }
+        }
+
         setPieces(bufferPieces);
 
         // Check if in check :)

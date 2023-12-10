@@ -23,8 +23,10 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
     const movements: MovementOptions = getBehaviour(movingPiece);
 
     const updateLegalMoves = (x: number, y: number) => {
-        if(getTileBehaviour(tiles[x][y]).isBlocking) return true;
-
+        if(getTileBehaviour(tiles[x][y]).isBlocking) {
+            if(getTileBehaviour(tiles[x][y]).isOccupyable) legalMoves.push([x,y]);
+            return true;
+        }
         if(board[x][y] !== "-") {
             if(!getBehaviour(board[x][y]).isCapturable) return true;
             if(areDifferentColours(board[x][y], movingPiece) || getBehaviour(board[x][y]).isNeutral) {
@@ -137,7 +139,7 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
     if(movements.canMoveAsPawn) {
         if(isWhite(movingPiece)) {
             if(movements.maximumRange >= 2) {
-                if((y <= 1) && board[x][y+1] === '-' && board[x][y+2] === '-') {
+                if((y <= 1) && board[x][y+1] === '-' && board[x][y+2] === '-' && !getTileBehaviour(tiles[x][y+1]).isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
             }
@@ -167,7 +169,7 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
     
         } else {
             if(movements.maximumRange >= 2) {
-                if((y >= 6) && board[x][y-1] === '-' && board[x][y-2] === '-') {
+                if((y >= 6) && board[x][y-1] === '-' && board[x][y-2] === '-' && !getTileBehaviour(tiles[x][y-1]).isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
     
@@ -209,6 +211,14 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
                     updateLegalMoves(x, y);
                 }
             })
+        }
+    }
+
+    if(movements.canMoveAnywhere) {
+        for(let i = 0; i < 8; i++) {
+            for(let j = 0; j < 8; j++) {
+                if(board[i][j] === "-") legalMoves.push([i, j]);
+            }
         }
     }
 
@@ -304,7 +314,13 @@ export const handleCastlingPromotionEnPassant = (nextX: number, nextY: number, _
 export const decodePiece = (s: String) => {
     if(s === '-') return "empty";
 
-    let out = s.toUpperCase() === s ? "white-" : "black-";
+    let out;
+
+    if(getBehaviour(s).isNeutral) {
+        out = "";
+    } else {
+        out = s.toUpperCase() === s ? "white-" : "black-";
+    }
 
     s = s.toLowerCase();
 

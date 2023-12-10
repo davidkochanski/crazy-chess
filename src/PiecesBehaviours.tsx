@@ -6,6 +6,7 @@ export type MovementOptions = {
     canMoveAsKing: boolean;
     canMoveAsPawn: boolean;
     canMoveAsCamel: boolean;
+    canMoveAnywhere: boolean;
     isMovableByPlayer: boolean;
     isNeutral: boolean;
     isCapturable: boolean;
@@ -26,6 +27,7 @@ export const getBehaviour = (piece: String) => {
         canMoveAsKing: false, 
         canMoveAsPawn: false, 
         canMoveAsCamel: false, 
+        canMoveAnywhere: false,
         isMovableByPlayer: true, 
         isNeutral: false, 
         isCapturable: true,
@@ -89,7 +91,7 @@ export const getBehaviour = (piece: String) => {
                 return pieces;
             }
             break;
-        case "snake":
+        case "axolotl":
             options.isMovableByPlayer = false;
             options.isNeutral = true;
             options.isCapturable = true;
@@ -107,10 +109,16 @@ export const getBehaviour = (piece: String) => {
                 } while (!(x >= 0 && x <= 7 && y >= 0 && y <= 7));
                 
                 pieces[currX][currY] = "-";
-                pieces[x][y] = "SNAKE";
+                pieces[x][y] = "axolotl";
                 
                 return pieces;
             }
+            break;
+        case "duck":
+            options.isMovableByPlayer = true;
+            options.isCapturable = false;
+            options.isNeutral = true;
+            options.canMoveAnywhere = true;
     }
 
     return options;
@@ -122,6 +130,7 @@ export type TileOptions = {
     isBlocking: boolean;
     isOccupyable: boolean;
     onPieceLandHere: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => string[][],
+    onMoveEnd: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => string[][]
 }
 
 export const getTileBehaviour = (tile: String) => {
@@ -130,6 +139,8 @@ export const getTileBehaviour = (tile: String) => {
     let options: TileOptions = {
         // @ts-ignore
         onPieceLandHere: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {return pieces},
+        // @ts-ignore
+        onMoveEnd: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => pieces,
         isBlocking: false,
         isOccupyable: true,
 
@@ -164,6 +175,37 @@ export const getTileBehaviour = (tile: String) => {
                 return pieces;
             };
             break;
+
+        case "trap":
+            options.isBlocking = true;
+            options.isOccupyable = true;
+            options.onMoveEnd = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                if(pieces[currX][currY] !== "-") {
+                    pieces[currX][currY] = "-";
+                    tiles[currX][currY] = "-";
+                } 
+
+                return pieces;
+            }
+            break;
+        case "bomb":
+            options.isBlocking = true;
+            options.isOccupyable = true;
+            options.onMoveEnd = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                if(pieces[currX][currY] !== "-") {
+                    pieces[currX][currY] = "-";
+
+                    for (let i = Math.max(0, currX - 1); i <= Math.min(7, currX + 1); i++) {
+                        for (let j = Math.max(0, currY - 1); j <= Math.min(7, currY + 1); j++) {
+                            pieces[i][j] = "-";
+                        }
+                    }
+
+                    tiles[currX][currY] = "-";
+                } 
+
+                return pieces;
+            }
     }
 
     return options;
