@@ -1,5 +1,5 @@
 export type MovementOptions = {
-    action: (currX: number, currY: number, pieces: Array<Array<String>>) => Array<Array<String>>,
+    onMoveEnd: (currX: number, currY: number, pieces: Array<Array<String>>) => Array<Array<String>>,
     canMoveDiagonally: boolean;
     canMoveOrthagonally: boolean;
     canMoveAsKnight: boolean;
@@ -19,7 +19,7 @@ export const getBehaviour = (piece: String) => {
 
     let options: MovementOptions = {
         // @ts-ignore
-        action: (currX: number, currY: number, pieces: Array<Array<String>>) => {return pieces},
+        onMoveEnd: (currX: number, currY: number, pieces: Array<Array<String>>) => {return pieces},
         canMoveAsKnight: false, 
         canMoveDiagonally: false, 
         canMoveOrthagonally: false, 
@@ -78,7 +78,7 @@ export const getBehaviour = (piece: String) => {
             options.isMovableByPlayer = false;
             options.isNeutral = true;
             options.isCapturable = true;
-            options.action = (currX: number, currY: number, pieces: Array<Array<String>>) => {
+            options.onMoveEnd = (currX: number, currY: number, pieces: Array<Array<String>>) => {
                 const x = Math.floor(Math.random() * 8);
                 const y = Math.floor(Math.random() * 8);
 

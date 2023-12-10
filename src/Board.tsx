@@ -19,9 +19,9 @@ const Board = () => {
         [
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
-            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+            ['BISHOP', 'PAWN', '-', '-', '-', 'FOX', 'pawn', 'bishop'],
             ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
-            ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
+            ['KING', 'PAWN', 'FOX', '-', '-', '-', 'pawn', 'king'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
             ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
@@ -165,7 +165,7 @@ const Board = () => {
 
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 8; y++) {
-                bufferPieces = getBehaviour(pieces[x][y]).action(x, y, bufferPieces);
+                bufferPieces = getBehaviour(pieces[x][y]).onMoveEnd(x, y, bufferPieces);
             }
         }
 

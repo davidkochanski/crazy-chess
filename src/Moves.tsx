@@ -2,7 +2,7 @@ import { getBehaviour, getTileBehaviour, MovementOptions } from "./PiecesBehavio
 
 export const areDifferentColours = (piece1: String, piece2: String) => {
     if(getBehaviour(piece1).isNeutral || getBehaviour(piece2).isNeutral) {
-        return false;
+        return true;
     }
 
     if(piece1 === '-' || piece2 === '-') return false;
