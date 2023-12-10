@@ -222,6 +222,20 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
         }
     }
 
+    if(movements.canMoveAsGold) {
+        let possibleMoves = isWhite(movingPiece) ? [[x + 1, y + 1],[x, y + 1],[x - 1, y + 1],[x + 1, y],[x - 1, y],[x, y - 1]]
+                            : [[x - 1, y - 1],[x, y - 1],[x + 1, y - 1],[x - 1, y],[x + 1, y],[x, y + 1]];
+
+        possibleMoves.forEach((move) => {
+            let x = move[0];
+            let y = move[1];
+
+            if(x <= MAX && y <= MAX && x >= MIN && y >= MIN) {
+                updateLegalMoves(x, y);
+            }
+        })
+    }
+
     return legalMoves;
 };
 

@@ -7,6 +7,7 @@ export type MovementOptions = {
     canMoveAsPawn: boolean;
     canMoveAsCamel: boolean;
     canMoveAnywhere: boolean;
+    canMoveAsGold: boolean;
     isMovableByPlayer: boolean;
     isNeutral: boolean;
     isCapturable: boolean;
@@ -28,6 +29,7 @@ export const getBehaviour = (piece: String) => {
         canMoveAsPawn: false, 
         canMoveAsCamel: false, 
         canMoveAnywhere: false,
+        canMoveAsGold: false,
         isMovableByPlayer: true, 
         isNeutral: false, 
         isCapturable: true,
@@ -36,6 +38,7 @@ export const getBehaviour = (piece: String) => {
 
     switch (piece) {
         case "bishop":
+        case "rotated-rook":
             options.canMoveDiagonally = true;
             break;
         case "queen":
@@ -119,6 +122,9 @@ export const getBehaviour = (piece: String) => {
             options.isCapturable = false;
             options.isNeutral = true;
             options.canMoveAnywhere = true;
+            break;
+        case "gold":
+            options.canMoveAsGold = true;
     }
 
     return options;

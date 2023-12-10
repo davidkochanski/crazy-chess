@@ -18,10 +18,10 @@ const Board = () => {
 
     const [pieces, setPieces] = useState<string[][]>(
         [
-            ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
+            ['ROTATED-ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
             ['KNIGHT', 'PAWN', '-', 'AXOLOTL', '-', '-', 'pawn', 'knight'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-            ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
+            ['QUEEN', 'GOLD', '-', '-', '-', '-', 'gold', 'queen'],
             ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
             ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
             ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
