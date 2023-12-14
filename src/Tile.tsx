@@ -1,5 +1,5 @@
 import "./Board.css"
-import { decodePiece } from "./Moves"
+import { decodeEffects, decodePiece } from "./Moves"
 
 type TileProps = {
     x: number;
@@ -9,10 +9,10 @@ type TileProps = {
     isHighlighted: boolean;
     previousMove: number;
     id: number;
-    onSelect: (x: number, y: number, movingPiece: String) => void;
-    onSelectUp: (x: number, y: number, movingPiece: String) => void;
-    piece: String;
-    tile: String;
+    onSelect: (x: number, y: number, movingPiece: string) => void;
+    onSelectUp: (x: number, y: number, movingPiece: string) => void;
+    piece: string;
+    tile: string;
 }
 
 const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDragged, tile, previousMove, onSelect, onSelectUp, piece}) => {
@@ -61,12 +61,23 @@ const Tile: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDrag
         }
     }
 
+    const putEffects = () => {
+        const effects = decodeEffects(piece);
+
+        return effects.map((effect, i) => (
+            <img key={i} src={`img/${effect}.png`} alt={effect} />
+        ))
+    }
+
     return (
         <div onMouseDown={handleClick} onMouseUp={handleUp} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${styleTile()} ${previousMove === 1 ? "destination" : ""}`}>
             
             {!isBeingDragged ? <img draggable={false} className="piece-img" src={"img/" + decodePiece(piece) + ".png"} alt="" /> : <></>}
             {putHighlightedMarker()}
             {putTileEffect()}
+            <div className="tile-effects">
+                {putEffects()}
+            </div>
         </div>
     )
 }

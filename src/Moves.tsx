@@ -5,8 +5,7 @@ export const areDifferentColours = (attacker: String, defender: String) => {
     const behaviour2 = getBehaviour(defender);
 
     if(behaviour1.isNeutral || behaviour2.isNeutral) {
-        if(!behaviour2.isCapturable) return false;
-        return true;
+        return behaviour2.isCapturable;
     }
 
     if(attacker === '-' || defender === '-') return false;
@@ -151,16 +150,19 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
     if(movements.canMoveAsPawn) {
         if(isWhite(movingPiece)) {
             if(movements.maximumRange >= 2) {
+                // Double step move option
                 if((y <= 1) && board[x][y+1] === '-' && board[x][y+2] === '-' && !getTileBehaviour(tiles[x][y+1]).isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
             }
 
             if(movements.maximumRange >= 1) {
+                // Move 1 space forward
                 if(board[x][y+1] === '-') {
                     updateLegalMoves(x, y+1);
                 }
                 
+                // Capturing
                 if(x+1 <= MAX && areDifferentColours(board[x+1][y+1], board[x][y])) {
                     updateLegalMoves(x+1, y+1);
                 }
@@ -168,7 +170,8 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
                 if(x-1 >= MIN && areDifferentColours(board[x-1][y+1], board[x][y])) {
                     updateLegalMoves(x-1, y+1);
                 }
-    
+                
+                // En passant
                 if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
                     updateLegalMoves(x+1, y+1);
                 }
@@ -181,16 +184,19 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
     
         } else {
             if(movements.maximumRange >= 2) {
+                // Double step move option
                 if((y >= 6) && board[x][y-1] === '-' && board[x][y-2] === '-' && !getTileBehaviour(tiles[x][y-1]).isBlocking) {
                     updateLegalMoves(x, y-2);
-                }
-    
-                if(board[x][y-1] === '-') {
-                    updateLegalMoves(x, y-1);
                 }
             }
 
             if(movements.maximumRange >= 1) {
+                // Move 1 space forward
+                if(board[x][y-1] === '-') {
+                    updateLegalMoves(x, y-1);
+                }
+                
+                // Capturing
                 if(x+1 <= MAX && areDifferentColours(board[x+1][y-1], board[x][y])) {
                     updateLegalMoves(x+1, y-1);
                 }
@@ -199,7 +205,7 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
                     updateLegalMoves(x-1, y-1);
                 }
     
-                
+                // En passant
                 if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
                     updateLegalMoves(x+1, y-1);
                 }
@@ -253,6 +259,9 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
 
 
 export const isWhite = (piece: String) => {
+    const info = piece.split("-");
+    piece = info[info.length-1];
+
     return piece.toUpperCase() === piece;
 }
 
@@ -354,46 +363,79 @@ export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: st
         out.push(coord);
     })
 
-    for(let x = 0; x < 8; x++) {
-        for(let y = 0; y < 8; y++) {
-            if(actions.canBeUsedOnEmptySquares && board[x][y] === "-") {
-                out.push([x, y]);
+    for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
+            let piece = board[x][y];
+            const behaviour = getBehaviour(piece);
+            const pieceIsWhite = isWhite(piece);
+
+            piece = piece.toLowerCase();
+
+            if (piece === "-") {
+                if(actions.canBeUsedOnEmptySquares) out.push([x, y]);
                 continue;
             }
 
-            if(whiteToPlay) {
-                if(actions.canBeUsedOnFriendlyPieces && (isWhite(board[x][y])|| getBehaviour(board[x][y]).isNeutral)
-                || actions.canBeUsedOnEnemyPieces && (!isWhite(board[x][y]))|| getBehaviour(board[x][y]).isNeutral) {
-                    out.push([x,y]);
-            }
-
-
+            if (whiteToPlay) {
+                if (
+                    (actions.canBeUsedOnFriendlyPieces && (pieceIsWhite && !behaviour.isNeutral))
+                    || (actions.canBeUsedOnEnemyPieces && (!pieceIsWhite && !behaviour.isNeutral))
+                    || (actions.canBeUsedOnNeutralPieces && behaviour.isNeutral)
+                ) {
+                    if (
+                        (actions.usableOn.length === 0 || actions.usableOn.includes(piece))
+                        && (actions.unusableOn.length === 0 || !actions.unusableOn.includes(piece))
+                    ) {
+                        out.push([x, y]);
+                    }
+                }
             } else {
-                if(actions.canBeUsedOnFriendlyPieces && (!isWhite(board[x][y])|| getBehaviour(board[x][y]).isNeutral)
-                || actions.canBeUsedOnEnemyPieces && (isWhite(board[x][y]))|| getBehaviour(board[x][y]).isNeutral) {
-                    out.push([x,y]);
-            }
+                if (
+                    (actions.canBeUsedOnFriendlyPieces && (!pieceIsWhite && !behaviour.isNeutral))
+                    || (actions.canBeUsedOnEnemyPieces && (pieceIsWhite && !behaviour.isNeutral))
+                    || (actions.canBeUsedOnNeutralPieces && behaviour.isNeutral)
+                ) {
+                    if (
+                        (actions.usableOn.length === 0 || actions.usableOn.includes(piece))
+                        && (actions.unusableOn.length === 0 || !actions.unusableOn.includes(piece))
+                    ) {
+                        out.push([x, y]);
+                    }
+                }
             }
         }
     }
 
     return out;
-    
 }
 
 
-export const decodePiece = (s: String) => {
+
+export const decodePiece = (s: string) => {
     if(s === '-') return "empty";
+
+    const info = s.split("-");
+    let piece = info[info.length - 1];
 
     let out;
 
-    if(getBehaviour(s).isNeutral) {
+    if(getBehaviour(piece).isNeutral) {
         out = "";
     } else {
-        out = s.toUpperCase() === s ? "white-" : "black-";
+        out = piece.toUpperCase() === piece ? "white-" : "black-";
     }
 
-    s = s.toLowerCase();
+    piece = piece.toLowerCase();
 
-    return out + s;
+    return out + piece;
+}
+
+export const decodeEffects = (s: string) => {
+    if(s === '-') return [];
+
+    const effects = s.split("-");
+    effects.pop();
+
+    return effects;
+
 }

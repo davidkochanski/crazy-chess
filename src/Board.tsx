@@ -19,19 +19,19 @@ const Board = () => {
     // const [moveCount, setMoveCount] = useState(0);
 
     const [pieces, setPieces] = useState<string[][]>(
-        [
-            ['ROOK', 'PAWN', '-', 'DUCK', '-', '-', 'pawn', 'rotated-rook'],
-            ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
-            ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-            ['ROTATED-QUEEN', 'PAWN', '-', 'AXOLOTL', '-', '-', 'pawn', 'rotated-queen'],
-            ['KING', 'PAWN', '-', '-', '-', 'FOX', 'pawn', 'king'],
-            ['ROTATED-BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
-            ['ROTATED-KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'gold'],
-            ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
-        ]
+    [
+        ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rotatedrook'],
+        ['KNIGHT', 'PAWN', '-', '-', 'axolotl', '-', 'pawn', 'knight'],
+        ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
+        ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
+        ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
+        ['ARCHBISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
+        ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+        ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
+    ]
     );
 
-    const [cards, setCards] = useState<string[]>(["atomic-bomb", "place-wall", "place-wall", "place-wall", "place-wall"]);
+    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "knookify"]);
 
     // [
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
@@ -385,7 +385,7 @@ const Board = () => {
                     <Card
                         key={i}
                         name={card}
-                        description="woaodwkaduwda"
+                        description={getCardAction(card).desciption}
                         onClick={() => {handleCardSelect(card)}}
                     />
                 ))}

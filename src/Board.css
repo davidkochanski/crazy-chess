@@ -89,6 +89,23 @@
     scale: 1;
 }
 
+.tile-effects {
+    position: absolute;
+    width: 50%;
+    right: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column-reverse;
+    z-index: 10000;
+    user-select: none;
+    pointer-events: none;
+}
+
+.tile-effects > * {
+    height: 50%;
+    aspect-ratio: 1/1;
+}
+
 #dragging-piece {
     display: none;
     position: absolute;
@@ -137,8 +154,6 @@
     width: 70%;
     margin: 0 auto;
     aspect-ratio: 1/1;
-    border: 1px solid red;
-
 }
 
 .card:hover {

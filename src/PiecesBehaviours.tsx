@@ -21,6 +21,10 @@ export const getBehaviour = (piece: String) => {
 
     piece = piece.toLowerCase();
 
+    const effects = piece.split("-");
+
+    const type = effects.pop();
+
     let options: MovementOptions = {
         // @ts-ignore
         onMoveEnd: (currX: number, currY: number, pieces: string[][]) => {return pieces},
@@ -40,16 +44,16 @@ export const getBehaviour = (piece: String) => {
         maximumRange: Infinity
     };
 
-    switch (piece) {
+    switch (type) {
         case "bishop":
             options.canMoveDiagonally = true;
             break;
-        case "rotated-rook":
+        case "rotatedrook":
             options.canMoveDiagonally = true;
             options.isCastleable = true;
             break;
         case "queen":
-        case "rotated-queen":
+        case "rotatedqueen":
             options.canMoveDiagonally = true;
             options.canMoveOrthagonally = true;
             break;
@@ -57,7 +61,7 @@ export const getBehaviour = (piece: String) => {
             options.canMoveOrthagonally = true;
             options.isCastleable = true;
             break;
-        case "rotated-bishop":
+        case "rotatedbishop":
             options.canMoveOrthagonally = true;
             break;
         case "knight":
@@ -140,9 +144,17 @@ export const getBehaviour = (piece: String) => {
         case "gold":
             options.canMoveAsGold = true;
             break;
-        case "rotated-knight":
+        case "rotatedknight":
             options.canMoveAsRotatedKnight = true;
     }
+
+    effects.forEach((effect) => {
+        switch(effect) {
+            case "slow":
+                options.maximumRange = 1;
+                break;
+        }
+    })
 
     return options;
 }
@@ -238,10 +250,14 @@ export const getTileBehaviour = (tile: String) => {
 
 export type CardAction = {
     onUse: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => [string[][], string[][]];
+    desciption: string;
     usedAutomatically: boolean;
     canBeUsedOnFriendlyPieces: boolean;
     canBeUsedOnEnemyPieces: boolean;
     canBeUsedOnEmptySquares: boolean;
+    canBeUsedOnNeutralPieces: boolean;
+    usableOn: string[];
+    unusableOn: string[];
     areaOfUsage: number[][];
 }
 
@@ -253,15 +269,21 @@ export const getCardAction = (card: string): CardAction => {
     let options: CardAction = {
         // @ts-ignore
         onUse: (activeX: number, activeY: number, pieces: string[][], tiles: string[][]) => pieces,
+        desciption: "null",
         usedAutomatically: false,
         canBeUsedOnFriendlyPieces: false,
-        canBeUsedOnEnemyPieces: true,
-        canBeUsedOnEmptySquares: true,
-        areaOfUsage: []
+        canBeUsedOnEnemyPieces: false,
+        canBeUsedOnEmptySquares: false,
+        canBeUsedOnNeutralPieces: false,
+        usableOn: [],
+        unusableOn: [],
+        areaOfUsage: [],
     }
 
     switch (card) {
         case "atomic-bomb":
+            options.desciption = "Explode a 3x3 area.";
+            options.canBeUsedOnEmptySquares = true;
             options.onUse = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
                 pieces[currX][currY] = "-";
 
@@ -274,11 +296,32 @@ export const getCardAction = (card: string): CardAction => {
             }
             break;
         case "place-wall":
+            options.desciption = "Place a brick wall.";
             options.canBeUsedOnEmptySquares = true;
-            options.canBeUsedOnEnemyPieces = false;
-            options.canBeUsedOnFriendlyPieces = false;
             options.onUse = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
                 tiles[currX][currY] = "wall";
+                return [pieces, tiles];
+            }
+            break;
+        case "iron-weight":
+            options.desciption = "Reduce any enemy piece's movement.";
+            options.canBeUsedOnEnemyPieces = true;
+            options.onUse = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                let piece = pieces[currX][currY];
+
+                piece = "slow-" + piece;
+
+                pieces[currX][currY] = piece;
+
+                return [pieces, tiles];
+            }
+            break;
+        case "knookify":
+            options.desciption = "Replace one of your rooks with a knook.";
+            options.usableOn = ["rook"];
+            options.canBeUsedOnFriendlyPieces = true;
+            options.onUse = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {
+                pieces[currX][currY] = "knook";
                 return [pieces, tiles];
             }
 
