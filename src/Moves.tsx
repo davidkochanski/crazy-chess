@@ -1,6 +1,11 @@
-import { getBehaviour, getCardAction, getTileBehaviour, MovementOptions } from "./PiecesBehaviours";
+import { getBehaviour } from "./PiecesBehaviours";
+import { getCardAction } from "./CardBehaviours";
+import { getTileBehaviour } from "./TileBehaviours";
 
-export const areDifferentColours = (attacker: String, defender: String) => {
+export const areDifferentColours = (attacker: string, defender: string) => {
+    if(attacker === '-' || defender === '-') return false;
+
+
     const behaviour1 = getBehaviour(attacker);
     const behaviour2 = getBehaviour(defender);
 
@@ -8,7 +13,6 @@ export const areDifferentColours = (attacker: String, defender: String) => {
         return behaviour2.isCapturable;
     }
 
-    if(attacker === '-' || defender === '-') return false;
     return (isWhite(attacker) && !isWhite(defender)) || (!isWhite(attacker) && isWhite(defender));
 }
 
@@ -19,7 +23,7 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
 
     const movingPiece = board[x][y];
 
-    const movements: MovementOptions = getBehaviour(movingPiece);
+    const movements = getBehaviour(movingPiece);
 
     const updateLegalMoves = (x: number, y: number) => {
         if(getTileBehaviour(tiles[x][y]).isBlocking) {

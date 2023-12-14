@@ -1,7 +1,9 @@
-import { useState, MouseEvent, useRef, useEffect } from "react";
+import { useState, MouseEvent, useEffect } from "react";
 import Tile from "./Tile";
 import { isWhite, generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays } from "./Moves";
-import { getBehaviour, getCardAction, getTileBehaviour } from "./PiecesBehaviours";
+import { getBehaviour } from "./PiecesBehaviours";
+import { getCardAction } from "./CardBehaviours";
+import { getTileBehaviour } from "./TileBehaviours";
 import Card from "./Card";
 
 
@@ -21,17 +23,17 @@ const Board = () => {
     const [pieces, setPieces] = useState<string[][]>(
     [
         ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rotatedrook'],
-        ['KNIGHT', 'PAWN', '-', '-', 'axolotl', '-', 'pawn', 'knight'],
-        ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-        ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
-        ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
-        ['ARCHBISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
-        ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
+        ['KNIGHT', 'PAWN', '-', '-', 'duck', '-', 'pawn', 'rotatedbishop'],
+        ['ARCHBISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'gold'],
+        ['ROTATEDQUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'amazon'],
+        ['KING', 'PAWN', '-', '-', 'fox', '-', 'pawn', 'king'],
+        ['ROTATEDKNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
+        ['CAMEL', 'PAWN', '-', '-', '-', '-', 'pawn', 'camel'],
         ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
     ]
     );
 
-    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "knookify"]);
+    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "knookify", "knookify"]);
 
     // [
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
