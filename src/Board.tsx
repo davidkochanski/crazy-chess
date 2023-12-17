@@ -26,14 +26,14 @@ const Board = () => {
         ['KNIGHT', 'PAWN', '-', '-', 'duck', '-', 'pawn', 'rotatedbishop'],
         ['ARCHBISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'gold'],
         ['ROTATEDQUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'amazon'],
-        ['KING', 'PAWN', '-', '-', 'fox', '-', 'pawn', 'king'],
-        ['ROTATEDKNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
+        ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
+        ['ROTATEDKNIGHT', 'atomic-PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
         ['CAMEL', 'PAWN', '-', '-', '-', '-', 'pawn', 'camel'],
         ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
     ]
     );
 
-    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "knookify", "knookify"]);
+    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "knookify", "knookify", "place-portal"]);
 
     // [
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
@@ -50,13 +50,13 @@ const Board = () => {
     useEffect(() => {
         setTiles(    [
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', 'blue-portal', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', 'orange-portal', '-', '-', '-']
+            ['-', '-', '-', '-', '-', '-', '-', '-'],
+            ['-', '-', '-', '-', '-', '-', '-', '-']
         ])
     
     }, []) 
@@ -131,8 +131,14 @@ const Board = () => {
             
             for(let i = 0; i < legalMoves.length; i++) {
                 if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
+
+                    // A capture happened!
+                    const pieceBefore = newPieces[nextX][nextY];
+
                     newPieces[nextX][nextY] = movingPiece;
                     newPieces[selectedX][selectedY] = '-';
+
+                    if(pieceBefore !== "-") getBehaviour(movingPiece).onCapture(nextX, nextY, pieces);
                     
                     movePlayed = true;
                     break;
@@ -250,7 +256,7 @@ const Board = () => {
     const handleTileSelect = (nextX: number, nextY: number) => {
         if(selectingAction !== null) {
             deselectAll();
-            const legalPlays: number[][] = generateLegalPlays(selectingAction, whiteToPlay, pieces);
+            const legalPlays: number[][] = generateLegalPlays(selectingAction, whiteToPlay, pieces, tiles);
 
             // Check if we're trying to play on a square where this action allows it
             const check = [nextX, nextY]
@@ -294,7 +300,7 @@ const Board = () => {
 
         setSelectingAction(card);
 
-        const legalPlays: number[][] = generateLegalPlays(card, whiteToPlay, pieces);
+        const legalPlays: number[][] = generateLegalPlays(card, whiteToPlay, pieces, tiles);
 
         let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(false));
             

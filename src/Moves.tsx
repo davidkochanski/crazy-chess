@@ -358,7 +358,7 @@ export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: nu
     return {pieces: pieces, castlingRights: castlingRights, enPassantSquare: enPassantSquare};
 }
 
-export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: string[][]): number[][] => {
+export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: string[][], tiles: string[][]): number[][] => {
     const actions = getCardAction(card);
 
     const out: number[][] = [];
@@ -376,7 +376,7 @@ export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: st
             piece = piece.toLowerCase();
 
             if (piece === "-") {
-                if(actions.canBeUsedOnEmptySquares) out.push([x, y]);
+                if(actions.canBeUsedOnEmptySquares && tiles[x][y] === "-") out.push([x, y]);
                 continue;
             }
 

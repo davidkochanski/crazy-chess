@@ -1,6 +1,8 @@
 export class PieceBehaviour {
     // @ts-ignore
     onMoveEnd = (currX: number, currY: number, pieces: string[][]): string[][] => pieces;
+    // @ts-ignore
+    onCapture = (currX: number, currY: number, pieces: string[][]): string[][] => pieces;
 
     canMoveAsKnight: boolean = false;
     canMoveDiagonally: boolean = false;
