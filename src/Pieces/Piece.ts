@@ -13,6 +13,7 @@ export class PieceBehaviour {
     canMoveAnywhere: boolean = false;
     canMoveAsGold: boolean = false;
     canMoveAsRotatedKnight: boolean = false;
+    canMoveAsVillager: boolean = false;
     isMovableByPlayer: boolean = true;
     isCastleable: boolean = false;
     isNeutral: boolean = false;

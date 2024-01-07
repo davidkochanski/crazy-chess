@@ -131,20 +131,20 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
             })
     
             if(isWhite(movingPiece)) {
-                if(castlingRights[0] && board[1][0] === '-' && board[2][0] === '-' && board[3][0] === '-' && getBehaviour(board[0][0]).isCastleable) {
+                if(castlingRights[0] && board[1][0] === '-' && !getTileBehaviour(tiles[1][0]).isBlocking && board[2][0] === '-' && !getTileBehaviour(tiles[2][0]).isBlocking && board[3][0] === '-' && !getTileBehaviour(tiles[3][0]).isBlocking && getBehaviour(board[0][0]).isCastleable) {
                     updateLegalMoves(2, 0);
                 }
     
-                if(castlingRights[1] && board[5][0] === '-' && board[6][0] === '-' && getBehaviour(board[7][0]).isCastleable) {
+                if(castlingRights[1] && board[5][0] === '-' && !getTileBehaviour(tiles[5][0]).isBlocking && board[6][0] === '-'  && !getTileBehaviour(tiles[6][0]).isBlocking && getBehaviour(board[7][0]).isCastleable) {
                     updateLegalMoves(6, 0);
                 }
     
             } else {
-                if(castlingRights[2] && board[1][7] === '-' && board[2][7] === '-' && board[3][7] === '-' && getBehaviour(board[0][7]).isCastleable) {
+                if(castlingRights[2] && board[1][7] === '-'  && !getTileBehaviour(tiles[1][7]).isBlocking && board[2][7] === '-'  && !getTileBehaviour(tiles[2][7]).isBlocking && board[3][7] === '-'  && !getTileBehaviour(tiles[3][7]).isBlocking && getBehaviour(board[0][7]).isCastleable) {
                     updateLegalMoves(2, 7);
                 }
     
-                if(castlingRights[3] && board[5][7] === '-' && board[6][7] === '-' && getBehaviour(board[7][7]).isCastleable) {
+                if(castlingRights[3] && board[5][7] === '-'  && !getTileBehaviour(tiles[5][7]).isBlocking && board[6][7] === '-'  && !getTileBehaviour(tiles[6][7]).isBlocking && getBehaviour(board[7][7]).isCastleable) {
                     updateLegalMoves(6, 7);
                 }
             }
@@ -239,7 +239,7 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
     if(movements.canMoveAnywhere) {
         for(let i = 0; i < 8; i++) {
             for(let j = 0; j < 8; j++) {
-                if(board[i][j] === "-") legalMoves.push([i, j]);
+                if(board[i][j] === "-" && getTileBehaviour(tiles[i][j]).isOccupyable) legalMoves.push([i, j]);
             }
         }
     }
@@ -256,6 +256,34 @@ export const generateLegalMoves = (x: number, y: number, board: string[][], tile
                 updateLegalMoves(x, y);
             }
         })
+    }
+
+    if(movements.canMoveAsVillager) {
+        if(isWhite(movingPiece)) {
+            if(movements.maximumRange >= 2) {
+                // Double step move option
+                if((y <= 1) && board[x][y+1] === '-' && !getTileBehaviour(tiles[x][y+1]).isBlocking) {
+                    updateLegalMoves(x, y+2);
+                }
+            }
+
+            if(movements.maximumRange >= 1) {
+                updateLegalMoves(x, y+1);
+            }
+
+    
+        } else {
+            if(movements.maximumRange >= 2) {
+                // Double step move option
+                if((y >= 6) && board[x][y-1] === '-' && !getTileBehaviour(tiles[x][y-1]).isBlocking) {
+                    updateLegalMoves(x, y-2);
+                }
+            }
+
+            if(movements.maximumRange >= 1) {
+                updateLegalMoves(x, y-1);
+            }
+        }
     }
 
     return legalMoves;

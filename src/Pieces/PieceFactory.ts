@@ -18,35 +18,14 @@ import { RotatedBishop } from "./RotatedBishop";
 import { RotatedKnight } from "./RotatedKnight";
 import { RotatedQueen } from "./RotatedQueen";
 import { RotatedRook } from "./RotatedRook";
-
-export type Piece =
-    | "bishop"
-    | "rotatedrook"
-    | "queen"
-    | "rotatedqueen"
-    | "rook"
-    | "rotatedbishop"
-    | "knight"
-    | "king"
-    | "pawn"
-    | "amazon"
-    | "lisek"
-    | "camel"
-    | "knook"
-    | "archbishop"
-    | "fox"
-    | "axolotl"
-    | "duck"
-    | "gold"
-    | "rotatedknight";
-
+import { Villager } from "./Villager";
 
 
 export const createPieceBehaviour = (piece: string): PieceBehaviour => {
     piece = piece.toLowerCase();
 
     const effects = piece.split("-");
-    const pieceType = effects.pop() as Piece;
+    const pieceType = effects.pop();
 
     switch (pieceType) {
         case "amazon": return new Amazon();
@@ -68,6 +47,7 @@ export const createPieceBehaviour = (piece: string): PieceBehaviour => {
         case "rotatedknight": return new RotatedKnight();
         case "rotatedqueen": return new RotatedQueen();
         case "rotatedrook": return new RotatedRook();
+        case "villager": return new Villager();
         default: return new PieceBehaviour();
     }
 }

@@ -33,7 +33,7 @@ const Board = () => {
     ]
     );
 
-    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "knookify", "knookify", "place-portal"]);
+    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "villager-uprising", "knookify", "place-portal"]);
 
     // [
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
@@ -49,14 +49,14 @@ const Board = () => {
     const [tiles, setTiles] = useState<string[][]>(Array.from({ length: 8 }, () => Array(8).fill('-')));
     useEffect(() => {
         setTiles(    [
+            ['-', '-', '-', 'bow', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-']
+            ['-', '-', '-', '-', '-', 'pressure-plate', '-', '-']
         ])
     
     }, []) 
