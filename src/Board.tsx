@@ -113,7 +113,7 @@ const Board = () => {
         return allMoves;
     }
 
-    const validateAndUpdateGame = (nextX: number, nextY: number) => {
+    const validateAndUpdateGame = async (nextX: number, nextY: number) => {
         let newPieces = [...pieces];
         let newTiles = [...tiles];
         let movePlayed = false;
@@ -185,11 +185,11 @@ const Board = () => {
         }
         
         // Special tiles
-        bufferPieces = getTileBehaviour(newTiles[nextX][nextY]).onPieceLandHere(nextX, nextY, bufferPieces, newTiles);
+        bufferPieces = await getTileBehaviour(newTiles[nextX][nextY]).onPieceLandHere(nextX, nextY, bufferPieces, newTiles);
 
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 8; y++) {
-                bufferPieces = getTileBehaviour(newTiles[x][y]).onMoveEnd(x, y, bufferPieces, newTiles);
+                bufferPieces = await getTileBehaviour(newTiles[x][y]).onMoveEnd(x, y, bufferPieces, newTiles);
             }
         }
 
