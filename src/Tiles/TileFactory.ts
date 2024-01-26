@@ -3,11 +3,11 @@ import { Bomb } from "./Bomb";
 import { Bow } from "./Bow";
 import { OrangePortal } from "./OrangePortal";
 import { PressurePlate } from "./PressurePlate";
-import { TileBehaviour } from "./Tile";
+import { Tile } from "./Tile";
 import { Trap } from "./Trap";
 import { Wall } from "./Wall";
 
-export const createTileBehaviour = (tile: string): TileBehaviour => {
+export const createTileBehaviour = (tile: string): Tile => {
     switch(tile.toLowerCase()) {
         case "blue-portal": return new BluePortal();
         case "orange-portal": return new OrangePortal();
@@ -16,6 +16,6 @@ export const createTileBehaviour = (tile: string): TileBehaviour => {
         case "wall": return new Wall();
         case "bow": return new Bow();
         case "pressure-plate": return new PressurePlate();
-        default: return new TileBehaviour();
+        default: return new Tile();
     }
 }

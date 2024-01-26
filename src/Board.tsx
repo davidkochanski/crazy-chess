@@ -1,10 +1,20 @@
 import { useState, MouseEvent, useEffect } from "react";
-import Tile from "./Tile";
-import { isWhite, generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays } from "./Moves";
+import { Tile } from "./Tiles/Tile";
+import { generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays } from "./Moves";
 import { getBehaviour } from "./PiecesBehaviours";
 import { getCardAction } from "./CardBehaviours";
 import { getTileBehaviour } from "./TileBehaviours";
 import Card from "./Card";
+import { Piece } from "./Pieces/Piece";
+import { Rook } from "./Pieces/Rook";
+import { Knight } from "./Pieces/Knight";
+import { Bishop } from "./Pieces/Bishop";
+import { Queen } from "./Pieces/Queen";
+import { King } from "./Pieces/King";
+import { Pawn } from "./Pieces/Pawn";
+import TileSquare from "./TileSquare";
+import { EmptyTile } from "./Tiles/EmptyTile";
+import { EmptyPiece } from "./Pieces/EmptyPiece";
 
 
 const Board = () => {
@@ -20,20 +30,21 @@ const Board = () => {
     const [isDragging, setDragging] = useState(false);
     // const [moveCount, setMoveCount] = useState(0);
 
-    const [pieces, setPieces] = useState<string[][]>(
+    const [pieces, setPieces] = useState<(Piece)[][]>(
     [
-        ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rotatedrook'],
-        ['KNIGHT', 'PAWN', '-', '-', 'duck', '-', 'pawn', 'rotatedbishop'],
-        ['ARCHBISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'gold'],
-        ['ROTATEDQUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'amazon'],
-        ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
-        ['ROTATEDKNIGHT', 'atomic-PAWN', '-', '-', '-', '-', 'pawn', 'archbishop'],
-        ['CAMEL', 'PAWN', '-', '-', '-', '-', 'pawn', 'camel'],
-        ['KNOOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
+        [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
+        [new Knight(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+        [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
+        [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
+        [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
+        [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
+        [new Knight(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+        [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
     ]
     );
 
-    const [cards, setCards] = useState<string[]>(["atomic-bomb", "iron-weight", "place-wall", "villager-uprising", "knookify", "place-portal"]);
+    const [cards, setCards] = useState<string[]>([]);
+    // ["atomic-bomb", "iron-weight", "place-wall", "villager-uprising", "knookify", "place-portal"]
 
     // [
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
@@ -46,26 +57,26 @@ const Board = () => {
     //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
     // ]
 
-    const [tiles, setTiles] = useState<string[][]>(Array.from({ length: 8 }, () => Array(8).fill('-')));
-    useEffect(() => {
-        setTiles(    [
-            ['-', '-', '-', 'bow', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', 'pressure-plate', '-', '-']
-        ])
+    const [tiles, setTiles] = useState<(Tile)[][]>(Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())));
+    // useEffect(() => {
+    //     setTiles(    [
+    //         ['-', '-', '-', 'bow', '-', '-', '-', '-'],
+    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
+    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
+    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
+    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
+    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
+    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
+    //         ['-', '-', '-', '-', '-', 'pressure-plate', '-', '-']
+    //     ])
     
-    }, []) 
+    // }, []) 
 
 
     const [highlighted, setHighlighted] = useState<Array<Array<boolean>>>(Array.from({ length: 8 }, () => Array(8).fill(false)))
     const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
 
-    const boardHasAtLeastOne = (piece: String) => {
+    const boardHasAtLeastOne = (piece: Piece) => {
         for(let x = 0; x < 8; x++) {
             for(let y = 0; y < 8; y++) {
                 if(piece === pieces[x][y]) return true;
@@ -92,21 +103,25 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
     }
 
-    const getAllSeenSquares = (pieces: string[][], byWhite: boolean) => {
+    const getAllSeenSquares = (pieces: (Piece)[][], byWhite: boolean) => {
 
         let allMoves: number[][] = [];
 
         pieces.forEach((row, i) => {
             row.forEach((piece, j) => {
-                if(isWhite(piece) && !byWhite || !isWhite(piece) && byWhite) return;
+                if(piece !== null) {
+                    if(piece.isWhite && !byWhite || !piece.isWhite && byWhite) return;
 
-                let moves = generateLegalMoves(i, j, pieces, tiles, castlingRights, enPassantSquare);
-
-                for(const tuple of moves) {
-                    if(!allMoves.includes(tuple)) {
-                        allMoves.push(tuple);
+                    let moves = generateLegalMoves(i, j, pieces, tiles, castlingRights, enPassantSquare);
+    
+                    for(const tuple of moves) {
+                        if(!allMoves.includes(tuple)) {
+                            allMoves.push(tuple);
+                        }
                     }
                 }
+
+                
             })
         })
 
@@ -121,8 +136,9 @@ const Board = () => {
         if(selectedX !== null && selectedY !== null) {
             // Verify if move is legal
             const movingPiece = newPieces[selectedX][selectedY];
+
     
-            if(!getBehaviour(movingPiece).isNeutral && ((whiteToPlay && !isWhite(movingPiece)) || !whiteToPlay && isWhite(movingPiece))) {
+            if(movingPiece !== null && !movingPiece.isNeutral && ((whiteToPlay && !movingPiece.isWhite) || !whiteToPlay && movingPiece.isWhite)) {
                 deselectAll();
                 return;
             }
@@ -136,9 +152,13 @@ const Board = () => {
                     const pieceBefore = newPieces[nextX][nextY];
 
                     newPieces[nextX][nextY] = movingPiece;
-                    newPieces[selectedX][selectedY] = '-';
+                    newPieces[selectedX][selectedY] = new EmptyPiece();
 
-                    if(pieceBefore !== "-") getBehaviour(movingPiece).onCapture(nextX, nextY, pieces);
+                    if(pieceBefore !== null && movingPiece !== null) {
+                        movingPiece.onCapture(nextX, nextY, pieces);
+                        pieceBefore.onGetsCaptured(nextX, nextY, pieces);
+                    }
+    
                     
                     movePlayed = true;
                     break;
@@ -180,16 +200,22 @@ const Board = () => {
 
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 8; y++) {
-                bufferPieces = getBehaviour(pieces[x][y]).onMoveEnd(x, y, bufferPieces);
+                const result = pieces[x][y]?.onMoveEnd(x, y, bufferPieces);
+
+                if(result) bufferPieces = result;
             }
         }
         
         // Special tiles
-        bufferPieces = await getTileBehaviour(newTiles[nextX][nextY]).onPieceLandHere(nextX, nextY, bufferPieces, newTiles);
+        const result = await newTiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, bufferPieces, newTiles);
+
+        if(result) bufferPieces = result;
 
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 8; y++) {
-                bufferPieces = await getTileBehaviour(newTiles[x][y]).onMoveEnd(x, y, bufferPieces, newTiles);
+                const result = await newTiles[x][y]?.onMoveEnd(x, y, bufferPieces, newTiles);
+
+                if(result) bufferPieces = result;
             }
         }
 
@@ -209,7 +235,7 @@ const Board = () => {
             let x = coords[0];
             let y = coords[1];
 
-            if(!whiteToPlay && pieces[x][y] === "KING" || whiteToPlay && pieces[x][y] === "king") {
+            if(!whiteToPlay && pieces[x][y] === new King(true) || whiteToPlay && pieces[x][y] === new King(false)) {
                 newPreviousMove[x][y] = 3; // check
             }
         })
@@ -224,22 +250,22 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
 
 
-        let whiteKingIsAlive = boardHasAtLeastOne('KING');
-        let blackKingIsAlive = boardHasAtLeastOne('king');
+        // let whiteKingIsAlive = boardHasAtLeastOne(new King(true));
+        // let blackKingIsAlive = boardHasAtLeastOne(new King(false));
 
-        if(!whiteKingIsAlive && !blackKingIsAlive) {
-            setTimeout(() => {alert("DRAW")}, 50)
-            return;
-        }
+        // if(!whiteKingIsAlive && !blackKingIsAlive) {
+        //     setTimeout(() => {alert("DRAW")}, 50)
+        //     return;
+        // }
 
-        if(!whiteKingIsAlive) {
-            setTimeout(() => {alert("Black wins!")}, 50)
-            return
-        }
+        // if(!whiteKingIsAlive) {
+        //     setTimeout(() => {alert("Black wins!")}, 50)
+        //     return
+        // }
 
-        if(!blackKingIsAlive) {
-            setTimeout(() => {alert("White wins!")}, 50)
-        }
+        // if(!blackKingIsAlive) {
+        //     setTimeout(() => {alert("White wins!")}, 50)
+        // }
     }
 
     // For drag-and-drop
@@ -370,7 +396,7 @@ const Board = () => {
         <>
             <div id="board" style={isDragging ? {cursor: "grabbing"} : {}} onMouseDown={handlePieceDown} onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
                 {tilesBlueprint.map(tile => (
-                    <Tile
+                    <TileSquare
                         key={tile.key}
                         id={tile.id}
                         x={tile.x}

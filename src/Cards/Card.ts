@@ -1,6 +1,8 @@
+import { Tile } from "../Tiles/Tile";
+
 export class CardBehaviour {
     // @ts-ignore
-    onUse = (activeX: number, activeY: number, pieces: string[][], tiles: string[][]) => [pieces, tiles];
+    onUse = (activeX: number, activeY: number, pieces: (Piece)[][], tiles: (Tile)[][]) => [pieces, tiles];
     desciption: string = "Unimplemented Description!";
     usedAutomatically: boolean = false;
     canBeUsedOnFriendlyPieces: boolean = false;

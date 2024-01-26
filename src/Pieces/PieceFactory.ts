@@ -1,4 +1,4 @@
-import { PieceBehaviour } from "./Piece"
+import { Piece } from "./Piece"
 import { Amazon } from "./Amazon";
 import { Archbishop } from "./Archbishop";
 import { Axolotl } from "./Axolotl";
@@ -19,9 +19,11 @@ import { RotatedKnight } from "./RotatedKnight";
 import { RotatedQueen } from "./RotatedQueen";
 import { RotatedRook } from "./RotatedRook";
 import { Villager } from "./Villager";
+import { TrojanHorse } from "./TrojanHorse";
+import { TrojanPawn } from "./TrojanPawn";
 
 
-export const createPieceBehaviour = (piece: string): PieceBehaviour => {
+export const createPieceBehaviour = (piece: string): Piece => {
     piece = piece.toLowerCase();
 
     const effects = piece.split("-");
@@ -48,7 +50,9 @@ export const createPieceBehaviour = (piece: string): PieceBehaviour => {
         case "rotatedqueen": return new RotatedQueen();
         case "rotatedrook": return new RotatedRook();
         case "villager": return new Villager();
-        default: return new PieceBehaviour();
+        case "trojanhorse": return new TrojanHorse();
+        case "trojanpawn": return new TrojanPawn();
+        default: return new Piece();
     }
 }
 

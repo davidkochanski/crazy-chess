@@ -1,8 +1,9 @@
-import { PieceBehaviour } from "./Piece";
+import { Piece } from "./Piece";
 
-export class Camel extends PieceBehaviour {
-    constructor() {
-        super();
+export class Camel extends Piece {
+    constructor(isWhite: boolean) {
+        super(isWhite);
+        this.name = "camel";
         this.canMoveAsCamel = true;
 
     }

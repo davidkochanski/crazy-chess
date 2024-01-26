@@ -1,8 +1,9 @@
-import { PieceBehaviour } from "./Piece";
+import { Piece } from "./Piece";
 
-export class Rook extends PieceBehaviour {
-    constructor() {
-        super();
+export class Rook extends Piece {
+    constructor(isWhite: boolean) {
+        super(isWhite);
+        this.name = "rook";
         this.canMoveOrthagonally = true;
         this.isCastleable = true;
 

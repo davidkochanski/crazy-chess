@@ -1,8 +1,9 @@
-import { PieceBehaviour } from "./Piece";
+import { Piece } from "./Piece";
 
-export class RotatedBishop extends PieceBehaviour {
-    constructor() {
-        super();
+export class RotatedBishop extends Piece {
+    constructor(isWhite: boolean) {
+        super(isWhite);
+        this.name = "rotatedbishop";
         this.canMoveOrthagonally = true;
     }
 }

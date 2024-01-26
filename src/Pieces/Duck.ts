@@ -1,8 +1,9 @@
-import { PieceBehaviour } from "./Piece";
+import { Piece } from "./Piece";
 
-export class Duck extends PieceBehaviour {
-    constructor() {
-        super();
+export class Duck extends Piece {
+    constructor(isWhite: boolean) {
+        super(isWhite);
+        this.name = "duck";
         this.isMovableByPlayer = true;
         this.isCapturable = false;
         this.isNeutral = true;

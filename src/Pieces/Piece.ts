@@ -1,8 +1,15 @@
-export class PieceBehaviour {
+export class Piece {
+
+    constructor (isWhite: boolean) {
+        this.isWhite = isWhite
+    }
+
     // @ts-ignore
-    onMoveEnd = (currX: number, currY: number, pieces: string[][]): string[][] => pieces;
+    onMoveEnd = (currX: number, currY: number, pieces: (Piece)[][]): (Piece)[][] => pieces;
     // @ts-ignore
-    onCapture = (currX: number, currY: number, pieces: string[][]): string[][] => pieces;
+    onCapture = (currX: number, currY: number, pieces: (Piece)[][]): (Piece)[][] => pieces;
+    // @ts-ignore
+    onGetsCaptured = (currX: number, currY: number, pieces: (Piece)[][]): (Piece)[][] => pieces;
 
     canMoveAsKnight: boolean = false;
     canMoveDiagonally: boolean = false;
@@ -18,6 +25,23 @@ export class PieceBehaviour {
     isCastleable: boolean = false;
     isNeutral: boolean = false;
     isCapturable: boolean = true;
+    isBouncy: boolean = true;
     canCapture: boolean = true;
     maximumRange: number = Infinity;
+
+    name: string = "empty";
+    isWhite: boolean;
+    attachments: string[] = [];
+    isEmpty: boolean = false;
+    
+
+    public toString = (): string => {
+        if(this.isNeutral || this.name == "empty") return this.name;
+        
+        return `${this.isWhite ? "white" : "black"}-${this.name}`
+    }
+
+    public equals = (other: Piece): boolean => {
+        return this.name === other.name;
+    }
 }

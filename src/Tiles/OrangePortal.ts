@@ -1,6 +1,6 @@
-import { TileBehaviour } from "./Tile";
+import { Tile } from "./Tile";
 
-export class OrangePortal extends TileBehaviour {
+export class OrangePortal extends Tile {
     constructor() {
         super();
         this.onPieceLandHere = (currX: number, currY: number, pieces: string[][], tiles: string[][]) => {

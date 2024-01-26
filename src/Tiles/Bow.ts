@@ -1,6 +1,6 @@
-import { TileBehaviour } from "./Tile";
+import { Tile } from "./Tile";
 
-export class Bow extends TileBehaviour {
+export class Bow extends Tile {
     constructor() {
         super();
         this.isBlocking = true;

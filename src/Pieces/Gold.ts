@@ -1,8 +1,9 @@
-import { PieceBehaviour } from "./Piece";
+import { Piece } from "./Piece";
 
-export class Gold extends PieceBehaviour {
-    constructor() {
-        super();
+export class Gold extends Piece {
+    constructor(isWhite: boolean) {
+        super(isWhite);
+        this.name = "gold";
         this.canMoveAsGold = true;
     }
 }

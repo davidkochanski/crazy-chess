@@ -1,4 +1,4 @@
-import { TileBehaviour } from "./Tiles/Tile";
+import { Tile } from "./Tiles/Tile";
 import { createTileBehaviour } from "./Tiles/TileFactory";
 
 export type TileOptions = {
@@ -8,7 +8,7 @@ export type TileOptions = {
     onMoveEnd: (currX: number, currY: number, pieces: string[][], tiles: string[][]) => string[][]
 }
 
-export const getTileBehaviour = (tile: string): TileBehaviour => {
+export const getTileBehaviour = (tile: string): Tile => {
     return createTileBehaviour(tile);
 }
 
