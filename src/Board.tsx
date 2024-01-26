@@ -79,7 +79,7 @@ const Board = () => {
     const boardHasAtLeastOne = (piece: Piece) => {
         for(let x = 0; x < 8; x++) {
             for(let y = 0; y < 8; y++) {
-                if(piece === pieces[x][y]) return true;
+                if(piece.toString() === pieces[x][y].toString()) return true;
             }
         }
 
@@ -235,7 +235,7 @@ const Board = () => {
             let x = coords[0];
             let y = coords[1];
 
-            if(!whiteToPlay && pieces[x][y] === new King(true) || whiteToPlay && pieces[x][y] === new King(false)) {
+            if(!whiteToPlay && pieces[x][y].toString() === "white-king" || whiteToPlay && pieces[x][y].toString() === "black-king") {
                 newPreviousMove[x][y] = 3; // check
             }
         })
@@ -250,22 +250,22 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
 
 
-        // let whiteKingIsAlive = boardHasAtLeastOne(new King(true));
-        // let blackKingIsAlive = boardHasAtLeastOne(new King(false));
+        let whiteKingIsAlive = boardHasAtLeastOne(new King(true));
+        let blackKingIsAlive = boardHasAtLeastOne(new King(false));
 
-        // if(!whiteKingIsAlive && !blackKingIsAlive) {
-        //     setTimeout(() => {alert("DRAW")}, 50)
-        //     return;
-        // }
+        if(!whiteKingIsAlive && !blackKingIsAlive) {
+            setTimeout(() => {alert("DRAW")}, 50)
+            return;
+        }
 
-        // if(!whiteKingIsAlive) {
-        //     setTimeout(() => {alert("Black wins!")}, 50)
-        //     return
-        // }
+        if(!whiteKingIsAlive) {
+            setTimeout(() => {alert("Black wins!")}, 50)
+            return
+        }
 
-        // if(!blackKingIsAlive) {
-        //     setTimeout(() => {alert("White wins!")}, 50)
-        // }
+        if(!blackKingIsAlive) {
+            setTimeout(() => {alert("White wins!")}, 50)
+        }
     }
 
     // For drag-and-drop
