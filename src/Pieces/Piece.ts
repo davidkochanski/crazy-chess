@@ -29,14 +29,17 @@ export class Piece {
     canCapture: boolean = true;
     maximumRange: number = Infinity;
 
-    name: string = "empty";
+    name: string = "unknown";
     isWhite: boolean;
     attachments: string[] = [];
-    isEmpty: boolean = false;
     
+    public isEmpty = (): boolean => {
+        return false;
+    }
 
     public toString = (): string => {
-        if(this.isNeutral || this.name == "empty") return this.name;
+        if(this.isNeutral) return this.name;
+        if(this.isEmpty()) return "empty";
         
         return `${this.isWhite ? "white" : "black"}-${this.name}`
     }

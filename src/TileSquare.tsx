@@ -39,14 +39,14 @@ const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBei
     const putHighlightedMarker = () => {
         if(!isHighlighted) return;
 
-        if(tile) return <img className="tile-ring" src="img/ring.png"/>
+        if(!tile.isEmpty()) return <img className="tile-ring" src="img/ring.png"/>
 
-        return piece ? <img className="tile-cross" src="img/cross.png"/>
-                             : <img className="tile-dot" src="img/dot.png"/>
+        return piece.isEmpty() ? <img className="tile-dot" src="img/dot.png"/>
+                             : <img className="tile-cross" src="img/cross.png"/>;
     }
 
     const putTileEffect = () => {
-        if(tile) {
+        if(tile.isEmpty()) {
             return <img draggable={false} className="tile-img" src={`img/${tile}.png`} alt="" />
         }
     }

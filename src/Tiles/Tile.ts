@@ -12,12 +12,14 @@ export class Tile {
     isBlocking = false;
     isOccupyable = true;
 
-    name = "empty";
+    name = "unknown";
 
-    isEmpty: boolean = false;
+    public isEmpty = (): boolean => {
+        return false;
+    }
 
     public toString = (): string => {
-        return this.name;
+        return this.isEmpty() ? "empty" : this.name;
     }
 
     public equals = (other: Tile): boolean => {

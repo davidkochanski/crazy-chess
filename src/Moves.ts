@@ -7,7 +7,7 @@ import { Tile } from "./Tiles/Tile";
 import { EmptyPiece } from "./Pieces/EmptyPiece";
 
 export const areDifferentColours = (attacker: Piece, defender: Piece) => {
-    if(attacker.isEmpty || defender.isEmpty) return false;
+    if(attacker.isEmpty() || defender.isEmpty()) return false;
 
     if(attacker.isNeutral || defender.isNeutral) {
         return defender.isCapturable;
@@ -22,7 +22,7 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
     const MIN = 0;
 
     const movingPiece = board[x][y];
-    if(movingPiece.isEmpty) return [];
+    if(movingPiece.isEmpty()) return [];
 
     const updateLegalMoves = (x: number, y: number) => {
         if(tiles[x][y].isBlocking) {
@@ -33,7 +33,7 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
 
         const piece = board[x][y];
 
-        if(!piece.isEmpty) {
+        if(!piece.isEmpty()) {
             if(!piece.isCapturable) return true;
 
             if(areDifferentColours(piece, movingPiece) || piece.isNeutral) {
@@ -41,7 +41,6 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
             }
             return true;
         } else {
-            console.log("!");
             legalMoves.push([x, y]);
             return false;
         }
@@ -138,20 +137,20 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
             })
     
             if(movingPiece.isWhite) {
-                if(castlingRights[0] && board[1][0].isEmpty && !tiles[1][0]?.isBlocking && board[2][0].isEmpty && !tiles[2][0]?.isBlocking && board[3][0].isEmpty && !tiles[3][0]?.isBlocking && board[0][0]?.isCastleable) {
+                if(castlingRights[0] && board[1][0].isEmpty() && !tiles[1][0]?.isBlocking && board[2][0].isEmpty() && !tiles[2][0]?.isBlocking && board[3][0].isEmpty() && !tiles[3][0]?.isBlocking && board[0][0]?.isCastleable) {
                     updateLegalMoves(2, 0);
                 }
     
-                if(castlingRights[1] && board[5][0].isEmpty && !tiles[5][0]?.isBlocking && board[6][0].isEmpty  && !tiles[6][0]?.isBlocking && board[7][0]?.isCastleable) {
+                if(castlingRights[1] && board[5][0].isEmpty() && !tiles[5][0]?.isBlocking && board[6][0].isEmpty()  && !tiles[6][0]?.isBlocking && board[7][0]?.isCastleable) {
                     updateLegalMoves(6, 0);
                 }
     
             } else {
-                if(castlingRights[2] && board[1][7].isEmpty  && !tiles[1][7]?.isBlocking && board[2][7].isEmpty  && !tiles[2][7]?.isBlocking && board[3][7].isEmpty  && !tiles[3][7]?.isBlocking && board[0][7]?.isCastleable) {
+                if(castlingRights[2] && board[1][7].isEmpty()  && !tiles[1][7]?.isBlocking && board[2][7].isEmpty()  && !tiles[2][7]?.isBlocking && board[3][7].isEmpty()  && !tiles[3][7]?.isBlocking && board[0][7]?.isCastleable) {
                     updateLegalMoves(2, 7);
                 }
     
-                if(castlingRights[3] && board[5][7].isEmpty  && !tiles[5][7]?.isBlocking && board[6][7].isEmpty  && !tiles[6][7]?.isBlocking && board[7][7]?.isCastleable) {
+                if(castlingRights[3] && board[5][7].isEmpty()  && !tiles[5][7]?.isBlocking && board[6][7].isEmpty()  && !tiles[6][7]?.isBlocking && board[7][7]?.isCastleable) {
                     updateLegalMoves(6, 7);
                 }
             }
@@ -162,14 +161,14 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         if(movingPiece.isWhite) {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y <= 1) && board[x][y+1].isEmpty && board[x][y+2].isEmpty && !tiles[x][y+1]?.isBlocking) {
+                if((y <= 1) && board[x][y+1].isEmpty() && board[x][y+2].isEmpty() && !tiles[x][y+1]?.isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
             }
 
             if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
-                if(board[x][y+1].isEmpty) {
+                if(board[x][y+1].isEmpty()) {
                     updateLegalMoves(x, y+1);
                 }
                 
@@ -198,14 +197,14 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         } else {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y >= 6) && board[x][y-1].isEmpty && board[x][y-2].isEmpty && !tiles[x][y-1]?.isBlocking) {
+                if((y >= 6) && board[x][y-1].isEmpty() && board[x][y-2].isEmpty() && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
             }
 
             if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
-                if(board[x][y-1].isEmpty) {
+                if(board[x][y-1].isEmpty()) {
                     updateLegalMoves(x, y-1);
                 }
                 
@@ -250,7 +249,7 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
     if(movingPiece.canMoveAnywhere) {
         for(let i = 0; i < 8; i++) {
             for(let j = 0; j < 8; j++) {
-                if(board[i][j].isEmpty && tiles[i][j]?.isOccupyable) legalMoves.push([i, j]);
+                if(board[i][j].isEmpty() && tiles[i][j]?.isOccupyable) legalMoves.push([i, j]);
             }
         }
     }
@@ -273,7 +272,7 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         if(movingPiece.isWhite) {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y <= 1) && board[x][y+1].isEmpty && !tiles[x][y-1]?.isBlocking) {
+                if((y <= 1) && board[x][y+1].isEmpty() && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
             }
@@ -286,7 +285,7 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         } else {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y >= 6) && board[x][y-1].isEmpty && !tiles[x][y-1]?.isBlocking) {
+                if((y >= 6) && board[x][y-1].isEmpty() && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
             }
@@ -339,48 +338,45 @@ export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: nu
         }
 
         // Played en passant
-        if(movingPiece === new Pawn(true) && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+        if(movingPiece.canMoveAsPawn && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
             pieces[nextX][nextY-1] = new EmptyPiece();
         }
 
-        if(movingPiece === new Pawn(false) && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+        if(movingPiece.canMoveAsPawn && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
             pieces[nextX][nextY+1] = new EmptyPiece();
         }
 
         // En passant square
         enPassantSquare = [null, null];
 
-        console.log(movingPiece.name);
-        console.log( new Pawn(true).name);
-
-        if(movingPiece === new Pawn(true) && ((selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2))) {
+        if(movingPiece.canMoveAsPawn && ((selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2))) {
             enPassantSquare = [nextX, nextY-1];
         }
 
-        if(movingPiece === new Pawn(false) && ((selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5))) {
+        if(movingPiece.canMoveAsPawn && ((selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5))) {
             enPassantSquare = [nextX, nextY+1];
         }
 
         // Move rook if castling
-        if(castlingRights[0] && movingPiece === new King(true) && nextX === 2 && nextY === 0) {
+        if(castlingRights[0] && movingPiece.toString() === "white-king" && nextX === 2 && nextY === 0) {
             const castlingPiece = pieces[0][0];
             pieces[0][0] = new EmptyPiece();
             pieces[3][0] = castlingPiece;
         }
 
-        if(castlingRights[1] && movingPiece === new King(true) && nextX === 6 && nextY === 0) {
+        if(castlingRights[1] && movingPiece.toString() === "white-king" && nextX === 6 && nextY === 0) {
             const castlingPiece = pieces[7][0];
             pieces[7][0] = new EmptyPiece();
             pieces[5][0] = castlingPiece;
         }
 
-        if(castlingRights[2] && movingPiece === new King(false) && nextX === 2 && nextY === 7) {
+        if(castlingRights[2] && movingPiece.toString() === "black-king" && nextX === 2 && nextY === 7) {
             const castlingPiece = pieces[0][7];
             pieces[0][7] = new EmptyPiece();
             pieces[3][7] = castlingPiece;
         }
 
-        if(castlingRights[3] && movingPiece === new King(false) && nextX === 6 && nextY === 7) {
+        if(castlingRights[3] && movingPiece.toString() === "black-king" && nextX === 6 && nextY === 7) {
             const castlingPiece = pieces[7][7];
             pieces[7][7] = new EmptyPiece();
             pieces[5][7] = castlingPiece;
@@ -389,12 +385,12 @@ export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: nu
     
 
     // Update castling rights
-    if(movingPiece === new King(true)) {
+    if(movingPiece.toString() === "white-king") {
         castlingRights[0] = false;
         castlingRights[1] = false;
     }
 
-    if(movingPiece === new King(false)) {
+    if(movingPiece.toString() === "black-king") {
         castlingRights[2] = false;
         castlingRights[3] = false;
     }
@@ -421,8 +417,8 @@ export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: (P
     //         let piece = board[x][y];
     //         const pieceIsWhite = piece?.isWhite;
 
-    //         if (piece.isEmpty) {
-    //             if(actions.canBeUsedOnEmptySquares && tiles[x][y].isEmpty) out.push([x, y]);
+    //         if (piece.isEmpty()) {
+    //             if(actions.canBeUsedOnEmptySquares && tiles[x][y].isEmpty()) out.push([x, y]);
     //             continue;
     //         }
 
@@ -462,7 +458,7 @@ export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: (P
 
 
 export const decodePiece = (piece: Piece) => {
-    if(piece.isEmpty) return "empty";
+    if(piece.isEmpty()) return "empty";
 
     let out = piece.name;
 
@@ -474,7 +470,7 @@ export const decodePiece = (piece: Piece) => {
 }
 
 export const decodeEffects = (piece: Piece) => {
-    if(piece.isEmpty) return [];
+    if(piece.isEmpty()) return [];
 
     return piece.attachments;
 }
