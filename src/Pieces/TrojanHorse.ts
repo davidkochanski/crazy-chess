@@ -8,13 +8,13 @@ export class TrojanHorse extends Piece {
         this.name = "trojanhorse";
         this.canMoveAsKnight = true;
         this.onGetsCaptured = (currX: number, currY: number, pieces: (Piece)[][]): (Piece)[][] => {
-            // const newPiece = !isWhite(pieces[currX][currY]) ? "TROJANPAWN" : "trojanpawn";
-            const newPiece = new TrojanPawn(false);
 
-            if(currX > 0) pieces[currX-1][currY] = newPiece;
-            if(currX < 7) pieces[currX+1][currY] = newPiece;
-            if(currY > 0) pieces[currX][currY-1] = newPiece;
-            if(currY < 7) pieces[currX][currY+1] = newPiece;
+            const colour = !pieces[currX][currY].isWhite;
+
+            if(currX > 0) pieces[currX-1][currY] =  new TrojanPawn(colour);
+            if(currX < 7) pieces[currX+1][currY] =  new TrojanPawn(colour);
+            if(currY > 0) pieces[currX][currY-1] =  new TrojanPawn(colour);
+            if(currY < 7) pieces[currX][currY+1] =  new TrojanPawn(colour);
 
             return pieces;
         }

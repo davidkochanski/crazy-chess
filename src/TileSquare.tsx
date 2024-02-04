@@ -60,7 +60,7 @@ const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBei
     }
 
     const putTileEffect = () => {
-        if(tile.isEmpty()) {
+        if(!tile.isEmpty()) {
             return <img draggable={false} className="tile-img" src={`img/${tile}.png`} alt="" />
         }
     }

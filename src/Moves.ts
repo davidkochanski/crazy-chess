@@ -38,9 +38,12 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         if(!piece.isEmpty()) {
             if(!piece.isCapturable) return true;
 
+
             if(areDifferentColours(piece, movingPiece) || piece.isNeutral || includePieceVision) {
                 legalMoves.push([x,y]);
             }
+
+            if(piece instanceof King) return false;
             return true;
         } else {
             legalMoves.push([x, y]);

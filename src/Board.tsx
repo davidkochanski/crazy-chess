@@ -15,6 +15,10 @@ import { Pawn } from "./Pieces/Pawn";
 import TileSquare from "./TileSquare";
 import { EmptyTile } from "./Tiles/EmptyTile";
 import { EmptyPiece } from "./Pieces/EmptyPiece";
+import { TrojanHorse } from "./Pieces/TrojanHorse";
+import { Wall } from "./Tiles/Wall";
+import { OrangePortal } from "./Tiles/OrangePortal";
+import { BluePortal } from "./Tiles/BluePortal";
 
 
 const Board = () => {
@@ -39,7 +43,7 @@ const Board = () => {
         [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
         [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
         [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
-        [new Knight(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+        [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
         [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
     ]
     );
@@ -59,19 +63,16 @@ const Board = () => {
     // ]
 
     const [tiles, setTiles] = useState<(Tile)[][]>(Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())));
-    // useEffect(() => {
-    //     setTiles(    [
-    //         ['-', '-', '-', 'bow', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', '-', '-', '-', '-'],
-    //         ['-', '-', '-', '-', '-', 'pressure-plate', '-', '-']
-    //     ])
+    useEffect(() => {
+        const temp = Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile()))
+
+        temp[0][0] = new Wall();
+        temp[3][4] = new OrangePortal();
+        temp[4][3] = new BluePortal();
+        console.log(temp);
+        setTiles(temp)
     
-    // }, []) 
+    }, []) 
 
 
     const [highlighted, setHighlighted] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
@@ -237,6 +238,7 @@ const Board = () => {
             let y = coords[1];
 
             if(!whiteToPlay && pieces[x][y].toString() === "white-king" || whiteToPlay && pieces[x][y].toString() === "black-king") {
+                console.log("check!");
                 newPreviousMove[x][y] = 3; // check
             }
         })
@@ -310,7 +312,7 @@ const Board = () => {
                 let movingPiece = pieces[nextX][nextY];
 
                 // Warn if king is self-threatening
-                if(movingPiece.name === "king") {
+                if(movingPiece instanceof King) {
                     getAllSeenSquares(pieces, !movingPiece.isWhite).forEach((coords) => {
                         let [x,y] = [coords[0], coords[1]];
                         

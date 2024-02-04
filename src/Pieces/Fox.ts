@@ -1,3 +1,4 @@
+import { EmptyPiece } from "./EmptyPiece";
 import { Piece } from "./Piece";
 
 export class Fox extends Piece {
@@ -11,7 +12,7 @@ export class Fox extends Piece {
             const x = Math.floor(Math.random() * 8);
             const y = Math.floor(Math.random() * 8);
             
-            pieces[currX][currY] = null;
+            pieces[currX][currY] = new EmptyPiece();
 
             pieces[x][y] = new Fox(true);
 
