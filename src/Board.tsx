@@ -26,6 +26,7 @@ const Board = () => {
     const [enPassantSquare, setEnPassantSquare] = useState<Array<number | null>>([null, null]);
 
     const [whiteToPlay, setWhiteToPlay] = useState(true);
+    const [whitePOV, setwhitePOV] = useState(false);
 
     const [isDragging, setDragging] = useState(false);
     // const [moveCount, setMoveCount] = useState(0);
@@ -280,6 +281,7 @@ const Board = () => {
     }
 
     const handleTileSelect = (nextX: number, nextY: number) => {
+
         if(selectingAction !== null) {
             deselectAll();
             const legalPlays: number[][] = generateLegalPlays(selectingAction, whiteToPlay, pieces, tiles);
@@ -399,9 +401,10 @@ const Board = () => {
     const tilesBlueprint = Array.from({ length: 64 }, (_, index) => ({
         id: index,
         key: index,
-        x: (index % 8),
-        y: 7 - Math.floor(index / 8),
-        isSelected: selectedX === index % 8 && selectedY === 7 - Math.floor(index / 8)
+        x: whitePOV ? index % 8 : 7 - (index % 8),
+        y: whitePOV ? 7 - Math.floor(index / 8) :  Math.floor(index / 8),
+        isSelected: whitePOV ? (selectedX === index % 8 && selectedY === 7 - Math.floor(index / 8)) 
+                             : (selectedX === 7 - (index % 8) && selectedY === Math.floor(index / 8)) 
         // piece: pieces[(index % 8)][7 - Math.floor(index / 8)]
     }));
 
@@ -415,6 +418,14 @@ const Board = () => {
             
             return newMove;
         });
+    }
+
+    const idToX = (id: number) => {
+        return whitePOV ? id % 8 : 7 - (id % 8);
+    }
+
+    const idToY = (id: number) => {
+        return whitePOV ? 7 - Math.floor(id / 8) :  Math.floor(id / 8)
     }
 
     return (
@@ -431,10 +442,10 @@ const Board = () => {
                         onSelect={handleTileSelect}
                         onRightClick={handleTileRightClick}
                         onSelectUp={handleTileSelectUp}
-                        isHighlighted={highlighted[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
-                        previousMove={previousMove[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
-                        piece={pieces[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
-                        tile={tiles[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
+                        isHighlighted={highlighted[idToX(tile.id)][idToY(tile.id)]}
+                        previousMove={previousMove[idToX(tile.id)][idToY(tile.id)]}
+                        piece={pieces[idToX(tile.id)][idToY(tile.id)]}
+                        tile={tiles[idToX(tile.id)][idToY(tile.id)]}
                     />
                 ))}
             <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
