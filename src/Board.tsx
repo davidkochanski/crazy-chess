@@ -73,7 +73,7 @@ const Board = () => {
     // }, []) 
 
 
-    const [highlighted, setHighlighted] = useState<Array<Array<boolean>>>(Array.from({ length: 8 }, () => Array(8).fill(false)))
+    const [highlighted, setHighlighted] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
     const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
 
     const boardHasAtLeastOne = (piece: Piece) => {
@@ -100,7 +100,7 @@ const Board = () => {
     const deselectAll = () => {
         setSelectedX(null);
         setSelectedY(null);
-        setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
+        setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
     }
 
     const getAllSeenSquares = (pieces: (Piece)[][], byWhite: boolean) => {
@@ -247,7 +247,7 @@ const Board = () => {
         setSelectedX(null);
         setSelectedY(null);
         setSelectingAction(null);
-        setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(false)));
+        setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
 
 
         let whiteKingIsAlive = boardHasAtLeastOne(new King(true));
@@ -300,10 +300,23 @@ const Board = () => {
             setSelectedX(nextX);
             setSelectedY(nextY);
 
-            let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(false));
+            let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(0));
             
             legalMoves.forEach((move) => {
-                newHighlighted[move[0]][move[1]] = true;
+                newHighlighted[move[0]][move[1]] = 1;
+
+                // Warn if king is self-threatening
+                if(pieces[nextX][nextY].toString() === "white-king" || pieces[nextX][nextY].toString() === "black-king") {
+                    getAllSeenSquares(pieces, !whiteToPlay).forEach((coords) => {
+                        let x = coords[0];
+                        let y = coords[1];
+                        
+                        if(legalMoves.some(move => move[0] === x && move[1] === y)) {
+                            newHighlighted[x][y] = 2; // check
+                        }
+
+                    })
+                }
             })
             setHighlighted(newHighlighted);    
 
@@ -328,10 +341,10 @@ const Board = () => {
 
         const legalPlays: number[][] = generateLegalPlays(card, whiteToPlay, pieces, tiles);
 
-        let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(false));
+        let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(0));
             
         legalPlays.forEach((move) => {
-            newHighlighted[move[0]][move[1]] = true;
+            newHighlighted[move[0]][move[1]] = 1;
         })
         setHighlighted(newHighlighted);
     
@@ -392,6 +405,18 @@ const Board = () => {
         // piece: pieces[(index % 8)][7 - Math.floor(index / 8)]
     }));
 
+    const handleTileRightClick = (x: number, y: number) => {
+        setPreviousMove(prev => {
+            const newMove = prev.map(innerArray => [...innerArray]);
+
+            if(newMove[x][y] > 0) return newMove;
+            
+            newMove[x][y] = newMove[x][y] === 0 ? -1 : 0;
+            
+            return newMove;
+        });
+    }
+
     return (
         <>
             <div id="board" style={isDragging ? {cursor: "grabbing"} : {}} onMouseDown={handlePieceDown} onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
@@ -404,6 +429,7 @@ const Board = () => {
                         isSelected={tile.isSelected}
                         isBeingDragged={isDragging && tile.isSelected}
                         onSelect={handleTileSelect}
+                        onRightClick={handleTileRightClick}
                         onSelectUp={handleTileSelectUp}
                         isHighlighted={highlighted[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}
                         previousMove={previousMove[(tile.id % 8)][7 - Math.floor(tile.id / 8)]}

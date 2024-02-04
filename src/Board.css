@@ -52,7 +52,7 @@
     pointer-events: none;
 }
 
-.tile-dot, .tile-cross, .tile-ring {
+.tile-dot, .tile-cross, .tile-ring, .tile-dot-red, .tile-cross-red {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -80,12 +80,24 @@
     background-color: #880808;
 }
 
+.tile.select {
+    background-color: #ea7c68;
+}
 
-.tile-dot {
+.tile.select.dark {
+    background-color: #d36c50;
+}
+
+
+.tile-dot, .tile-dot-red {
     scale: 0.5;
 }
 
-.tile-cross {
+.tile-dot-red, .tile-cross-red {
+    opacity: 0.7;
+}
+
+.tile-cross, .tile-cross-red {
     scale: 1;
 }
 
