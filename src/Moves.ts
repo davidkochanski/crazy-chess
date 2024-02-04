@@ -17,7 +17,7 @@ export const areDifferentColours = (attacker: Piece, defender: Piece) => {
 }
 
 
-export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], tiles: (Tile)[][], castlingRights: Array<boolean>, enPassantSquare: Array<number | null>) => {
+export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], tiles: (Tile)[][], castlingRights: Array<boolean>, enPassantSquare: Array<number | null>, includePieceVision: boolean = false) => {
     const MAX = 7;
     const MIN = 0;
 
@@ -25,6 +25,8 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
     if(movingPiece.isEmpty()) return [];
 
     const updateLegalMoves = (x: number, y: number) => {
+        if(x < MIN || x > MAX || y < MIN || y > MAX) return false;
+
         if(tiles[x][y].isBlocking) {
 
             if(tiles[x][y].isOccupyable) legalMoves.push([x,y]);
@@ -36,7 +38,7 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         if(!piece.isEmpty()) {
             if(!piece.isCapturable) return true;
 
-            if(areDifferentColours(piece, movingPiece) || piece.isNeutral) {
+            if(areDifferentColours(piece, movingPiece) || piece.isNeutral || includePieceVision) {
                 legalMoves.push([x,y]);
             }
             return true;
@@ -161,34 +163,32 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         if(movingPiece.isWhite) {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y <= 1) && board[x][y+1].isEmpty() && board[x][y+2].isEmpty() && !tiles[x][y+1]?.isBlocking) {
+                if(!includePieceVision && (y <= 1) && board[x][y+1].isEmpty() && board[x][y+2].isEmpty() && !tiles[x][y+1]?.isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
             }
 
             if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
-                if(board[x][y+1].isEmpty()) {
+                if(!includePieceVision && board[x][y+1].isEmpty()) {
                     updateLegalMoves(x, y+1);
                 }
                 
                 // Capturing
-                if(x+1 <= MAX && areDifferentColours(board[x+1][y+1], board[x][y])) {
+                if(includePieceVision || (x+1 <= MAX && areDifferentColours(board[x+1][y+1], board[x][y]))) {
                     updateLegalMoves(x+1, y+1);
                 }
     
-                if(x-1 >= MIN && areDifferentColours(board[x-1][y+1], board[x][y])) {
+                if(includePieceVision || (x-1 >= MIN && areDifferentColours(board[x-1][y+1], board[x][y]))) {
                     updateLegalMoves(x-1, y+1);
                 }
                 
                 // En passant
                 if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
-                    console.log("holy hell");
                     updateLegalMoves(x+1, y+1);
                 }
     
                 if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) ||(y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x-1))) {
-                    console.log("holy hell");
                     updateLegalMoves(x-1, y+1);
                 }
             }
@@ -197,34 +197,32 @@ export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], til
         } else {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y >= 6) && board[x][y-1].isEmpty() && board[x][y-2].isEmpty() && !tiles[x][y-1]?.isBlocking) {
+                if(!includePieceVision && (y >= 6) && board[x][y-1].isEmpty() && board[x][y-2].isEmpty() && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
             }
 
             if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
-                if(board[x][y-1].isEmpty()) {
+                if(!includePieceVision && board[x][y-1].isEmpty()) {
                     updateLegalMoves(x, y-1);
                 }
                 
                 // Capturing
-                if(x+1 <= MAX && areDifferentColours(board[x+1][y-1], board[x][y])) {
+                if(includePieceVision|| (x+1 <= MAX && areDifferentColours(board[x+1][y-1], board[x][y]))) {
                     updateLegalMoves(x+1, y-1);
                 }
     
-                if(x-1 >= MIN && areDifferentColours(board[x-1][y-1], board[x][y])) {
+                if(includePieceVision || (x-1 >= MIN && areDifferentColours(board[x-1][y-1], board[x][y]))) {
                     updateLegalMoves(x-1, y-1);
                 }
     
                 // En passant
                 if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
-                    console.log("holy hell");
                     updateLegalMoves(x+1, y-1);
                 }
     
                 if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x-1))) {
-                    console.log("holy hell");
                     updateLegalMoves(x-1, y-1);
                 }
             }

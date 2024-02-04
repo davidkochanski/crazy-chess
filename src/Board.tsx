@@ -113,7 +113,7 @@ const Board = () => {
                 if(piece !== null) {
                     if(piece.isWhite && !byWhite || !piece.isWhite && byWhite) return;
 
-                    let moves = generateLegalMoves(i, j, pieces, tiles, castlingRights, enPassantSquare);
+                    let moves = generateLegalMoves(i, j, pieces, tiles, castlingRights, enPassantSquare, true);
     
                     for(const tuple of moves) {
                         if(!allMoves.includes(tuple)) {
@@ -307,20 +307,20 @@ const Board = () => {
             legalMoves.forEach((move) => {
                 newHighlighted[move[0]][move[1]] = 1;
 
+                let movingPiece = pieces[nextX][nextY];
+
                 // Warn if king is self-threatening
-                if(pieces[nextX][nextY].toString() === "white-king" || pieces[nextX][nextY].toString() === "black-king") {
-                    getAllSeenSquares(pieces, !whiteToPlay).forEach((coords) => {
-                        let x = coords[0];
-                        let y = coords[1];
+                if(movingPiece.name === "king") {
+                    getAllSeenSquares(pieces, !movingPiece.isWhite).forEach((coords) => {
+                        let [x,y] = [coords[0], coords[1]];
                         
                         if(legalMoves.some(move => move[0] === x && move[1] === y)) {
                             newHighlighted[x][y] = 2; // check
                         }
-
                     })
                 }
             })
-            setHighlighted(newHighlighted);    
+            setHighlighted(newHighlighted);
 
         // Deselecting
         } else if (selectedX === nextX && selectedY === nextY) {
@@ -461,6 +461,7 @@ const Board = () => {
                     />
                 ))}
             </div>
+            {/* <button onClick={() => {setwhitePOV(prev => !prev)}}>Flip board</button> */}
         </>
     )
 };
