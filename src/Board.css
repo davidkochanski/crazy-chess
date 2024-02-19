@@ -9,6 +9,18 @@
     max-height: min(75vh, 75vw);
 }
 
+.game-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    height: fit-content;
+}
+
+.game-content > * {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
 
 .tile {
     width: 100%;
@@ -180,4 +192,29 @@
     pointer-events: none;
 }
 
+.log {
+    min-width: 200px;
+    max-width: min(35vh, 35vw);
+    height: min(25vh, 25vw);
+    margin-left: 10px;
+    border: 2px solid #a297fc;
+    background-color: #110e24;
+    overflow-y: scroll;
+    margin-top: auto;
+    scrollbar-width: thin;
+}
 
+.log-entry {
+    color: white;
+    font-family: Lato, sans-serif;
+    font-size: 14px;
+    padding: 5px;
+}
+
+.log-entry:nth-of-type(2n + 1) {
+    background-color: #2e2953;
+}
+
+.log::-webkit-scrollbar{
+    width: 5px !important;
+}

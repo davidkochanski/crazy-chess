@@ -1,8 +1,9 @@
+import ChessState from "../ChessState";
 import { Tile } from "../Tiles/Tile";
 
 export class CardBehaviour {
     // @ts-ignore
-    onUse = (activeX: number, activeY: number, pieces: (Piece)[][], tiles: (Tile)[][]) => [pieces, tiles];
+    onUse = (activeX: number, activeY: number, state: ChessState): ChessState => state;
     desciption: string = "Unimplemented Description!";
     usedAutomatically: boolean = false;
     canBeUsedOnFriendlyPieces: boolean = false;

@@ -1,3 +1,4 @@
+import ChessState from "../ChessState";
 import { EmptyPiece } from "./EmptyPiece";
 import { Piece } from "./Piece";
 
@@ -8,15 +9,15 @@ export class Fox extends Piece {
         this.isMovableByPlayer = false;
         this.isNeutral = true;
         this.isCapturable = true;
-        this.onMoveEnd = (currX: number, currY: number, pieces: (Piece)[][]) => {
+        this.onMoveEnd = (currX: number, currY: number, state: ChessState) => {
             const x = Math.floor(Math.random() * 8);
             const y = Math.floor(Math.random() * 8);
             
-            pieces[currX][currY] = new EmptyPiece();
+            state.pieces[currX][currY] = new EmptyPiece();
 
-            pieces[x][y] = new Fox(true);
+            state.pieces[x][y] = new Fox(true);
 
-            return pieces;
+            return state;
         }
     }
 }

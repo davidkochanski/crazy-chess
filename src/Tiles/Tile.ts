@@ -1,12 +1,14 @@
+import ChessState from "../ChessState";
+
 export class Tile {
     // @ts-ignore
-    onPieceLandHere = (currX: number, currY: number, pieces: (Piece)[][], tiles: (Tile)[][]): Promise<(Piece)[][]> => {
-        return Promise.resolve(pieces);
+    onPieceLandHere = (currX: number, currY: number, state: ChessState): Promise<ChessState> => {
+        return Promise.resolve(state);
     };
     
     // @ts-ignore
-    onMoveEnd = (currX: number, currY: number, pieces: (Piece)[][], tiles: (Tile)[][]): Promise<(Piece)[][]> => {
-        return Promise.resolve(pieces);
+    onMoveEnd = (currX: number, currY: number, state: ChessState): Promise<ChessState> => {
+        return Promise.resolve(state);
     };
 
     isBlocking = false;

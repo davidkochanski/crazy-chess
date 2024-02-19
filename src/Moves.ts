@@ -5,6 +5,7 @@ import { Pawn } from "./Pieces/Pawn";
 import { King } from "./Pieces/King";
 import { Tile } from "./Tiles/Tile";
 import { EmptyPiece } from "./Pieces/EmptyPiece";
+import ChessState from "./ChessState";
 
 export const areDifferentColours = (attacker: Piece, defender: Piece) => {
     if(attacker.isEmpty() || defender.isEmpty()) return false;
@@ -17,9 +18,14 @@ export const areDifferentColours = (attacker: Piece, defender: Piece) => {
 }
 
 
-export const generateLegalMoves = (x: number, y: number, board: (Piece)[][], tiles: (Tile)[][], castlingRights: Array<boolean>, enPassantSquare: Array<number | null>, includePieceVision: boolean = false) => {
+export const generateLegalMoves = (x: number, y: number, state: ChessState, includePieceVision: boolean = false) => {
     const MAX = 7;
     const MIN = 0;
+
+    const board = state.pieces;
+    const tiles = state.tiles;
+    const castlingRights = state.castlingRights;
+    const enPassantSquare = state.enPassantSquare;
 
     const movingPiece = board[x][y];
     if(movingPiece.isEmpty()) return [];
@@ -315,8 +321,12 @@ interface HandledGameState {
 }
 
 export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: number | null, _: number | null, selectedY: number | null, 
-                                                 pieces: (Piece)[][], castlingRights: Array<boolean>, enPassantSquare: Array<number | null>)
+                                                 state: ChessState)
                                                  : HandledGameState => {
+    const pieces = state.pieces;
+    let enPassantSquare = state.enPassantSquare;
+    const castlingRights = state.castlingRights;
+    
     const movingPiece = nextX !== null && nextY !== null ? pieces[nextX][nextY] : new EmptyPiece();
 
     // null will be if no piece is moved (i.e. an action was played).
@@ -404,7 +414,7 @@ export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: nu
     return {pieces: pieces, castlingRights: castlingRights, enPassantSquare: enPassantSquare};
 }
 
-export const generateLegalPlays = (card: string, whiteToPlay: boolean, board: (Piece)[][], tiles: (Tile)[][]): number[][] => {
+export const generateLegalPlays = (card: string, state: ChessState): number[][] => {
     const actions = getCardAction(card);
 
     const out: number[][] = [];

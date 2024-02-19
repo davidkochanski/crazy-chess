@@ -1,3 +1,5 @@
+import ChessState from "../ChessState";
+import { EmptyPiece } from "./EmptyPiece";
 import { Piece } from "./Piece";
 
 export class Axolotl extends Piece {
@@ -8,7 +10,7 @@ export class Axolotl extends Piece {
         this.isNeutral = true;
         this.isCapturable = true;
 
-        this.onMoveEnd = (currX: number, currY: number, pieces: (Piece)[][]) => {
+        this.onMoveEnd = (currX: number, currY: number, state: ChessState) => {
             let x, y;
             
             // Wow, an actual usecase for a do while...
@@ -20,10 +22,10 @@ export class Axolotl extends Piece {
                 y = currY + deltaY;
             } while (!(x >= 0 && x <= 7 && y >= 0 && y <= 7));
             
-            pieces[currX][currY] = null;
-            pieces[x][y] = new Axolotl(true);
+            state.pieces[currX][currY] = new EmptyPiece();
+            state.pieces[x][y] = new Axolotl(true);
             
-            return pieces;
+            return state;
         }
     }
 }

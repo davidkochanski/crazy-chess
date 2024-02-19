@@ -1,3 +1,4 @@
+import ChessState from "../ChessState";
 import { EmptyPiece } from "../Pieces/EmptyPiece";
 import { Piece } from "../Pieces/Piece";
 import { EmptyTile } from "./EmptyTile";
@@ -10,14 +11,14 @@ export class Trap extends Tile {
         this.isBlocking = true;
         this.isOccupyable = true;
         
-        this.onMoveEnd = (currX: number, currY: number, pieces: Piece[][], tiles: Tile[][]) => {
+        this.onMoveEnd = (currX: number, currY: number, state: ChessState) => {
             return new Promise((resolve) => {
-                if(!pieces[currX][currY].isEmpty()) {
-                    pieces[currX][currY] = new EmptyPiece();
-                    tiles[currX][currY] = new EmptyTile();
+                if(!state.pieces[currX][currY].isEmpty()) {
+                    state.pieces[currX][currY] = new EmptyPiece();
+                    state.tiles[currX][currY] = new EmptyTile();
                 } 
     
-                resolve(pieces);
+                resolve(state);
             })
 
         }

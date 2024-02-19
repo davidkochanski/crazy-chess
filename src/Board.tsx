@@ -1,9 +1,7 @@
-import { useState, MouseEvent, useEffect } from "react";
+import { useState, MouseEvent, useEffect, useRef } from "react";
 import { Tile } from "./Tiles/Tile";
 import { generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays } from "./Moves";
-import { getBehaviour } from "./PiecesBehaviours";
 import { getCardAction } from "./CardBehaviours";
-import { getTileBehaviour } from "./TileBehaviours";
 import Card from "./Card";
 import { Piece } from "./Pieces/Piece";
 import { Rook } from "./Pieces/Rook";
@@ -19,50 +17,44 @@ import { TrojanHorse } from "./Pieces/TrojanHorse";
 import { Wall } from "./Tiles/Wall";
 import { OrangePortal } from "./Tiles/OrangePortal";
 import { BluePortal } from "./Tiles/BluePortal";
+import { CardBehaviour } from "./Cards/Card";
 
+import ChessState from "./ChessState";
+import { produce } from "immer";
 
 const Board = () => {
+    const defaultState: ChessState = {
+        pieces:  [
+            [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
+            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
+            [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
+            [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
+            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
+            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+            [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
+        ],
+        tiles: Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())),
+        whiteCards: [],
+        blackCards: [],
+        whiteToPlay: true,
+        enPassantSquare: [null, null],
+        castlingRights: [true, true, true, true],
+
+        log: ["The game has begun!", "OwO", "OwO","OwO","OwO","OwO","OwO","OwO","OwO","OwO","OwO","OwO"]
+    };
+
+    const logRef = useRef<HTMLDivElement>(null);
+
+    const [chessState, setChessState] = useState<ChessState>(defaultState);
     const [selectedX, setSelectedX] = useState<number | null>(null);
     const [selectedY, setSelectedY] = useState<number | null>(null);
     const [selectingAction, setSelectingAction] = useState<string | null>(null);
-
-    const [castlingRights, setCastingRights] = useState<Array<boolean>>([true, true, true, true]);
-    const [enPassantSquare, setEnPassantSquare] = useState<Array<number | null>>([null, null]);
-
-    const [whiteToPlay, setWhiteToPlay] = useState(true);
-    const [whitePOV, setwhitePOV] = useState(false);
-
+    const [highlighted, setHighlighted] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)));
+    const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)));
     const [isDragging, setDragging] = useState(false);
-    // const [moveCount, setMoveCount] = useState(0);
+    const [whitePOV, setWhitePOV] = useState(true);
 
-    const [pieces, setPieces] = useState<(Piece)[][]>(
-    [
-        [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
-        [new Knight(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
-        [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
-        [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
-        [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
-        [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
-        [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
-        [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
-    ]
-    );
-
-    const [cards, setCards] = useState<string[]>([]);
-    // ["atomic-bomb", "iron-weight", "place-wall", "villager-uprising", "knookify", "place-portal"]
-
-    // [
-    //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook'],
-    //     ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
-    //     ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-    //     ['QUEEN', 'PAWN', '-', '-', '-', '-', 'pawn', 'queen'],
-    //     ['KING', 'PAWN', '-', '-', '-', '-', 'pawn', 'king'],
-    //     ['BISHOP', 'PAWN', '-', '-', '-', '-', 'pawn', 'bishop'],
-    //     ['KNIGHT', 'PAWN', '-', '-', '-', '-', 'pawn', 'knight'],
-    //     ['ROOK', 'PAWN', '-', '-', '-', '-', 'pawn', 'rook']
-    // ]
-
-    const [tiles, setTiles] = useState<(Tile)[][]>(Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())));
     useEffect(() => {
         const temp = Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile()))
 
@@ -70,34 +62,27 @@ const Board = () => {
         temp[3][4] = new OrangePortal();
         temp[4][3] = new BluePortal();
         console.log(temp);
-        setTiles(temp)
+        
+        setChessState(prev => ({
+            ...prev,
+            tiles: temp
+        }))
     
     }, []) 
 
-
-    const [highlighted, setHighlighted] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
-    const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)))
+    useEffect(() => {
+        if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
+    }, [chessState.log])
 
     const boardHasAtLeastOne = (piece: Piece) => {
         for(let x = 0; x < 8; x++) {
             for(let y = 0; y < 8; y++) {
-                if(piece.toString() === pieces[x][y].toString()) return true;
+                if(piece.toString() === chessState.pieces[x][y].toString()) return true;
             }
         }
 
         return false;
     }
-
-    // const getAllSquaresWith = (piece: String) => {
-    //     let out = [];
-    //     for(let x = 0; x < 8; x++) {
-    //         for(let y = 0; y < 8; y++) {
-    //             if(piece === pieces[x][y]) out.push([x,y])
-    //         }
-    //     }
-    //     return out;
-    // }
-
 
     const deselectAll = () => {
         setSelectedX(null);
@@ -114,7 +99,7 @@ const Board = () => {
                 if(piece !== null) {
                     if(piece.isWhite && !byWhite || !piece.isWhite && byWhite) return;
 
-                    let moves = generateLegalMoves(i, j, pieces, tiles, castlingRights, enPassantSquare, true);
+                    let moves = generateLegalMoves(i, j, chessState, true);
     
                     for(const tuple of moves) {
                         if(!allMoves.includes(tuple)) {
@@ -122,8 +107,6 @@ const Board = () => {
                         }
                     }
                 }
-
-                
             })
         })
 
@@ -131,121 +114,140 @@ const Board = () => {
     }
 
     const validateAndUpdateGame = async (nextX: number, nextY: number) => {
-        let newPieces = [...pieces];
-        let newTiles = [...tiles];
         let movePlayed = false;
+        let captureHappened = false;
 
-        if(selectedX !== null && selectedY !== null) {
-            // Verify if move is legal
-            const movingPiece = newPieces[selectedX][selectedY];
-
+        let nextState = produce(chessState, draftState => {
+            if(selectedX !== null && selectedY !== null) {
+                // Verify if move is legal
+                const movingPiece = draftState.pieces[selectedX][selectedY];
     
-            if(movingPiece !== null && !movingPiece.isNeutral && ((whiteToPlay && !movingPiece.isWhite) || !whiteToPlay && movingPiece.isWhite)) {
-                deselectAll();
-                return;
-            }
-    
-            const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, pieces, tiles, castlingRights, enPassantSquare);
-            
-            for(let i = 0; i < legalMoves.length; i++) {
-                if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
-
-                    // A capture happened!
-                    const pieceBefore = newPieces[nextX][nextY];
-
-                    newPieces[nextX][nextY] = movingPiece;
-                    newPieces[selectedX][selectedY] = new EmptyPiece();
-
-                    if(pieceBefore !== null && movingPiece !== null) {
-                        movingPiece.onCapture(nextX, nextY, pieces);
-                        pieceBefore.onGetsCaptured(nextX, nextY, pieces);
-                    }
-    
-                    
-                    movePlayed = true;
-                    break;
+        
+                if(movingPiece !== null && !movingPiece.isNeutral && ((draftState.whiteToPlay && !movingPiece.isWhite) || !draftState.whiteToPlay && movingPiece.isWhite)) {
+                    deselectAll();
+                    return;
                 }
-            }
+        
+                const legalMoves: number[][] = generateLegalMoves(selectedX, selectedY, draftState);
+                
+                for(let i = 0; i < legalMoves.length; i++) {
+                    if(JSON.stringify(legalMoves[i]) === JSON.stringify(Array.from([nextX, nextY]))) {
     
-            if(!movePlayed) {
-                deselectAll();
+                        // A capture happened!
+                        const pieceBefore = draftState.pieces[nextX][nextY];
+    
+                        draftState.pieces[nextX][nextY] = movingPiece;
+                        draftState.pieces[selectedX][selectedY] = new EmptyPiece();
+    
+                        if(!(pieceBefore instanceof EmptyPiece || movingPiece instanceof EmptyPiece)) {
+                            captureHappened = true;
+                            movingPiece.onCapture(nextX, nextY, draftState);
+                            pieceBefore.onGetsCaptured(nextX, nextY, draftState);
+                        }
+        
+                        
+                        movePlayed = true;
+                        break;
+                    }
+                }
+        
+                if(!movePlayed) {
+                    deselectAll();
+                    return;
+                }
+            } else if (selectingAction !== null) {
+                // An action card was played; no piece was moved.
+    
+                // Do the card's effect
+                draftState = getCardAction(selectingAction).onUse(nextX, nextY, draftState);
+    
+                // Update state
+                const newCards = [...chessState.whiteCards];
+                const idx = chessState.whiteCards.indexOf(selectingAction);
+                if(idx !== -1) newCards.splice(idx, 1);
+    
+                setSelectedX(null);
+                setSelectedY(null);
+                movePlayed = true;
+            } else {
                 return;
             }
-        } else if (selectingAction !== null) {
-            // An action card was played; no piece was moved.
+    
+            const updatedGameState = handleCastlingPromotionEnPassant(nextX, nextY, selectedX, selectedY, draftState);
+    
+            draftState.pieces = updatedGameState.pieces;
+            draftState.castlingRights = updatedGameState.castlingRights;
+            draftState.enPassantSquare = updatedGameState.enPassantSquare;
 
-            // Do the card's effect
-            [newPieces, newTiles] = getCardAction(selectingAction).onUse(nextX, nextY, newPieces, tiles);
+            // Randomly iterate over each of the pieces and tiles doing their action on turn end
+            // so that there's no bias towards either side
+            // and it's in God's hands who wins simultanious interactions >:)
+            const indicies = Array.from({length: 64}, (_, i) => i); // [0,1,2,...,63]
 
-            // Update state
-            const newCards = [...cards];
-            const idx = cards.indexOf(selectingAction);
-            if(idx !== -1) newCards.splice(idx, 1);
-            setCards(newCards)
-            setTiles(newTiles);
+            // Shuffle
+            indicies.map(value => ({ value, sort: Math.random() }))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map(({ value }) => value)
+                    // iterate
+                    .forEach((id) => {
+                        let x = id % 8;
+                        let y = 7 - (Math.floor(id / 8))
 
-            setSelectedX(null);
-            setSelectedY(null);
-            movePlayed = true;
-        } else {
-            return;
-        }
+                        draftState.pieces[x][y]?.onMoveEnd(x, y, draftState);
+                        draftState.tiles[x][y]?.onMoveEnd(x, y, draftState);
+            })
 
-        const updatedGameState = handleCastlingPromotionEnPassant(nextX, nextY, selectedX, selectedY, pieces, castlingRights, enPassantSquare);
-
-        newPieces = updatedGameState.pieces;
-        setCastingRights(updatedGameState.castlingRights);
-        setEnPassantSquare(updatedGameState.enPassantSquare);
-
-        // Special pieces
-        let bufferPieces = [...newPieces.map(row => [...row])];
-
-        for (let x = 0; x < 8; x++) {
-            for (let y = 0; y < 8; y++) {
-                const result = pieces[x][y]?.onMoveEnd(x, y, bufferPieces);
-
-                if(result) bufferPieces = result;
+    
+            // Check if in check :)
+            let newPreviousMove = Array.from({ length: 8 }, () => Array(8).fill(0))
+    
+            if (selectedX !== null && selectedY !== null) {
+                newPreviousMove[selectedX][selectedY] = 2; // Destination
+                newPreviousMove[nextX][nextY] = 1 // origin
             }
-        }
-        
-        // Special tiles
-        const result = await newTiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, bufferPieces, newTiles);
+    
+            
+            getAllSeenSquares(draftState.pieces, draftState.whiteToPlay).forEach((coords) => {
+                let x = coords[0];
+                let y = coords[1];
+    
+                if(!draftState.whiteToPlay && draftState.pieces[x][y].toString() === "white-king" || draftState.whiteToPlay && draftState.pieces[x][y].toString() === "black-king") {
+                    newPreviousMove[x][y] = 3; // check
+                }
+            })
+            setPreviousMove(newPreviousMove);
 
-        if(result) bufferPieces = result;
+            let moveString = "";
+            const movingPiece = draftState.pieces[nextX][nextY];
 
-        for (let x = 0; x < 8; x++) {
-            for (let y = 0; y < 8; y++) {
-                const result = await newTiles[x][y]?.onMoveEnd(x, y, bufferPieces, newTiles);
+            if(!(movingPiece instanceof Pawn)) {
+                if (["king", "queen", "rook", "bishop"].includes(movingPiece.name)) {
+                    moveString += movingPiece.name.charAt(0).toUpperCase();
+                } else if (movingPiece.name === "knight") {
+                    moveString += "N";
+                } else {
+                    moveString += `${movingPiece.name} to `
+                }
+            } 
 
-                if(result) bufferPieces = result;
-            }
-        }
+            if(captureHappened) moveString += "x";
 
-        setPieces(bufferPieces);
-        setTiles(newTiles);
+            moveString += String.fromCharCode(97 + nextX)
+            moveString += nextY + 1
+            if (movePlayed) {
+                draftState.log.push(`${draftState.whiteToPlay ? "White" : "Black"} plays ${moveString}.`);
 
-        // Check if in check :)
-        let newPreviousMove = Array.from({ length: 8 }, () => Array(8).fill(0))
-
-        if (selectedX !== null && selectedY !== null) {
-            newPreviousMove[selectedX][selectedY] = 2; // Destination
-            newPreviousMove[nextX][nextY] = 1 // origin
-        }
-
-        
-        getAllSeenSquares(bufferPieces, whiteToPlay).forEach((coords) => {
-            let x = coords[0];
-            let y = coords[1];
-
-            if(!whiteToPlay && pieces[x][y].toString() === "white-king" || whiteToPlay && pieces[x][y].toString() === "black-king") {
-                console.log("check!");
-                newPreviousMove[x][y] = 3; // check
+                draftState.whiteToPlay = !draftState.whiteToPlay;
             }
         })
-        setPreviousMove(newPreviousMove);
 
+        // Special tiles
+        nextState.tiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, nextState).then(nextChessState => {
+            setChessState(nextChessState);
+        });
 
-        if (movePlayed) setWhiteToPlay(!whiteToPlay);
+        setChessState(nextState)
+
         
         setSelectedX(null);
         setSelectedY(null);
@@ -286,7 +288,7 @@ const Board = () => {
 
         if(selectingAction !== null) {
             deselectAll();
-            const legalPlays: number[][] = generateLegalPlays(selectingAction, whiteToPlay, pieces, tiles);
+            const legalPlays: number[][] = generateLegalPlays(selectingAction, chessState);
 
             // Check if we're trying to play on a square where this action allows it
             const check = [nextX, nextY]
@@ -299,7 +301,7 @@ const Board = () => {
             
         // Highlighting a new piece
         } else if (selectedX === null || selectedY === null) {
-            const legalMoves: number[][] = generateLegalMoves(nextX, nextY, pieces, tiles, castlingRights, enPassantSquare);
+            const legalMoves: number[][] = generateLegalMoves(nextX, nextY, chessState);
 
             setSelectedX(nextX);
             setSelectedY(nextY);
@@ -309,11 +311,11 @@ const Board = () => {
             legalMoves.forEach((move) => {
                 newHighlighted[move[0]][move[1]] = 1;
 
-                let movingPiece = pieces[nextX][nextY];
+                let movingPiece = chessState.pieces[nextX][nextY];
 
                 // Warn if king is self-threatening
                 if(movingPiece instanceof King) {
-                    getAllSeenSquares(pieces, !movingPiece.isWhite).forEach((coords) => {
+                    getAllSeenSquares(chessState.pieces, !movingPiece.isWhite).forEach((coords) => {
                         let [x,y] = [coords[0], coords[1]];
                         
                         if(legalMoves.some(move => move[0] === x && move[1] === y)) {
@@ -343,7 +345,7 @@ const Board = () => {
 
         setSelectingAction(card);
 
-        const legalPlays: number[][] = generateLegalPlays(card, whiteToPlay, pieces, tiles);
+        const legalPlays: number[][] = generateLegalPlays(card, chessState);
 
         let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(0));
             
@@ -431,7 +433,7 @@ const Board = () => {
     }
 
     return (
-        <>
+        <div className="game-content">
             <div id="board" style={isDragging ? {cursor: "grabbing"} : {}} onMouseDown={handlePieceDown} onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
                 {tilesBlueprint.map(tile => (
                     <TileSquare
@@ -446,15 +448,15 @@ const Board = () => {
                         onSelectUp={handleTileSelectUp}
                         isHighlighted={highlighted[idToX(tile.id)][idToY(tile.id)]}
                         previousMove={previousMove[idToX(tile.id)][idToY(tile.id)]}
-                        piece={pieces[idToX(tile.id)][idToY(tile.id)]}
-                        tile={tiles[idToX(tile.id)][idToY(tile.id)]}
+                        piece={chessState.pieces[idToX(tile.id)][idToY(tile.id)]}
+                        tile={chessState.tiles[idToX(tile.id)][idToY(tile.id)]}
                     />
                 ))}
-            <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
+            <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(chessState.pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
 
             </div>
-            <div className="cards">
-                {cards.map((card, i) => (
+            {/* <div className="cards">
+                {chessState.whiteCards.map((card, i) => (
                     <Card
                         key={i}
                         name={card}
@@ -462,9 +464,17 @@ const Board = () => {
                         onClick={() => {handleCardSelect(card)}}
                     />
                 ))}
+            </div> */}
+
+            <div ref={logRef} id="log" className="log">
+                {chessState.log.map((eachLog, i) => 
+                    <div className="log-entry" key={i}>
+                        {eachLog}
+                    </div>
+                )}
             </div>
             {/* <button onClick={() => {setwhitePOV(prev => !prev)}}>Flip board</button> */}
-        </>
+        </div>
     )
 };
 

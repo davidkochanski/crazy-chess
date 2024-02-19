@@ -1,3 +1,5 @@
+import ChessState from "../ChessState";
+
 export class Piece {
 
     constructor (isWhite: boolean) {
@@ -5,11 +7,11 @@ export class Piece {
     }
 
     // @ts-ignore
-    onMoveEnd = (currX: number, currY: number, pieces: (Piece)[][]): (Piece)[][] => pieces;
+    onMoveEnd = (currX: number, currY: number, state: ChessState): ChessState => state;
     // @ts-ignore
-    onCapture = (currX: number, currY: number, pieces: (Piece)[][]): (Piece)[][] => pieces;
+    onCapture = (currX: number, currY: number, state: ChessState): ChessState => state;
     // @ts-ignore
-    onGetsCaptured = (currX: number, currY: number, pieces: (Piece)[][]): (Piece)[][] => pieces;
+    onGetsCaptured = (currX: number, currY: number, state: ChessState): ChessState => state;
 
     canMoveAsKnight: boolean = false;
     canMoveDiagonally: boolean = false;
