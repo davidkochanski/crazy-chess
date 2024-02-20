@@ -43,8 +43,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
 
         if(!piece.isEmpty()) {
             if(!piece.isCapturable) return true;
-
-
+            
             if(areDifferentColours(piece, movingPiece) || piece.isNeutral || includePieceVision) {
                 legalMoves.push([x,y]);
             }

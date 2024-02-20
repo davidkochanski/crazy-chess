@@ -202,6 +202,7 @@
     overflow-y: scroll;
     margin-top: auto;
     scrollbar-width: thin;
+    scrollbar-color: #a297fc #181533;
 }
 
 .log-entry {
@@ -209,6 +210,8 @@
     font-family: Lato, sans-serif;
     font-size: 14px;
     padding: 5px;
+    display: flex;
+    align-items: center;
 }
 
 .log-entry:nth-of-type(2n + 1) {
@@ -217,4 +220,27 @@
 
 .log::-webkit-scrollbar{
     width: 5px !important;
+}
+
+.log-node {
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    border-radius: 2px;
+}
+
+.log-entry.white .log-node {
+    background-color: white;
+}
+
+.log-entry.black .log-node {
+    background-color: black;
+}
+
+.log-entry.console .log-node {
+    background-color: yellow;
+}
+
+.log-entry.white_text .log-node {
+    background-color: blue;
 }

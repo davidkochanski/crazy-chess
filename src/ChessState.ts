@@ -9,5 +9,12 @@ export default interface ChessState {
     whiteToPlay: boolean;
     enPassantSquare: (number | null)[];
     castlingRights: boolean[];
-    log: string[];
+    log: Log[];
 }
+
+export interface Log {
+    content: string
+    author: LogType
+}
+
+type LogType = "WHITE" | "BLACK" | "CONSOLE" | "WHITE_TEXT" | "BLACK_TEXT"

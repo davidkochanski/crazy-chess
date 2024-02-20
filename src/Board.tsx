@@ -20,6 +20,7 @@ import { BluePortal } from "./Tiles/BluePortal";
 import { CardBehaviour } from "./Cards/Card";
 
 import ChessState from "./ChessState";
+import { Log } from "./ChessState";
 import { produce } from "immer";
 
 const Board = () => {
@@ -41,7 +42,7 @@ const Board = () => {
         enPassantSquare: [null, null],
         castlingRights: [true, true, true, true],
 
-        log: ["The game has begun!", "OwO", "OwO","OwO","OwO","OwO","OwO","OwO","OwO","OwO","OwO","OwO"]
+        log: [{content: "The game has begin!", author: "CONSOLE"}]
     };
 
     const logRef = useRef<HTMLDivElement>(null);
@@ -90,22 +91,20 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
     }
 
-    const getAllSeenSquares = (pieces: (Piece)[][], byWhite: boolean) => {
+    const getAllSeenSquares = (currentState: ChessState) => {
 
         let allMoves: number[][] = [];
+        const pieces = currentState.pieces;
+        const byWhite = currentState.whiteToPlay;
 
         pieces.forEach((row, i) => {
             row.forEach((piece, j) => {
                 if(piece !== null) {
-                    if(piece.isWhite && !byWhite || !piece.isWhite && byWhite) return;
+                    if((piece.isWhite && !byWhite) || (!piece.isWhite && byWhite)) return;
 
-                    let moves = generateLegalMoves(i, j, chessState, true);
-    
-                    for(const tuple of moves) {
-                        if(!allMoves.includes(tuple)) {
-                            allMoves.push(tuple);
-                        }
-                    }
+                    generateLegalMoves(i, j, {...currentState, whiteToPlay: !currentState.whiteToPlay}, true).forEach((tuple) => {
+                        if(!allMoves.includes(tuple)) allMoves.push(tuple);
+                    });
                 }
             })
         })
@@ -207,12 +206,14 @@ const Board = () => {
             }
     
             
-            getAllSeenSquares(draftState.pieces, draftState.whiteToPlay).forEach((coords) => {
+            getAllSeenSquares(draftState).forEach((coords) => {
                 let x = coords[0];
                 let y = coords[1];
     
-                if(!draftState.whiteToPlay && draftState.pieces[x][y].toString() === "white-king" || draftState.whiteToPlay && draftState.pieces[x][y].toString() === "black-king") {
+                if((!draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && draftState.pieces[x][y].isWhite) 
+                  || (draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && !draftState.pieces[x][y].isWhite)) {
                     newPreviousMove[x][y] = 3; // check
+
                 }
             })
             setPreviousMove(newPreviousMove);
@@ -235,7 +236,12 @@ const Board = () => {
             moveString += String.fromCharCode(97 + nextX)
             moveString += nextY + 1
             if (movePlayed) {
-                draftState.log.push(`${draftState.whiteToPlay ? "White" : "Black"} plays ${moveString}.`);
+                draftState.log.push(
+                    {
+                        content:  `${draftState.whiteToPlay ? "White" : "Black"} plays ${moveString}.`,
+                        author: draftState.whiteToPlay ? "WHITE" : "BLACK"
+                    }
+                );
 
                 draftState.whiteToPlay = !draftState.whiteToPlay;
             }
@@ -255,8 +261,20 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
 
 
-        let whiteKingIsAlive = boardHasAtLeastOne(new King(true));
-        let blackKingIsAlive = boardHasAtLeastOne(new King(false));
+        let whiteKingIsAlive = false;
+        let blackKingIsAlive = false;
+
+        for(let x = 0; x < 8; x++) {
+            for(let y = 0; y < 8; y++) {
+                if(nextState.pieces[x][y] instanceof King) {
+                    if(nextState.pieces[x][y].isWhite) {
+                        whiteKingIsAlive = true;
+                    } else {
+                        blackKingIsAlive = true;
+                    }
+                }
+            }
+        }
 
         if(!whiteKingIsAlive && !blackKingIsAlive) {
             setTimeout(() => {alert("DRAW")}, 50)
@@ -315,7 +333,7 @@ const Board = () => {
 
                 // Warn if king is self-threatening
                 if(movingPiece instanceof King) {
-                    getAllSeenSquares(chessState.pieces, !movingPiece.isWhite).forEach((coords) => {
+                    getAllSeenSquares({...chessState, whiteToPlay: !movingPiece.isWhite}).forEach((coords) => {
                         let [x,y] = [coords[0], coords[1]];
                         
                         if(legalMoves.some(move => move[0] === x && move[1] === y)) {
@@ -468,8 +486,8 @@ const Board = () => {
 
             <div ref={logRef} id="log" className="log">
                 {chessState.log.map((eachLog, i) => 
-                    <div className="log-entry" key={i}>
-                        {eachLog}
+                    <div className={`log-entry ${eachLog.author.toLowerCase()}`} key={i}>
+                        <div className={`log-node`}></div><p>{eachLog.content}</p>
                     </div>
                 )}
             </div>
