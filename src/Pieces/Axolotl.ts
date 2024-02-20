@@ -1,6 +1,8 @@
+import { produce } from "immer";
 import ChessState from "../ChessState";
 import { EmptyPiece } from "./EmptyPiece";
 import { Piece } from "./Piece";
+import { getCoords } from "../Moves";
 
 export class Axolotl extends Piece {
     constructor(isWhite: boolean) {
@@ -11,21 +13,32 @@ export class Axolotl extends Piece {
         this.isCapturable = true;
 
         this.onMoveEnd = (currX: number, currY: number, state: ChessState) => {
-            let x, y;
+
+            return new Promise((resolve) => {
+                let x: number, y: number;
             
-            // Wow, an actual usecase for a do while...
-            do {
-                const deltaX = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
-                const deltaY = Math.floor(Math.random() * 3) - 1;
-            
-                x = currX + deltaX;
-                y = currY + deltaY;
-            } while (!(x >= 0 && x <= 7 && y >= 0 && y <= 7));
-            
-            state.pieces[currX][currY] = new EmptyPiece();
-            state.pieces[x][y] = new Axolotl(true);
-            
-            return state;
+                // Wow, an actual usecase for a do while...
+                do {
+                    const deltaX = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                    const deltaY = Math.floor(Math.random() * 3) - 1;
+                
+                    x = currX + deltaX;
+                    y = currY + deltaY;
+                } while (!(x >= 0 && x <= 7 && y >= 0 && y <= 7));
+                
+                resolve(produce(state, draftState => {
+                    draftState.pieces[currX][currY] = new EmptyPiece();
+                    draftState.pieces[x][y] = new Axolotl(true);
+
+                    if(!(x === currX && y === currY)) {
+                        draftState.log.push({
+                            content:  `The axolotl crawled to ${getCoords(x, y)}.`,
+                            byWhite: state.whiteToPlay
+                        })
+                    }
+                }));
+            })
+
         }
     }
 }

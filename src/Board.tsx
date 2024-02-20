@@ -23,6 +23,7 @@ import ChessState from "./ChessState";
 import { Log } from "./ChessState";
 import { produce } from "immer";
 import { Fox } from "./Pieces/Fox";
+import { Axolotl } from "./Pieces/Axolotl";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -33,7 +34,7 @@ const Board = () => {
             [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
             [new King(true), new Pawn(true), new EmptyPiece(), new Fox(true), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
-            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+            [new TrojanHorse(true), new Pawn(true), new Axolotl(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
         ],
         tiles: Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())),
@@ -47,6 +48,7 @@ const Board = () => {
     };
 
     const logRef = useRef<HTMLDivElement>(null);
+    const [wait, setWait] = useState(false);
 
     const [chessState, setChessState] = useState<ChessState>(defaultState);
     const [selectedX, setSelectedX] = useState<number | null>(null);
@@ -114,6 +116,10 @@ const Board = () => {
     }
 
     const validateAndUpdateGame = async (nextX: number, nextY: number) => {
+        if(wait) return;
+
+        setWait(_ => true);
+
         let movePlayed = false;
         let captureHappened = false;
         let isInCheck = false;
@@ -189,23 +195,6 @@ const Board = () => {
             // Randomly iterate over each of the pieces and tiles doing their action on turn end
             // so that there's no bias towards either side
             // and it's in God's hands who wins simultanious interactions >:)
-            const indicies = Array.from({length: 64}, (_, i) => i); // [0,1,2,...,63]
-
-            const nextTiles = draftState.tiles.map(inner => inner.slice());
-            const nextPieces = draftState.pieces.map(inner => inner.slice());
-
-            // Shuffle
-            indicies.map(value => ({ value, sort: Math.random() }))
-                    .sort((a, b) => a.sort - b.sort)
-                    .map(({ value }) => value)
-                    // iterate
-                    .forEach((id) => {
-                        let x = id % 8;
-                        let y = 7 - (Math.floor(id / 8))
-
-                        nextPieces[x][y]?.onMoveEnd(x, y, draftState);
-                        nextTiles[x][y]?.onMoveEnd(x, y, draftState);
-            })
 
     
             // Check if in check :)
@@ -273,23 +262,53 @@ const Board = () => {
             }
 
             draftState.log = [...tempLogs];
+
         })
 
         if(halt) {
             deselectAll();
+            setWait(_ => false);
             return;
         }
 
+        setChessState(nextState)
+
+
         // Special tiles
         nextState.tiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, nextState).then(nextChessState => {
-            setChessState({...nextChessState, whiteToPlay: !chessState.whiteToPlay});
+            setChessState(nextChessState);
+        }).then(async () => {
+            let indicies = Array.from({length: 64}, (_, i) => i); // [0,1,2,...,63]
+
+            const nextTiles = nextState.tiles.map(inner => inner.slice());
+            const nextPieces = nextState.pieces.map(inner => inner.slice());
+
+            // Shuffle
+            indicies = indicies.map(value => ({ value, sort: Math.random() }))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map(({ value }) => value)
+                    // iterate
+    
+            for (let id of indicies) {
+                let x = id % 8;
+                let y = 7 - Math.floor(id / 8);
+    
+                if (nextPieces[x][y]) {
+                    nextState = await nextPieces[x][y].onMoveEnd(x, y, nextState);
+                    setChessState(nextState);
+                }
+                if (nextTiles[x][y]) {
+                    nextState = await nextTiles[x][y].onMoveEnd(x, y, nextState);
+                    setChessState(nextState);
+                }
+            }
+    
+            
+
+        }).then(async () => {
+            setChessState(prev => ({...prev, whiteToPlay: !prev.whiteToPlay}))
+            setWait(_ => false);
         });
-
-        const final = {...nextState}
-
-        final.whiteToPlay = !chessState.whiteToPlay;
-
-        setChessState(final);
 
         setSelectedX(null);
         setSelectedY(null);
@@ -341,6 +360,8 @@ const Board = () => {
     }
 
     const handleTileSelect = (nextX: number, nextY: number) => {
+
+        if(wait) return;
 
         if(selectingAction !== null) {
             deselectAll();
@@ -528,8 +549,9 @@ const Board = () => {
                         <div className={`log-node`}></div><p>{eachLog.content}</p>
                     </div>
                 )}
+
             </div>
-            {/* <button onClick={() => {setwhitePOV(prev => !prev)}}>Flip board</button> */}
+            {/* {wait && <button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>} */}
         </div>
     )
 };

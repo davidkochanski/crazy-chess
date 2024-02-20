@@ -1,3 +1,4 @@
+import { produce } from "immer";
 import ChessState from "../ChessState";
 import { getCoords } from "../Moves";
 import { EmptyPiece } from "./EmptyPiece";
@@ -11,22 +12,45 @@ export class Fox extends Piece {
         this.isNeutral = true;
         this.isCapturable = true;
         this.onMoveEnd = (currX: number, currY: number, state: ChessState) => {
-            const x = Math.floor(Math.random() * 8);
-            const y = Math.floor(Math.random() * 8);
-            
-            state.pieces[currX][currY] = new EmptyPiece();
+            return new Promise((resolve) => {
+                const x = Math.floor(Math.random() * 8);
+                const y = Math.floor(Math.random() * 8);
 
-            state.pieces[x][y] = new Fox(true);
+                const tile = document.getElementById("tile-0-0");
+                const fox = document.querySelector(`#tile-${currX}-${currY} > .piece-img`);
 
-            state.log.push(
-                {
-                    content: `The fox jumps to ${getCoords(x, y)}!`,
-                    byWhite: state.whiteToPlay,
-                    author: "CONSOLE",
+                const width = tile?.clientWidth;
+
+
+                const deltaX = x - currX;
+                const deltaY = y - currY;
+
+
+                if(width && fox) {
+                    const animation = fox.animate([{
+                        translate: `${width * deltaX}px ${-width *deltaY}px`
+                    }], {duration: 0.5 * Math.sqrt(Math.pow((width * deltaX), 2) + Math.pow((width * deltaY), 2)),
+                        fill: "forwards"})
+
+
+                    animation.onfinish = () => {
+                        const newState = produce(state, draftState => {
+                            draftState.pieces[currX][currY] = new EmptyPiece();
+                            draftState.pieces[x][y] = new Fox(true);
+        
+                            draftState.log.push(
+                                {
+                                    content: `The fox jumps to ${getCoords(x, y)}!`,
+                                    byWhite: state.whiteToPlay,
+                                    author: "CONSOLE",
+                                }
+                            );
+                        })
+                        resolve(newState);
+                        return;
+                    };
                 }
-            );
-
-            return state;
+            })
         }
     }
 }

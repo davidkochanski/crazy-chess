@@ -7,7 +7,7 @@ export class Piece {
     }
 
     // @ts-ignore
-    onMoveEnd = (currX: number, currY: number, state: ChessState): ChessState => state;
+    onMoveEnd = (currX: number, currY: number, state: ChessState): Promise<ChessState> => Promise.resolve(state);
     // @ts-ignore
     onCapture = (currX: number, currY: number, state: ChessState): ChessState => state;
     // @ts-ignore
