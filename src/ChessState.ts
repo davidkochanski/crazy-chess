@@ -14,7 +14,8 @@ export default interface ChessState {
 
 export interface Log {
     content: string
-    author: LogType
+    byWhite: boolean;
+    author?: LogType
 }
 
-type LogType = "WHITE" | "BLACK" | "CONSOLE" | "WHITE_TEXT" | "BLACK_TEXT"
+type LogType = "WHITE" | "BLACK" | "CONSOLE" | "WHITE_TEXT" | "BLACK_TEXT" | "WHITE_MOVE" | "BLACK_MOVE";

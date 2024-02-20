@@ -1,4 +1,5 @@
 import ChessState from "../ChessState";
+import { getCoords } from "../Moves";
 import { EmptyPiece } from "../Pieces/EmptyPiece";
 import { OrangePortal } from "./OrangePortal";
 import { Tile } from "./Tile";
@@ -34,6 +35,11 @@ export class BluePortal extends Tile {
 
                     draftState.pieces[currX][currY] = new EmptyPiece();
                     draftState.pieces[destX][destY] = movingPiece;
+
+                    draftState.log.push({
+                        content: `Whoosh! The portal sucked in the ${movingPiece.name} and it teleported to ${getCoords(destX, destY)}!`,
+                        byWhite: draftState.whiteToPlay
+                    })
                 });
     
                 resolve(newState);

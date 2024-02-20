@@ -22,6 +22,7 @@ import { CardBehaviour } from "./Cards/Card";
 import ChessState from "./ChessState";
 import { Log } from "./ChessState";
 import { produce } from "immer";
+import { Fox } from "./Pieces/Fox";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -30,7 +31,7 @@ const Board = () => {
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
             [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
-            [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
+            [new King(true), new Pawn(true), new EmptyPiece(), new Fox(true), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
@@ -42,7 +43,7 @@ const Board = () => {
         enPassantSquare: [null, null],
         castlingRights: [true, true, true, true],
 
-        log: [{content: "The game has begin!", author: "CONSOLE"}]
+        log: [{content: "The game has begin!", byWhite: true, author: "CONSOLE"}]
     };
 
     const logRef = useRef<HTMLDivElement>(null);
@@ -115,6 +116,9 @@ const Board = () => {
     const validateAndUpdateGame = async (nextX: number, nextY: number) => {
         let movePlayed = false;
         let captureHappened = false;
+        let isInCheck = false;
+        let moveString = "";
+        let halt = false;
 
         let nextState = produce(chessState, draftState => {
             if(selectedX !== null && selectedY !== null) {
@@ -122,8 +126,9 @@ const Board = () => {
                 const movingPiece = draftState.pieces[selectedX][selectedY];
     
         
-                if(movingPiece !== null && !movingPiece.isNeutral && ((draftState.whiteToPlay && !movingPiece.isWhite) || !draftState.whiteToPlay && movingPiece.isWhite)) {
+                if(movingPiece instanceof EmptyPiece || ( !movingPiece.isNeutral && ((draftState.whiteToPlay && !movingPiece.isWhite) || !draftState.whiteToPlay && movingPiece.isWhite))) {
                     deselectAll();
+                    halt = true;
                     return;
                 }
         
@@ -140,11 +145,13 @@ const Board = () => {
     
                         if(!(pieceBefore instanceof EmptyPiece || movingPiece instanceof EmptyPiece)) {
                             captureHappened = true;
+                        }
+
+                        if(captureHappened) {
                             movingPiece.onCapture(nextX, nextY, draftState);
                             pieceBefore.onGetsCaptured(nextX, nextY, draftState);
                         }
-        
-                        
+
                         movePlayed = true;
                         break;
                     }
@@ -152,6 +159,7 @@ const Board = () => {
         
                 if(!movePlayed) {
                     deselectAll();
+                    halt = true;
                     return;
                 }
             } else if (selectingAction !== null) {
@@ -183,6 +191,9 @@ const Board = () => {
             // and it's in God's hands who wins simultanious interactions >:)
             const indicies = Array.from({length: 64}, (_, i) => i); // [0,1,2,...,63]
 
+            const nextTiles = draftState.tiles.map(inner => inner.slice());
+            const nextPieces = draftState.pieces.map(inner => inner.slice());
+
             // Shuffle
             indicies.map(value => ({ value, sort: Math.random() }))
                     .sort((a, b) => a.sort - b.sort)
@@ -192,8 +203,8 @@ const Board = () => {
                         let x = id % 8;
                         let y = 7 - (Math.floor(id / 8))
 
-                        draftState.pieces[x][y]?.onMoveEnd(x, y, draftState);
-                        draftState.tiles[x][y]?.onMoveEnd(x, y, draftState);
+                        nextPieces[x][y]?.onMoveEnd(x, y, draftState);
+                        nextTiles[x][y]?.onMoveEnd(x, y, draftState);
             })
 
     
@@ -213,14 +224,14 @@ const Board = () => {
                 if((!draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && draftState.pieces[x][y].isWhite) 
                   || (draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && !draftState.pieces[x][y].isWhite)) {
                     newPreviousMove[x][y] = 3; // check
+                    isInCheck = true;
 
                 }
             })
             setPreviousMove(newPreviousMove);
 
-            let moveString = "";
             const movingPiece = draftState.pieces[nextX][nextY];
-
+                                    
             if(!(movingPiece instanceof Pawn)) {
                 if (["king", "queen", "rook", "bishop"].includes(movingPiece.name)) {
                     moveString += movingPiece.name.charAt(0).toUpperCase();
@@ -231,30 +242,55 @@ const Board = () => {
                 }
             } 
 
-            if(captureHappened) moveString += "x";
-
-            moveString += String.fromCharCode(97 + nextX)
-            moveString += nextY + 1
-            if (movePlayed) {
-                draftState.log.push(
-                    {
-                        content:  `${draftState.whiteToPlay ? "White" : "Black"} plays ${moveString}.`,
-                        author: draftState.whiteToPlay ? "WHITE" : "BLACK"
-                    }
-                );
-
-                draftState.whiteToPlay = !draftState.whiteToPlay;
+            if(selectedX === null) return; // shutup typescript
+            
+            if(captureHappened) {
+                if(movingPiece instanceof Pawn) {
+                    moveString += `${String.fromCharCode(97 + selectedX)}x`;
+                } else {
+                    moveString += "x";
+                }
             }
+
+            moveString += String.fromCharCode(97 + nextX);
+            moveString += nextY + 1;
+
+            if(isInCheck) moveString += "+";
+
+
+            // I want the move string to always be the first message of the turn.
+            const tempLogs = [...chessState.log];
+
+            tempLogs.push({
+                    content: `${draftState.whiteToPlay ? "White" : "Black"} plays ${moveString}.`,
+                    byWhite: draftState.whiteToPlay,
+                    author: draftState.whiteToPlay ? "WHITE_MOVE" : "BLACK_MOVE",
+                }
+            )
+
+            for(let i = tempLogs.length - 1; i < draftState.log.length; i++) {
+                tempLogs.push(draftState.log[i]);
+            }
+
+            draftState.log = [...tempLogs];
         })
+
+        if(halt) {
+            deselectAll();
+            return;
+        }
 
         // Special tiles
         nextState.tiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, nextState).then(nextChessState => {
-            setChessState(nextChessState);
+            setChessState({...nextChessState, whiteToPlay: !chessState.whiteToPlay});
         });
 
-        setChessState(nextState)
+        const final = {...nextState}
 
-        
+        final.whiteToPlay = !chessState.whiteToPlay;
+
+        setChessState(final);
+
         setSelectedX(null);
         setSelectedY(null);
         setSelectingAction(null);
@@ -276,6 +312,8 @@ const Board = () => {
             }
         }
 
+
+        // Temp
         if(!whiteKingIsAlive && !blackKingIsAlive) {
             setTimeout(() => {alert("DRAW")}, 50)
             return;
@@ -486,7 +524,7 @@ const Board = () => {
 
             <div ref={logRef} id="log" className="log">
                 {chessState.log.map((eachLog, i) => 
-                    <div className={`log-entry ${eachLog.author.toLowerCase()}`} key={i}>
+                    <div className={`log-entry ${(eachLog.author !== undefined ? eachLog.author : (eachLog.byWhite ? "WHITE" : "BLACK")).toLowerCase()}`} key={i}>
                         <div className={`log-node`}></div><p>{eachLog.content}</p>
                     </div>
                 )}

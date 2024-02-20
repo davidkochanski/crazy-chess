@@ -1,4 +1,5 @@
 import ChessState from "../ChessState";
+import { getCoords } from "../Moves";
 import { EmptyPiece } from "./EmptyPiece";
 import { Piece } from "./Piece";
 
@@ -16,6 +17,14 @@ export class Fox extends Piece {
             state.pieces[currX][currY] = new EmptyPiece();
 
             state.pieces[x][y] = new Fox(true);
+
+            state.log.push(
+                {
+                    content: `The fox jumps to ${getCoords(x, y)}!`,
+                    byWhite: state.whiteToPlay,
+                    author: "CONSOLE",
+                }
+            );
 
             return state;
         }

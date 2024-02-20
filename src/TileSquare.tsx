@@ -97,6 +97,8 @@ const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBei
             <div className="tile-effects">
                 {putEffects()}
             </div>
+            {x === 0 && <div className="tile-row-marker">{y + 1}</div>}
+            {y === 0 && <div className="tile-column-marker">{String.fromCharCode(97 + x)}</div>}
         </div>
     )
 }

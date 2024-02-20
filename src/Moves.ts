@@ -484,3 +484,7 @@ export const decodeEffects = (piece: Piece) => {
 
     return piece.attachments;
 }
+
+export const getCoords = (x: number, y: number) => {
+    return `${String.fromCharCode(97 + x)}${y+1}`
+}

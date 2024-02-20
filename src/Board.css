@@ -31,6 +31,23 @@
     user-select: none;
 }
 
+.tile-row-marker, .tile-column-marker  {
+    position: absolute;
+    z-index: 100000000;
+    font-size: 16px;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+    font-family: Lato, sans-serif;
+    font-weight: bolder;
+    color: #110e24;
+    translate: 15% 0;
+}
+
+.tile-column-marker {
+    bottom: 0;
+}
+
 .tile.dark {
     background-color: #B58863;
 }
@@ -198,8 +215,9 @@
     height: min(25vh, 25vw);
     margin-left: 10px;
     border: 2px solid #a297fc;
-    background-color: #110e24;
+    background-color: black;
     overflow-y: scroll;
+    overflow-x: hidden;
     margin-top: auto;
     scrollbar-width: thin;
     scrollbar-color: #a297fc #181533;
@@ -212,10 +230,29 @@
     padding: 5px;
     display: flex;
     align-items: center;
+    font-style: italic;
+    animation: log-entry-animation 0.25s ease-out forwards;
+    opacity: 0.5;
+}
+
+@keyframes log-entry-animation {
+    from {
+        translate: 50px 0;
+        opacity: 0.5;
+    }
+    to {
+        translate: 0 0;
+        opacity: 1;
+    }
+
 }
 
 .log-entry:nth-of-type(2n + 1) {
     background-color: #2e2953;
+}
+
+.log-entry:nth-of-type(2n) {
+    background-color: #181533;
 }
 
 .log::-webkit-scrollbar{
@@ -227,20 +264,28 @@
     height: 10px;
     margin-right: 5px;
     border-radius: 2px;
+    aspect-ratio: 1/1;
 }
 
-.log-entry.white .log-node {
+.log-entry.white .log-node, .log-entry.white_move .log-node {
     background-color: white;
 }
 
-.log-entry.black .log-node {
+.log-entry.black .log-node, .log-entry.black_move .log-node {
     background-color: black;
+    border: 1.5px solid white;
 }
 
 .log-entry.console .log-node {
     background-color: yellow;
 }
 
-.log-entry.white_text .log-node {
-    background-color: blue;
+.log-entry.white_move > p, .log-entry.black_move > p {
+   font-weight: 600;
+   font-style: normal !important
+}
+
+.log-entry.white_move, .log-entry.black_move {
+    box-sizing: content-box;
+    margin-top: 15px;
 }
