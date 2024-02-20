@@ -3,6 +3,7 @@ import ChessState from "../ChessState";
 import { getCoords } from "../Moves";
 import { EmptyPiece } from "./EmptyPiece";
 import { Piece } from "./Piece";
+import { Villager } from "./Villager";
 
 export class Fox extends Piece {
     constructor(isWhite: boolean) {
@@ -16,11 +17,21 @@ export class Fox extends Piece {
                 const x = Math.floor(Math.random() * 8);
                 const y = Math.floor(Math.random() * 8);
 
+                const prevFox = document.querySelector(`#tile-${currX}-${currY} > .piece-img`) as HTMLImageElement;
+                prevFox.src = "img/empty.png";
+
                 const tile = document.getElementById("tile-0-0");
-                const fox = document.querySelector(`#tile-${currX}-${currY} > .piece-img`);
+                const foxPos = document.querySelector(`#tile-${currX}-${currY}`);
+
+
+
+                const fox = document.createElement("img");
+                fox.src = "img/fox.png";
+                fox.classList.add("anim");
+
+                foxPos?.appendChild(fox);
 
                 const width = tile?.clientWidth;
-
 
                 const deltaX = x - currX;
                 const deltaY = y - currY;
@@ -35,6 +46,8 @@ export class Fox extends Piece {
 
                     animation.onfinish = () => {
                         const newState = produce(state, draftState => {
+                            fox.remove();
+
                             draftState.pieces[currX][currY] = new EmptyPiece();
                             draftState.pieces[x][y] = new Fox(true);
         

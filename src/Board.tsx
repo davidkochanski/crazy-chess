@@ -1,6 +1,6 @@
 import { useState, MouseEvent, useEffect, useRef } from "react";
 import { Tile } from "./Tiles/Tile";
-import { generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays } from "./Moves";
+import { generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays, getCoords } from "./Moves";
 import { getCardAction } from "./CardBehaviours";
 import Card from "./Card";
 import { Piece } from "./Pieces/Piece";
@@ -30,11 +30,11 @@ const Board = () => {
         pieces:  [
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
-            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
-            [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
-            [new King(true), new Pawn(true), new EmptyPiece(), new Fox(true), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
-            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
-            [new TrojanHorse(true), new Pawn(true), new Axolotl(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new Fox(true), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
+            [new Queen(true), new Pawn(true), new EmptyPiece(), new Fox(true), new Fox(true), new EmptyPiece(), new Pawn(false), new Queen(false)],
+            [new King(true), new Pawn(true), new EmptyPiece(), new Fox(true), new Fox(true), new EmptyPiece(), new Pawn(false), new King(false)],
+            [new Bishop(true), new Pawn(true), new Fox(true), new EmptyPiece(), new EmptyPiece(), new Fox(true), new Pawn(false), new Bishop(false)],
+            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new Fox(true), new EmptyPiece(), new Fox(true), new Pawn(false), new Knight(false)],
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
         ],
         tiles: Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())),
@@ -65,7 +65,6 @@ const Board = () => {
         temp[0][0] = new Wall();
         temp[3][4] = new OrangePortal();
         temp[4][3] = new BluePortal();
-        console.log(temp);
         
         setChessState(prev => ({
             ...prev,
@@ -77,6 +76,11 @@ const Board = () => {
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
     }, [chessState.log])
+
+    useEffect(() => {
+        setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
+    }, [wait])
+
 
     const boardHasAtLeastOne = (piece: Piece) => {
         for(let x = 0; x < 8; x++) {
@@ -212,9 +216,8 @@ const Board = () => {
     
                 if((!draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && draftState.pieces[x][y].isWhite) 
                   || (draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && !draftState.pieces[x][y].isWhite)) {
-                    newPreviousMove[x][y] = 3; // check
+                    // newPreviousMove[x][y] = 3; // check
                     isInCheck = true;
-
                 }
             })
             setPreviousMove(newPreviousMove);
@@ -244,6 +247,22 @@ const Board = () => {
             moveString += String.fromCharCode(97 + nextX);
             moveString += nextY + 1;
 
+            if(movingPiece instanceof King) {
+                if((chessState.castlingRights[0] && nextX === 6 && nextY === 0) ||
+                (chessState.castlingRights[2] && nextX === 6 && nextY === 7)) {
+                    moveString = "O-O";
+                } else if((chessState.castlingRights[1] && nextX === 2 && nextY === 0) ||
+                (chessState.castlingRights[3] && nextX === 2 && nextY === 7)) {
+                    moveString = "O-O-O";
+                }
+            }
+
+            if(movingPiece instanceof Pawn) {
+                if(nextX === chessState.enPassantSquare[0] && nextY === chessState.enPassantSquare[1]) {
+                    moveString = `${String.fromCharCode(97 + selectedX)}x${getCoords(nextX, nextY)}. Holy Hell!`;
+                }
+            }
+
             if(isInCheck) moveString += "+";
 
 
@@ -251,7 +270,7 @@ const Board = () => {
             const tempLogs = [...chessState.log];
 
             tempLogs.push({
-                    content: `${draftState.whiteToPlay ? "White" : "Black"} plays ${moveString}.`,
+                    content: `${draftState.whiteToPlay ? "White" : "Black"} plays ${moveString}${moveString.charAt(moveString.length-1) === "!" ? "" : "."}`,
                     byWhite: draftState.whiteToPlay,
                     author: draftState.whiteToPlay ? "WHITE_MOVE" : "BLACK_MOVE",
                 }
@@ -270,55 +289,54 @@ const Board = () => {
             setWait(_ => false);
             return;
         }
-
-        setChessState(nextState)
-
-
-        // Special tiles
-        nextState.tiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, nextState).then(nextChessState => {
-            setChessState(nextChessState);
-        }).then(async () => {
-            let indicies = Array.from({length: 64}, (_, i) => i); // [0,1,2,...,63]
-
-            const nextTiles = nextState.tiles.map(inner => inner.slice());
-            const nextPieces = nextState.pieces.map(inner => inner.slice());
-
-            // Shuffle
-            indicies = indicies.map(value => ({ value, sort: Math.random() }))
-                    .sort((a, b) => a.sort - b.sort)
-                    .map(({ value }) => value)
-                    // iterate
     
-            for (let id of indicies) {
-                let x = id % 8;
-                let y = 7 - Math.floor(id / 8);
+        setChessState(nextState);
     
-                if (nextPieces[x][y]) {
-                    nextState = await nextPieces[x][y].onMoveEnd(x, y, nextState);
-                    setChessState(nextState);
-                }
-                if (nextTiles[x][y]) {
-                    nextState = await nextTiles[x][y].onMoveEnd(x, y, nextState);
-                    setChessState(nextState);
-                }
+        let indicies = Array.from({length: 64}, (_, i) => i); // [0,1,2,...,63]
+    
+        const nextPieces = nextState.pieces.map(inner => inner.slice());
+        const nextTiles = nextState.tiles.map(inner => inner.slice());
+    
+        // Shuffle
+        indicies = indicies.map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value);
+    
+        // iterate
+        nextState = await nextState.tiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, nextState);
+        setChessState(nextState);
+    
+        for (let id of indicies) {
+            let x = id % 8;
+            let y = 7 - Math.floor(id / 8);
+    
+            if (nextPieces[x][y]) {
+                nextState = await nextPieces[x][y].onMoveEnd(x, y, nextState);
+                setChessState(nextState);
             }
+        }
     
-            
-
-        }).then(async () => {
-            setChessState(prev => ({...prev, whiteToPlay: !prev.whiteToPlay}))
-            setWait(_ => false);
-        });
-
+        for (let id of indicies) {
+            let x = id % 8;
+            let y = 7 - Math.floor(id / 8);
+    
+            if (nextTiles[x][y]) {
+                nextState = await nextTiles[x][y].onMoveEnd(x, y, nextState);
+                setChessState(nextState);
+            }
+        }
+    
+        setChessState(prev => ({...prev, whiteToPlay: !prev.whiteToPlay}));
+        setWait(_ => false);
+    
         setSelectedX(null);
         setSelectedY(null);
         setSelectingAction(null);
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
-
-
+    
         let whiteKingIsAlive = false;
         let blackKingIsAlive = false;
-
+    
         for(let x = 0; x < 8; x++) {
             for(let y = 0; y < 8; y++) {
                 if(nextState.pieces[x][y] instanceof King) {
@@ -331,20 +349,40 @@ const Board = () => {
             }
         }
 
+        // Check if in check :)
+        let newPreviousMove = Array.from({ length: 8 }, () => Array(8).fill(0))
 
+        if (selectedX !== null && selectedY !== null) {
+            newPreviousMove[selectedX][selectedY] = 2; // Destination
+            newPreviousMove[nextX][nextY] = 1 // origin
+        }
+
+        
+        getAllSeenSquares(nextState).forEach((coords) => {
+            let x = coords[0];
+            let y = coords[1];
+
+            if((!nextState.whiteToPlay && nextState.pieces[x][y] instanceof King && nextState.pieces[x][y].isWhite) 
+                || (nextState.whiteToPlay && nextState.pieces[x][y] instanceof King && !nextState.pieces[x][y].isWhite)) {
+                newPreviousMove[x][y] = 3; // check
+                isInCheck = true;
+            }
+        })
+        setPreviousMove(newPreviousMove);
+    
         // Temp
         if(!whiteKingIsAlive && !blackKingIsAlive) {
-            setTimeout(() => {alert("DRAW")}, 50)
+            setTimeout(() => {alert("DRAW")}, 50);
             return;
         }
-
+    
         if(!whiteKingIsAlive) {
-            setTimeout(() => {alert("Black wins!")}, 50)
-            return
+            setTimeout(() => {alert("Black wins!")}, 50);
+            return;
         }
-
+    
         if(!blackKingIsAlive) {
-            setTimeout(() => {alert("White wins!")}, 50)
+            setTimeout(() => {alert("White wins!")}, 50);
         }
     }
 
@@ -552,6 +590,7 @@ const Board = () => {
 
             </div>
             {/* {wait && <button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>} */}
+            {wait && <div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
         </div>
     )
 };

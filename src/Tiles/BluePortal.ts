@@ -15,6 +15,7 @@ export class BluePortal extends Tile {
                 let destX: number | undefined;
                 let destY: number | undefined;
 
+
                 state.tiles.forEach((row, x) => {
                     row.forEach((tile, y) => {
                         if (tile instanceof OrangePortal) {
@@ -29,7 +30,7 @@ export class BluePortal extends Tile {
                 // Create a new ChessState object
                 const newState = produce(state, draftState => {
                     if(destX === undefined || destY === undefined) {
-                        resolve(state); 
+                        resolve(newState); 
                         return;
                     }
 
@@ -41,7 +42,8 @@ export class BluePortal extends Tile {
                         byWhite: draftState.whiteToPlay
                     })
                 });
-    
+
+                console.log(destX, destY, newState.pieces[destX ?? 0][destY ?? 0].name);
                 resolve(newState);
             });
         };

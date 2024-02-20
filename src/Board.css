@@ -10,6 +10,7 @@
 }
 
 .game-content {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -205,7 +206,7 @@
     width: 100%;
     height: 100%;
     position: absolute;
-    z-index: 600000;
+    z-index: 60000000;
     pointer-events: none;
 }
 
@@ -288,4 +289,42 @@
 .log-entry.white_move, .log-entry.black_move {
     box-sizing: content-box;
     margin-top: 15px;
+}
+
+.wait {
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    z-index: 10000000000000;
+    top: 0;
+    right: 0;
+}
+
+.wait > img {
+    width: 100%;
+    height: 100%;
+    animation: hourglass 10s infinite;
+    transform-origin: center center;
+}
+
+@keyframes hourglass {
+    from {
+        rotate: 0deg;
+    }
+
+    25% {
+        rotate: 0deg;
+    }
+
+    50% {
+        rotate: 180deg;
+    }
+
+    75% {
+        rotate: 180deg;
+    }
+
+    100% {
+        rotate: 360deg;
+    }
 }
