@@ -47,6 +47,9 @@ export class Bow extends Tile {
                 theAnimation.onfinish = () => {
                     arrow.remove();
 
+                    const pieceToKill = document.querySelector(`#tile-${xx}-${yy} > .piece-img`) as HTMLImageElement;
+                    pieceToKill.src = "img/empty.png"
+
                     resolve(deletingPiece);
                 }
             }
