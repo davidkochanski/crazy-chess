@@ -69,7 +69,8 @@
 
 .piece-img {
     position: absolute;
-    width: 100%;
+    display: block;
+    width: 93px !important;
     height: 100%;
     z-index: 621;
 }

@@ -13,8 +13,8 @@ export class PressurePlate extends Tile {
 
                 let nextPieces = state.pieces.map(inner => inner.slice());
 
-                for (let i = 0; i < 7; i++) {
-                    for (let j = 0; j < 7; j++) {
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 8; j++) {
                         if (state.tiles[i][j] instanceof Bow) {
 
                             const deletingPiece = await (state.tiles[i][j] as Bow).fireEvent(i, j, state);

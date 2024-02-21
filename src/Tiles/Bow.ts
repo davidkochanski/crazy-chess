@@ -45,12 +45,14 @@ export class Bow extends Tile {
                 const theAnimation = arrow.animate([{ left: 0 }, { left: count * tileWidth + "px" }], { duration: 25 * count, fill: "forwards" });
 
                 theAnimation.onfinish = () => {
-                    arrow.remove();
+                    setTimeout(() => {
+                        arrow.remove();
 
-                    const pieceToKill = document.querySelector(`#tile-${xx}-${yy} > .piece-img`) as HTMLImageElement;
-                    pieceToKill.src = "img/empty.png"
-
-                    resolve(deletingPiece);
+                        const pieceToKill = document.querySelector(`#tile-${xx}-${yy} > .piece-img`) as HTMLImageElement;
+                        pieceToKill.src = "img/empty.png"
+    
+                        resolve(deletingPiece);
+                    }, 75)
                 }
             }
         }

@@ -72,6 +72,11 @@ const Board = () => {
         temp[0][3] = new Bow();
         temp[0][4] = new Bow();
         temp[0][5] = new Bow();
+        temp[0][6] = new Bow();
+        temp[0][7] = new Bow();
+        temp[0][2] = new Bow();
+        temp[0][1] = new Bow();
+        temp[0][0] = new Bow();
         
         setChessState(prev => ({
             ...prev,
