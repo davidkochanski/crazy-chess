@@ -12,6 +12,8 @@ export class Piece {
     onCapture = (currX: number, currY: number, state: ChessState): ChessState => state;
     // @ts-ignore
     onGetsCaptured = (currX: number, currY: number, state: ChessState): ChessState => state;
+    // @ts-ignore
+    onMove = (currX: number, currY: number, state: ChessState): ChessState => state;
 
     canMoveAsKnight: boolean = false;
     canMoveDiagonally: boolean = false;

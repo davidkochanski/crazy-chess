@@ -26,6 +26,7 @@ import { Fox } from "./Pieces/Fox";
 import { Axolotl } from "./Pieces/Axolotl";
 import { PressurePlate } from "./Tiles/PressurePlate";
 import { Bow } from "./Tiles/Bow";
+import { ICBM } from "./Pieces/ICBM";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -33,7 +34,7 @@ const Board = () => {
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
-            [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
+            [new ICBM(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
             [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
@@ -65,8 +66,8 @@ const Board = () => {
         const temp = Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile()))
 
         temp[0][0] = new Wall();
-        temp[3][4] = new OrangePortal();
-        temp[4][3] = new BluePortal();
+        temp[6][5] = new OrangePortal();
+        temp[1][2] = new BluePortal();
         temp[6][4] = new PressurePlate();
 
         temp[0][3] = new Bow();
@@ -168,6 +169,8 @@ const Board = () => {
                         if(!(pieceBefore instanceof EmptyPiece || movingPiece instanceof EmptyPiece)) {
                             captureHappened = true;
                         }
+
+                        movingPiece.onMove(nextX, nextY, draftState);
 
                         if(captureHappened) {
                             movingPiece.onCapture(nextX, nextY, draftState);
