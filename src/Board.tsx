@@ -34,7 +34,7 @@ const Board = () => {
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
-            [new ICBM(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
+            [new ICBM(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new ICBM(false)],
             [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
@@ -46,8 +46,8 @@ const Board = () => {
         whiteToPlay: true,
         enPassantSquare: [null, null],
         castlingRights: [true, true, true, true],
-
-        log: [{content: "The game has begin!", byWhite: true, author: "CONSOLE"}]
+        log: [{content: "The game has begin!", byWhite: true, author: "CONSOLE"}],
+        result: "CONTINUE"
     };
 
     const logRef = useRef<HTMLDivElement>(null);
@@ -133,7 +133,7 @@ const Board = () => {
     }
 
     const validateAndUpdateGame = async (nextX: number, nextY: number) => {
-        if(wait) return;
+        if(wait || chessState.result !== "CONTINUE") return;
 
         setWait(_ => true);
 
@@ -386,16 +386,32 @@ const Board = () => {
     
         // Temp
         if(!whiteKingIsAlive && !blackKingIsAlive) {
+            setChessState(prev => ({
+                ...prev,
+                result: "DRAW",
+                log: [...prev.log, {"content": "It\'s a draw.", "author": "CONSOLE"}]
+            }));
             setTimeout(() => {alert("DRAW")}, 50);
             return;
         }
     
         if(!whiteKingIsAlive) {
+            setChessState(prev => ({
+                ...prev,
+                result: "BLACK_WON",
+                log: [...prev.log, {"content": "Black won!", "author": "CONSOLE"}]
+            }));
             setTimeout(() => {alert("Black wins!")}, 50);
             return;
         }
     
         if(!blackKingIsAlive) {
+            setChessState(prev => ({
+                ...prev,
+                result: "WHITE_WON",
+                log: [...prev.log, {"content": "White won!", "author": "CONSOLE"}]
+            }));
+            
             setTimeout(() => {alert("White wins!")}, 50);
         }
     }
@@ -413,7 +429,7 @@ const Board = () => {
 
     const handleTileSelect = (nextX: number, nextY: number) => {
 
-        if(wait) return;
+        if(wait || chessState.result !== "CONTINUE") return;
 
         if(selectingAction !== null) {
             deselectAll();

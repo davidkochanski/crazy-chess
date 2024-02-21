@@ -10,12 +10,15 @@ export default interface ChessState {
     enPassantSquare: (number | null)[];
     castlingRights: boolean[];
     log: Log[];
+    result: GameState;
 }
 
 export interface Log {
     content: string
-    byWhite: boolean;
+    byWhite?: boolean;
     author?: LogType
 }
 
 type LogType = "WHITE" | "BLACK" | "CONSOLE" | "WHITE_TEXT" | "BLACK_TEXT" | "WHITE_MOVE" | "BLACK_MOVE";
+
+type GameState = "CONTINUE" | "WHITE_WON" | "BLACK_WON" | "DRAW"
