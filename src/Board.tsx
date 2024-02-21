@@ -24,17 +24,19 @@ import { Log } from "./ChessState";
 import { produce } from "immer";
 import { Fox } from "./Pieces/Fox";
 import { Axolotl } from "./Pieces/Axolotl";
+import { PressurePlate } from "./Tiles/PressurePlate";
+import { Bow } from "./Tiles/Bow";
 
 const Board = () => {
     const defaultState: ChessState = {
         pieces:  [
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
-            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new Fox(true), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
-            [new Queen(true), new Pawn(true), new EmptyPiece(), new Fox(true), new Fox(true), new EmptyPiece(), new Pawn(false), new Queen(false)],
-            [new King(true), new Pawn(true), new EmptyPiece(), new Fox(true), new Fox(true), new EmptyPiece(), new Pawn(false), new King(false)],
-            [new Bishop(true), new Pawn(true), new Fox(true), new EmptyPiece(), new EmptyPiece(), new Fox(true), new Pawn(false), new Bishop(false)],
-            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new Fox(true), new EmptyPiece(), new Fox(true), new Pawn(false), new Knight(false)],
+            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
+            [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
+            [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
+            [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
+            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
         ],
         tiles: Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())),
@@ -65,6 +67,11 @@ const Board = () => {
         temp[0][0] = new Wall();
         temp[3][4] = new OrangePortal();
         temp[4][3] = new BluePortal();
+        temp[6][4] = new PressurePlate();
+
+        temp[0][3] = new Bow();
+        temp[0][4] = new Bow();
+        temp[0][5] = new Bow();
         
         setChessState(prev => ({
             ...prev,
@@ -302,7 +309,6 @@ const Board = () => {
                 .sort((a, b) => a.sort - b.sort)
                 .map(({ value }) => value);
     
-        // iterate
         nextState = await nextState.tiles[nextX][nextY]?.onPieceLandHere(nextX, nextY, nextState);
         setChessState(nextState);
     

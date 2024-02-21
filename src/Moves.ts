@@ -468,6 +468,14 @@ export const generateLegalPlays = (card: string, state: ChessState): number[][] 
 
 
 export const decodePiece = (piece: Piece) => {
+    try {
+        piece.isEmpty()
+    } catch {
+        console.log(piece.name);
+        console.log(piece instanceof EmptyPiece);
+    }
+
+
     if(piece.isEmpty()) return "empty";
 
     let out = piece.name;

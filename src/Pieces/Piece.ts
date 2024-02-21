@@ -27,7 +27,7 @@ export class Piece {
     isCastleable: boolean = false;
     isNeutral: boolean = false;
     isCapturable: boolean = true;
-    isBouncy: boolean = true;
+    isBouncy: boolean = false;
     canCapture: boolean = true;
     maximumRange: number = Infinity;
 
