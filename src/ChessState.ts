@@ -21,4 +21,4 @@ export interface Log {
 
 type LogType = "WHITE" | "BLACK" | "CONSOLE" | "WHITE_TEXT" | "BLACK_TEXT" | "WHITE_MOVE" | "BLACK_MOVE";
 
-type GameState = "CONTINUE" | "WHITE_WON" | "BLACK_WON" | "DRAW"
+type GameState = "PENDING" | "CONTINUE" | "WHITE_WON" | "BLACK_WON" | "DRAW"

@@ -14,6 +14,7 @@ import TileSquare from "./TileSquare";
 import { EmptyTile } from "./Tiles/EmptyTile";
 import { EmptyPiece } from "./Pieces/EmptyPiece";
 import { TrojanHorse } from "./Pieces/TrojanHorse";
+import { Resizable } from 'react-resizable';
 import { Wall } from "./Tiles/Wall";
 import { OrangePortal } from "./Tiles/OrangePortal";
 import { BluePortal } from "./Tiles/BluePortal";
@@ -28,13 +29,15 @@ import { PressurePlate } from "./Tiles/PressurePlate";
 import { Bow } from "./Tiles/Bow";
 import { ICBM } from "./Pieces/ICBM";
 
+import { ResizableBox } from "react-resizable";
+
 const Board = () => {
     const defaultState: ChessState = {
         pieces:  [
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
-            [new ICBM(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new ICBM(false)],
+            [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
             [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
             [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
@@ -47,7 +50,7 @@ const Board = () => {
         enPassantSquare: [null, null],
         castlingRights: [true, true, true, true],
         log: [{content: "The game has begin!", byWhite: true, author: "CONSOLE"}],
-        result: "CONTINUE"
+        result: "PENDING"
     };
 
     const logRef = useRef<HTMLDivElement>(null);
@@ -62,29 +65,29 @@ const Board = () => {
     const [isDragging, setDragging] = useState(false);
     const [whitePOV, setWhitePOV] = useState(true);
 
-    useEffect(() => {
-        const temp = Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile()))
+    // useEffect(() => {
+    //     const temp = Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile()))
 
-        temp[0][0] = new Wall();
-        temp[6][5] = new OrangePortal();
-        temp[1][2] = new BluePortal();
-        temp[6][4] = new PressurePlate();
+    //     temp[0][0] = new Wall();
+    //     temp[6][5] = new OrangePortal();
+    //     temp[1][2] = new BluePortal();
+    //     temp[6][4] = new PressurePlate();
 
-        temp[0][3] = new Bow();
-        temp[0][4] = new Bow();
-        temp[0][5] = new Bow();
-        temp[0][6] = new Bow();
-        temp[0][7] = new Bow();
-        temp[0][2] = new Bow();
-        temp[0][1] = new Bow();
-        temp[0][0] = new Bow();
+    //     temp[0][3] = new Bow();
+    //     temp[0][4] = new Bow();
+    //     temp[0][5] = new Bow();
+    //     temp[0][6] = new Bow();
+    //     temp[0][7] = new Bow();
+    //     temp[0][2] = new Bow();
+    //     temp[0][1] = new Bow();
+    //     temp[0][0] = new Bow();
         
-        setChessState(prev => ({
-            ...prev,
-            tiles: temp
-        }))
+    //     setChessState(prev => ({
+    //         ...prev,
+    //         tiles: temp
+    //     }))
     
-    }, []) 
+    // }, []) 
 
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
@@ -600,7 +603,11 @@ const Board = () => {
             <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(chessState.pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
 
             </div>
-            {/* <div className="cards">
+
+
+            <aside>
+
+            <div className="cards">
                 {chessState.whiteCards.map((card, i) => (
                     <Card
                         key={i}
@@ -609,18 +616,22 @@ const Board = () => {
                         onClick={() => {handleCardSelect(card)}}
                     />
                 ))}
-            </div> */}
+            </div>
 
-            <div ref={logRef} id="log" className="log">
+            <div ref={logRef} id="log" className="log" >
                 {chessState.log.map((eachLog, i) => 
                     <div className={`log-entry ${(eachLog.author !== undefined ? eachLog.author : (eachLog.byWhite ? "WHITE" : "BLACK")).toLowerCase()}`} key={i}>
                         <div className={`log-node`}></div><p>{eachLog.content}</p>
                     </div>
                 )}
-
             </div>
-            {/* {wait && <button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>} */}
+        
+            {chessState.result === "PENDING" ? <button onClick={()=> {setChessState(state => {return {...state, result: "CONTINUE"}})}}>Start Game</button> : <></>}
+            {wait && <button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>}
             {wait && <div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
+            </aside>
+
+
         </div>
     )
 };

@@ -156,16 +156,38 @@
     pointer-events: none;
 }
 
-.cards {
+aside {
     max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    height: 75vh;
+    margin-left: 10px;
+}
+
+aside > button {
+    border: none;
+    background-color: #695adc;
+    padding: 10px;
+    font-size: 16px;
+    color: white;
+    width: fit-content;
+    padding: 10px 25px;
+    margin: 5px auto;
+    border-radius: 6px;
+}
+
+aside > button:hover {
+    background-color: #4f43aa;
+    cursor: pointer;
+}
+
+.cards {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-auto-rows: max-content;
-    padding: 20px;
-    gap: 16px;
-    height: 75vh;
+    height: 100%;
+    width: 100%;
     background-color: #2e2953;
-    margin-left: 20px;
 }
 
 .card {
@@ -213,9 +235,8 @@
 
 .log {
     min-width: 200px;
-    max-width: min(35vh, 35vw);
+    width: 100%;
     height: min(25vh, 25vw);
-    margin-left: 10px;
     border: 2px solid #a297fc;
     background-color: black;
     overflow-y: scroll;
