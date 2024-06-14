@@ -16,9 +16,10 @@ type TileProps = {
     onRightClick: (x: number, y: number) => void;
     piece: Piece;
     tile: Tile;
+    isWhitePOV: boolean;
 }
 
-const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDragged, tile, previousMove, onSelect, onSelectUp, onRightClick, piece}) => {
+const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDragged, tile, previousMove, onSelect, onSelectUp, onRightClick, piece, isWhitePOV}) => {
 
     const getColour = () => {
         if((x + y + 1) % 2 === 0) {
@@ -97,8 +98,13 @@ const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBei
             <div className="tile-effects">
                 {putEffects()}
             </div>
-            {x === 0 && <div className="tile-row-marker">{y + 1}</div>}
-            {y === 0 && <div className="tile-column-marker">{String.fromCharCode(97 + x)}</div>}
+            {/* The coordinate markers depending on the current POV */}
+
+            {x === 0 && isWhitePOV && <div className="tile-row-marker">{y + 1}</div>}
+            {y === 0 && isWhitePOV && <div className="tile-column-marker">{String.fromCharCode(97 + x)}</div>}
+
+            {x === 0 && !isWhitePOV && <div className="tile-row-marker-black-pov">{y + 1}</div>}
+            {y === 0 && !isWhitePOV && <div className="tile-column-marker-black-pov">{String.fromCharCode(97 + x)}</div>}
         </div>
     )
 }

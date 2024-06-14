@@ -34,6 +34,8 @@ export class Piece {
     maximumRange: number = Infinity;
 
     name: string = "unknown";
+    description: string = "default description!";
+    colour: string = "#008080";
     isWhite: boolean;
     attachments: string[] = [];
     

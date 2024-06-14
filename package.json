@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "@types/react-resizable": "^3.0.7",
+    "color": "^4.2.3",
     "immer": "^10.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-resizable": "^3.0.5"
   },
   "devDependencies": {
+    "@types/color": "^3.0.6",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",

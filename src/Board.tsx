@@ -53,6 +53,8 @@ const Board = () => {
         result: "PENDING"
     };
 
+    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true)]);
+
     const logRef = useRef<HTMLDivElement>(null);
     const [wait, setWait] = useState(false);
 
@@ -598,6 +600,7 @@ const Board = () => {
                         previousMove={previousMove[idToX(tile.id)][idToY(tile.id)]}
                         piece={chessState.pieces[idToX(tile.id)][idToY(tile.id)]}
                         tile={chessState.tiles[idToX(tile.id)][idToY(tile.id)]}
+                        isWhitePOV={whitePOV}
                     />
                 ))}
             <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(chessState.pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
@@ -608,12 +611,13 @@ const Board = () => {
             <aside>
 
             <div className="cards">
-                {chessState.whiteCards.map((card, i) => (
+                {customPieces.map((piece, i) => (
                     <Card
                         key={i}
-                        name={card}
-                        description={getCardAction(card).desciption}
-                        onClick={() => {handleCardSelect(card)}}
+                        name={piece.name}
+                        image={piece.toString()}
+                        description={piece.description}
+                        colour={piece.colour}
                     />
                 ))}
             </div>
@@ -625,10 +629,14 @@ const Board = () => {
                     </div>
                 )}
             </div>
+
+            <div className="button-array">
+                {chessState.result === "PENDING" ? <button onClick={()=> {setChessState(state => {return {...state, result: "CONTINUE"}})}}>Start Game</button> : <></>}
+                {<button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>}
+                {<div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
+            </div>
         
-            {chessState.result === "PENDING" ? <button onClick={()=> {setChessState(state => {return {...state, result: "CONTINUE"}})}}>Start Game</button> : <></>}
-            {wait && <button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>}
-            {wait && <div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
+
             </aside>
 
 

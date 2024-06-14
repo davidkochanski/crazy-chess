@@ -45,8 +45,26 @@
     translate: 15% 0;
 }
 
+.tile-row-marker-black-pov, .tile-column-marker-black-pov {
+    position: absolute;
+    z-index: 100000000;
+    font-size: 16px;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+    font-family: Lato, sans-serif;
+    font-weight: bolder;
+    color: #110e24;
+    right: 0;
+    bottom: 0;
+}
+
 .tile-column-marker {
     bottom: 0;
+}
+
+.tile-column-marker-black-pov {
+    top: 0;
 }
 
 .tile.dark {
@@ -157,37 +175,50 @@
 }
 
 aside {
-    max-width: 400px;
+    max-width: 35vw;
     display: flex;
     flex-direction: column;
     height: 75vh;
     margin-left: 10px;
+    overflow: hidden;
 }
 
-aside > button {
+.button-array {
+    background-color: #181533;
+    width: 100%;
+    height: 64px;
+    display: flex;
+    flex-direction: row;
+    padding: 5px 0;
+    gap: 10px;
+}
+
+.button-array > button {
     border: none;
     background-color: #695adc;
-    padding: 10px;
     font-size: 16px;
     color: white;
-    width: fit-content;
-    padding: 10px 25px;
-    margin: 5px auto;
+    padding: 0 25px;
     border-radius: 6px;
+    width: 100%;
 }
 
-aside > button:hover {
+.button-array > button:hover {
     background-color: #4f43aa;
     cursor: pointer;
 }
 
 .cards {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    padding: 16px;
     grid-auto-rows: max-content;
     height: 100%;
     width: 100%;
     background-color: #2e2953;
+    overflow-y: scroll;
+    scrollbar-width: thin;
 }
 
 .card {
@@ -197,7 +228,7 @@ aside > button:hover {
     grid-template-rows: 40px 3fr 1fr;
 
     width: 100%;
-    aspect-ratio: 3/4;
+    aspect-ratio: 3/4.25;
     background-color: #a297fc;
     border-radius: 8px;
     cursor: pointer;
@@ -209,9 +240,18 @@ aside > button:hover {
     font-family: "Lato", sans-serif;
     width: 100%;
     height: 40px;
-    background-color: #695adc;
+    background-color: #695adc; /* default */
     display: grid;
     place-content: center;
+}
+
+.card-top-text {
+    font-family: "Lato", sans-serif;
+    width: 100%;
+    height: 40px;
+    display: grid;
+    place-content: center;
+    position: absolute;
 }
 
 .card img {
