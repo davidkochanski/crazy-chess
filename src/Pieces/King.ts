@@ -5,5 +5,6 @@ export class King extends Piece {
         super(isWhite);
         this.name = "king";
         this.canMoveAsKing = true;
+        this.colour = "#BA68C8";
     }
 }

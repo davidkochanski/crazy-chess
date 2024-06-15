@@ -7,6 +7,7 @@ export class Pawn extends Piece {
     constructor(isWhite: boolean) {
         super(isWhite);
         this.name = "pawn";
+        this.colour = "#E57373";
         this.canMoveAsPawn = true;
     }
 }

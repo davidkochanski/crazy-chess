@@ -61,7 +61,7 @@ const Board = () => {
     const [chessState, setChessState] = useState<ChessState>(defaultState);
     const [selectedX, setSelectedX] = useState<number | null>(null);
     const [selectedY, setSelectedY] = useState<number | null>(null);
-    const [selectingAction, setSelectingAction] = useState<string | null>(null);
+    const [selectingAction, setSelectingAction] = useState<number>(-1);
     const [highlighted, setHighlighted] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)));
     const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)));
     const [isDragging, setDragging] = useState(false);
@@ -195,17 +195,17 @@ const Board = () => {
             } else if (selectingAction !== null) {
                 // An action card was played; no piece was moved.
     
-                // Do the card's effect
-                draftState = getCardAction(selectingAction).onUse(nextX, nextY, draftState);
+                // // Do the card's effect
+                // draftState = getCardAction(selectingAction).onUse(nextX, nextY, draftState);
     
-                // Update state
-                const newCards = [...chessState.whiteCards];
-                const idx = chessState.whiteCards.indexOf(selectingAction);
-                if(idx !== -1) newCards.splice(idx, 1);
+                // // Update state
+                // const newCards = [...chessState.whiteCards];
+                // const idx = chessState.whiteCards.indexOf(selectingAction);
+                // if(idx !== -1) newCards.splice(idx, 1);
     
-                setSelectedX(null);
-                setSelectedY(null);
-                movePlayed = true;
+                // setSelectedX(null);
+                // setSelectedY(null);
+                // movePlayed = true;
             } else {
                 return;
             }
@@ -350,7 +350,7 @@ const Board = () => {
     
         setSelectedX(null);
         setSelectedY(null);
-        setSelectingAction(null);
+        setSelectingAction(-1);
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
     
         let whiteKingIsAlive = false;
@@ -433,21 +433,17 @@ const Board = () => {
     }
 
     const handleTileSelect = (nextX: number, nextY: number) => {
+        console.log(chessState.result);
 
-        if(wait || chessState.result !== "CONTINUE") return;
+        if(wait || (chessState.result !== "CONTINUE" && chessState.result !== "PENDING")) return;
 
-        if(selectingAction !== null) {
-            deselectAll();
-            const legalPlays: number[][] = generateLegalPlays(selectingAction, chessState);
+        if(chessState.result === "PENDING" && selectingAction !== -1) {
+            setChessState(prev => {
+                prev.pieces[nextX][nextY] = customPieces[selectingAction];
 
-            // Check if we're trying to play on a square where this action allows it
-            const check = [nextX, nextY]
-            
-            if(!legalPlays.some(coord => coord.every((value, idx) => value === check[idx]))) {
-                setSelectingAction(null);
-                return;
-            }
-            validateAndUpdateGame(nextX, nextY);
+                return prev;
+            })
+            return;
             
         // Highlighting a new piece
         } else if (selectedX === null || selectedY === null) {
@@ -486,25 +482,10 @@ const Board = () => {
         }
     }
 
-    const handleCardSelect = (card: string) => {
-        if(selectingAction) {
-            setSelectingAction(null);
-            deselectAll();
-            return;
-        } 
-
-        setSelectingAction(card);
-
-        const legalPlays: number[][] = generateLegalPlays(card, chessState);
-
-        let newHighlighted = Array.from({ length: 8 }, () => Array(8).fill(0));
-            
-        legalPlays.forEach((move) => {
-            newHighlighted[move[0]][move[1]] = 1;
-        })
-        setHighlighted(newHighlighted);
+    // const handleCardSelect = (e: MouseEvent, piece: Piece) => {
+    //     setSelectingAction();
     
-    }
+    // }
 
     const updateDraggingPiece = () => {
         const draggingPiece = document.getElementById("dragging-piece") as HTMLImageElement;
@@ -618,6 +599,8 @@ const Board = () => {
                         image={piece.toString()}
                         description={piece.description}
                         colour={piece.colour}
+                        onClick={() => setSelectingAction(i)}
+                        selected={selectingAction === i}
                     />
                 ))}
             </div>
@@ -631,9 +614,9 @@ const Board = () => {
             </div>
 
             <div className="button-array">
-                {chessState.result === "PENDING" ? <button onClick={()=> {setChessState(state => {return {...state, result: "CONTINUE"}})}}>Start Game</button> : <></>}
+                {chessState.result === "PENDING" ? <button onClick={()=> {setChessState(state => {return {...state, result: "CONTINUE"}}); setSelectingAction(-1)}}>Start Game</button> : <></>}
                 {<button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>}
-                {<div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
+                {wait && <div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
             </div>
         
 

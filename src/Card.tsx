@@ -6,20 +6,19 @@ type CardProps = {
     description: string;
     colour: string;
     image: string;
-}
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+    selected: boolean
+};
 
-const Card: React.FC<CardProps> = ({ name, description, colour, image}) => {
+const Card: React.FC<CardProps> = ({ name, description, colour, image, onClick, selected }) => {
     const properName = name.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()).replace("-", " ");
-
     const bgColor = Color(colour);
     const textColor = bgColor.isLight() ? 'black' : 'white';
 
     return (
-        <button className="card" style={{ backgroundColor: colour }}>
-            <div className="card-top" style={{ backgroundColor: colour, filter: "brightness(0.6)" }}>
-                
-            </div>
-            <div className="card-top-text" style={{color: textColor}}>
+        <button className="card" style={{ backgroundColor: colour, scale: selected ? "1.025" : "1", outline: selected ? "white 5px solid" : "none"}} onClick={onClick}>
+            <div className="card-top" style={{ backgroundColor: colour, filter: "brightness(0.75)" }}></div>
+            <div className="card-top-text" style={{ color: textColor }}>
                 <h2>{properName}</h2>
             </div>
             <img src={`img/${image}.png`} alt={name} />
@@ -28,6 +27,6 @@ const Card: React.FC<CardProps> = ({ name, description, colour, image}) => {
             </div>
         </button>
     );
-}
+};
 
 export default Card;
