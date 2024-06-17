@@ -34,7 +34,7 @@ export class Piece {
     maximumRange: number = Infinity;
 
     name: string = "unknown";
-    description: string = "default description!";
+    description: string = "yep, this certainly is a piece";
     colour: string = "#008080";
     isWhite: boolean;
     attachments: string[] = [];

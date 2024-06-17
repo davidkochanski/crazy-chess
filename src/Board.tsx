@@ -30,6 +30,7 @@ import { Bow } from "./Tiles/Bow";
 import { ICBM } from "./Pieces/ICBM";
 
 import { ResizableBox } from "react-resizable";
+import Color from "color";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -67,14 +68,15 @@ const Board = () => {
     const [whitePOV, setWhitePOV] = useState(true);
 
     const [settingWhite, setSettingWhite] = useState(true);
+    const [showModal, setShowModal] = useState(true);
 
     const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new TrojanHorse(true), new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new TrojanHorse(true)]);
 
 
-
+    // test
     useEffect(() => {
         setCustomPieces(prev => {
-            prev[0].canMoveAsCamel = true;
+            // prev[0].canMoveAsCamel = true;
             return prev;
         })
     
@@ -565,6 +567,18 @@ const Board = () => {
 
     return (
         <div className="game-content">
+            <div className="modal" style={{display: showModal ? "grid" : "none"}}>
+                <div className="modal-content" style={{ backgroundColor: customPieces[selectingAction]?.colour || "red"}}>
+                    <div className="modal-top" style={{ backgroundColor: customPieces[selectingAction]?.colour || "red", filter: "brightness(0.75)"}}></div>
+                    <div className="modal-top-text" style={{color: Color(customPieces[selectingAction]?.colour).isLight() ? 'black' : 'white'}}>Card Name</div>
+                    
+                    <button className="modal-close" onClick={() => {setShowModal(false)}}><i className="fa-solid fa-x"></i></button>
+
+
+                    <div className="modal-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Saepe eveniet sapiente voluptatem consectetur id quia perferendis labore ipsum, iusto necessitatibus ea repellendus quisquam sed fugit eius, ullam ipsam! Voluptatibus, accusantium. Veniam blanditiis aliquid illum reiciendis, corrupti error porro fugit cupiditate libero asperiores facere adipisci assumenda quos tenetur voluptate. Atque, quisquam.</div>
+                </div>
+            </div>
+
             <div id="board" style={isDragging ? {cursor: "grabbing"} : {}} onMouseDown={handlePieceDown} onMouseMove={(e) => handlePieceDragging(e)} onMouseUp={() => setDragging(false)} className="board">
                 {tilesBlueprint.map(tile => (
                     <TileSquare
@@ -595,8 +609,10 @@ const Board = () => {
                 <div className="cards-settings">
                         <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-plus"></i></button>
 
+                        {/* -2 is defined as eraser, -1 is defined as no selection, >0 is the index of the selected card in the cards array. */}
+                        <button type="button" style={{border: selectingAction === -2 ? "white 3px solid" : "none"}} onClick={() => {setSelectingAction(prev => prev === -2 ? -1 : -2)}}><i className="fa-solid fa-eraser"></i></button> 
 
-                        <button type="button" style={{border: selectingAction === -2 ? "white 3px solid" : "none"}} onClick={() => {setSelectingAction(-2)}}><i className="fa-solid fa-eraser"></i></button>
+
                         <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-retweet"></i></button>
                 </div>
                 <div className="cards-container">
@@ -621,7 +637,7 @@ const Board = () => {
             </div>
 
             <div className="button-array">
-            {chessState.result === "PENDING" ? (<button
+            {chessState.result === "PENDING" ? <button
                     onClick={() => {
                     setChessState((state) => {
                         if (boardHasAtLeastOne(new King(true)) && boardHasAtLeastOne(new King(false))) {
@@ -631,7 +647,7 @@ const Board = () => {
                         return state;
                     });
                     }}
-                >Start Game</button>) : (<></>)}
+                >Start Game</button> : <></>}
 
                 {<button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>}
                 {wait && <div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
