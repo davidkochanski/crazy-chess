@@ -53,4 +53,34 @@ export class Piece {
     public equals = (other: Piece): boolean => {
         return this.name === other.name;
     }
+
+
+    public clone = (): Piece => {
+        const nextPiece = new (this.constructor as new (isWhite: boolean) => Piece)(this.isWhite);
+
+        nextPiece.canMoveAsKnight = this.canMoveAsKnight;
+        nextPiece.canMoveDiagonally = this.canMoveDiagonally
+        nextPiece.canMoveOrthagonally = this.canMoveOrthagonally
+        nextPiece.canMoveAsKing = this.canMoveAsKing
+        nextPiece.canMoveAsPawn = this.canMoveAsPawn;
+        nextPiece.canMoveAsCamel = this.canMoveAsCamel
+        nextPiece.canMoveAnywhere = this.canMoveAnywhere;
+        nextPiece.canMoveAsGold = this.canMoveAsGold;
+        nextPiece.canMoveAsRotatedKnight = this.canMoveAsRotatedKnight
+        nextPiece.canMoveAsVillager = this.canMoveAsVillager
+        nextPiece.isMovableByPlayer = this.isMovableByPlayer
+        nextPiece.isCastleable = this.isCastleable
+        nextPiece.isNeutral = this.isNeutral
+        nextPiece.isCapturable = this.isCapturable
+        nextPiece.isBouncy = this.isBouncy
+        nextPiece.canCapture = this.canCapture
+        nextPiece.maximumRange = this.maximumRange
+    
+        nextPiece.name = this.name;
+        nextPiece.description = this.description;
+        nextPiece.colour = this.colour;
+        nextPiece.isWhite = this.isWhite;
+
+        return nextPiece;
+    }
 }

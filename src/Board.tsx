@@ -53,7 +53,6 @@ const Board = () => {
         result: "PENDING"
     };
 
-    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true)]);
 
     const logRef = useRef<HTMLDivElement>(null);
     const [wait, setWait] = useState(false);
@@ -67,29 +66,19 @@ const Board = () => {
     const [isDragging, setDragging] = useState(false);
     const [whitePOV, setWhitePOV] = useState(true);
 
-    // useEffect(() => {
-    //     const temp = Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile()))
+    const [settingWhite, setSettingWhite] = useState(true);
 
-    //     temp[0][0] = new Wall();
-    //     temp[6][5] = new OrangePortal();
-    //     temp[1][2] = new BluePortal();
-    //     temp[6][4] = new PressurePlate();
+    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new TrojanHorse(true), new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new TrojanHorse(true)]);
 
-    //     temp[0][3] = new Bow();
-    //     temp[0][4] = new Bow();
-    //     temp[0][5] = new Bow();
-    //     temp[0][6] = new Bow();
-    //     temp[0][7] = new Bow();
-    //     temp[0][2] = new Bow();
-    //     temp[0][1] = new Bow();
-    //     temp[0][0] = new Bow();
-        
-    //     setChessState(prev => ({
-    //         ...prev,
-    //         tiles: temp
-    //     }))
+
+
+    useEffect(() => {
+        setCustomPieces(prev => {
+            prev[0].canMoveAsCamel = true;
+            return prev;
+        })
     
-    // }, []) 
+    }, []) 
 
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
@@ -439,7 +428,18 @@ const Board = () => {
 
         if(chessState.result === "PENDING" && selectingAction !== -1) {
             setChessState(prev => {
-                prev.pieces[nextX][nextY] = customPieces[selectingAction];
+                if(selectingAction === -2) {
+                    const nextPiece = new EmptyPiece();
+    
+                    prev.pieces[nextX][nextY] = nextPiece;
+    
+                    return prev;
+                }
+
+                const nextPiece = customPieces[selectingAction].clone();
+                nextPiece.isWhite = settingWhite;
+
+                prev.pieces[nextX][nextY] = nextPiece;
 
                 return prev;
             })
@@ -592,17 +592,24 @@ const Board = () => {
             <aside>
 
             <div className="cards">
-                {customPieces.map((piece, i) => (
-                    <Card
-                        key={i}
-                        name={piece.name}
-                        image={piece.toString()}
-                        description={piece.description}
-                        colour={piece.colour}
-                        onClick={() => setSelectingAction(i)}
-                        selected={selectingAction === i}
-                    />
-                ))}
+                <div className="cards-settings">
+                        <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-plus"></i></button>
+
+
+                        <button type="button" style={{border: selectingAction === -2 ? "white 3px solid" : "none"}} onClick={() => {setSelectingAction(-2)}}><i className="fa-solid fa-eraser"></i></button>
+                        <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-retweet"></i></button>
+                </div>
+                <div className="cards-container">
+                    {customPieces.map((piece, i) => (
+                        <Card
+                            key={i}
+                            piece={piece}
+                            onClick={() => {setSelectingAction(prevSelected => prevSelected === i ? -1 : i)}}
+                            selected={selectingAction === i}
+                            settingWhite={settingWhite}
+                        />
+                    ))}
+                </div>
             </div>
 
             <div ref={logRef} id="log" className="log" >
@@ -614,7 +621,18 @@ const Board = () => {
             </div>
 
             <div className="button-array">
-                {chessState.result === "PENDING" ? <button onClick={()=> {setChessState(state => {return {...state, result: "CONTINUE"}}); setSelectingAction(-1)}}>Start Game</button> : <></>}
+            {chessState.result === "PENDING" ? (<button
+                    onClick={() => {
+                    setChessState((state) => {
+                        if (boardHasAtLeastOne(new King(true)) && boardHasAtLeastOne(new King(false))) {
+                            setSelectingAction(-1);
+                            return { ...state, result: "CONTINUE" };
+                        }
+                        return state;
+                    });
+                    }}
+                >Start Game</button>) : (<></>)}
+
                 {<button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>}
                 {wait && <div className="wait"><img src="img/hourglass.png" alt="..." /></div>}
             </div>

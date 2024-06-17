@@ -194,7 +194,7 @@ aside {
     gap: 10px;
 }
 
-.button-array > button {
+.button-array > button, .cards-settings > button {
     border: none;
     background-color: #695adc;
     font-size: 16px;
@@ -204,22 +204,52 @@ aside {
     width: 100%;
 }
 
-.button-array > button:hover {
+.button-array > button:hover, .cards-settings > button:hover {
     background-color: #4f43aa;
     cursor: pointer;
 }
 
 .cards {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
-    padding: 16px;
-    grid-auto-rows: max-content;
+    position: relative;
     height: 100%;
-    width: 100%;
-    background-color: #2e2953;
+    width: 100%
+}
+
+
+.cards-container {
+    display: grid;
+    position: absolute;
+
     overflow-y: scroll;
     scrollbar-width: thin;
+    scrollbar-color: #a297fc #181533;
+    width: 100%;
+    height: calc(100%);
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 16px 16px 50px;
+    grid-auto-rows: max-content;
+
+    background-color: #2e2953;
+
+}
+
+.cards-settings {
+    position: absolute;
+    bottom: 8px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 8px;
+}
+
+
+.cards-settings > button {
+    padding: 0;
+    width: auto;
+    aspect-ratio: 1/1;
+    width: 40px;
+    font-size: 24px;
 }
 
 .card {
