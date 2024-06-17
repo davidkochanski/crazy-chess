@@ -268,10 +268,13 @@ button:hover {
     border-radius: 8px;
     cursor: pointer;
     position: relative;
-    overflow: hidden;
 
     padding: 0;
 
+}
+
+.card-top {
+    border-radius: 8px 8px 0 0;
 }
 
 .card-top, .modal-top {
@@ -280,7 +283,9 @@ button:hover {
     height: 40px;
     background-color: #695adc; /* default */
     display: grid;
+    border-radius: 3px 3px 0 0;
     place-content: center;
+
 }
 
 .card-top-text, .modal-top-text {
@@ -299,8 +304,35 @@ button:hover {
     aspect-ratio: 1/1;
 }
 
-.card:hover {
-    opacity: 0.75;
+.card-wrapper {
+    position: relative;
+    border-radius: 8px;
+}
+
+.card-wrapper:hover {
+    transform: scale(1.025);
+}
+
+.card-wrapper:hover .card + .edit-card {
+    display: grid;
+}
+
+.edit-card {
+    display: none;
+    position: absolute;
+    aspect-ratio: 1/1;
+    width: 40px;
+    font-size: 24px;
+    padding: 10px;
+    top: 0;
+    right: 0;
+    z-index: 10000;
+    margin: 0;
+
+}
+
+.edit-card:hover {
+
 }
 
 .anim {
@@ -438,6 +470,7 @@ button:hover {
     z-index: 621000000;
     place-content: center;
     display: grid;
+    font-family: "Lato", sans-serif;
 
 }
 
@@ -447,6 +480,11 @@ button:hover {
     max-width: 500px;
     border-radius: 10px;
     border: 5px solid white;
+}
+
+.modal-top-text {
+    display: flex;
+    align-items: center;
 }
 
 .modal-top, .modal-top-text {
@@ -474,5 +512,60 @@ button:hover {
     border-radius: 16px;
     border: 5px solid white;
     font-size: 28px;
+}
+
+.inline-button {
+    display: inline-block;
+    width: 24px;
+    padding: 0;
+    background-color: transparent;
+    margin-left: 5px;
+    aspect-ratio: 1/1;
+}
+
+.inline-button:hover {
+    color: #695adc;
+    background-color: #2e2953;
+}
+
+.modal-description {
+    margin: 5px;
+    margin-top: 55px;
+    padding: 10px;
+    border: 3px solid white;
+    border-radius: 8px;
+}
+
+.modal-img-array {
+    display: flex;
+    gap: 25px;
+    padding: 10px 50px;
+}
+
+.modal-img-array > * {
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 100%;
+
+}
+
+.modal-img {
+    border: 3px solid white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.modal-img > img {
+    display: block;
+    aspect-ratio: 1/1;
+    width: 100%;
+    background-color: gainsboro;
+    overflow: hidden;
+}
+
+.modal-img > button {
+    padding: 10px 0;
+    border-radius: 0;
+    border-top: 3px solid white;
 }
 

@@ -565,17 +565,45 @@ const Board = () => {
         return whitePOV ? 7 - Math.floor(id / 8) :  Math.floor(id / 8)
     }
 
+    const handleShowThisModal = (i: number) => {
+        setShowModal(true);
+        setSelectingAction(i);
+    }
+
     return (
         <div className="game-content">
             <div className="modal" style={{display: showModal ? "grid" : "none"}}>
                 <div className="modal-content" style={{ backgroundColor: customPieces[selectingAction]?.colour || "red"}}>
                     <div className="modal-top" style={{ backgroundColor: customPieces[selectingAction]?.colour || "red", filter: "brightness(0.75)"}}></div>
-                    <div className="modal-top-text" style={{color: Color(customPieces[selectingAction]?.colour).isLight() ? 'black' : 'white'}}>Card Name</div>
+                    <h2 className="modal-top-text" style={{color: Color(customPieces[selectingAction]?.colour).isLight() ? 'black' : 'white'}}>{customPieces[selectingAction]?.name.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()).replace("-", " ") || "undefined"}
+                        <button className="inline-button"><i className="fa-solid fa-pencil"></i></button>
+                    </h2>
                     
                     <button className="modal-close" onClick={() => {setShowModal(false)}}><i className="fa-solid fa-x"></i></button>
 
+                    <div className="modal-description">
+                        {customPieces[selectingAction]?.description || "undefined"}
+                        <button className="inline-button"><i className="fa-solid fa-pencil"></i></button>
+                    </div>
+
+                    <div className="modal-img-array">
+                        <div className="modal-img">
+                            <img src={`img/white-${customPieces[selectingAction]?.name}.png`} alt="white" />
+                            <button className="edit-image">Edit White Image</button>
+                        </div>
+
+                        <div className="modal-img">
+                            <img src={`img/black-${customPieces[selectingAction]?.name}.png`} alt="black" />
+                            <button className="edit-image">Edit Black Image</button>
+
+                        </div>
+                    </div>
+
 
                     <div className="modal-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Saepe eveniet sapiente voluptatem consectetur id quia perferendis labore ipsum, iusto necessitatibus ea repellendus quisquam sed fugit eius, ullam ipsam! Voluptatibus, accusantium. Veniam blanditiis aliquid illum reiciendis, corrupti error porro fugit cupiditate libero asperiores facere adipisci assumenda quos tenetur voluptate. Atque, quisquam.</div>
+
+
+
                 </div>
             </div>
 
@@ -623,6 +651,7 @@ const Board = () => {
                             onClick={() => {setSelectingAction(prevSelected => prevSelected === i ? -1 : i)}}
                             selected={selectingAction === i}
                             settingWhite={settingWhite}
+                            handleShowThisModal={() => handleShowThisModal(i)}
                         />
                     ))}
                 </div>
