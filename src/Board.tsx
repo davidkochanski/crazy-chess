@@ -32,6 +32,7 @@ import { produce } from "immer";
 // import { ResizableBox } from "react-resizable";
 import Color from "color";
 import _ from 'lodash';
+import PropertySwitch from "./PropertySwitch";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -423,7 +424,27 @@ const Board = () => {
     const handleTileSelect = (nextX: number, nextY: number) => {
         if(wait || (chessState.result !== "CONTINUE" && chessState.result !== "PENDING")) return;
 
-        if (selectedX === null || selectedY === null) {
+
+        if(chessState.result === "PENDING" && selectingAction !== -1) {
+            setChessState(prev => {
+                if(selectingAction === -2) {
+                    const nextPiece = new EmptyPiece();
+    
+                    prev.pieces[nextX][nextY] = nextPiece;
+    
+                    return prev;
+                }
+
+                const nextPiece = _.cloneDeep(customPieces[selectingAction]);
+                nextPiece.isWhite = settingWhite; 
+
+                prev.pieces[nextX][nextY] = nextPiece;
+
+                return prev;
+            })
+            return;
+
+        } else if (selectedX === null || selectedY === null) {
             const legalMoves: number[][] = generateLegalMoves(nextX, nextY, chessState);
 
             setSelectedX(nextX);
@@ -449,25 +470,6 @@ const Board = () => {
             })
             setHighlighted(newHighlighted);
 
-        // Deselecting
-        } else if(chessState.result === "PENDING" && selectingAction !== -1) {
-            setChessState(prev => {
-                if(selectingAction === -2) {
-                    const nextPiece = new EmptyPiece();
-    
-                    prev.pieces[nextX][nextY] = nextPiece;
-    
-                    return prev;
-                }
-
-                const nextPiece = _.cloneDeep(customPieces[selectingAction]);
-                nextPiece.isWhite = settingWhite; 
-
-                prev.pieces[nextX][nextY] = nextPiece;
-
-                return prev;
-            })
-            return;
             
         // Highlighting a new piece
         } else if (selectedX === nextX && selectedY === nextY) {
@@ -478,11 +480,6 @@ const Board = () => {
             validateAndUpdateGame(nextX, nextY);
         }
     }
-
-    // const handleCardSelect = (e: MouseEvent, piece: Piece) => {
-    //     setSelectingAction();
-    
-    // }
 
     const updateDraggingPiece = () => {
         const draggingPiece = document.getElementById("dragging-piece") as HTMLImageElement;
@@ -572,21 +569,18 @@ const Board = () => {
     const updatePieceBehaviours = () => {
         if (tempSelected === null) return;
     
-        // Updating custom pieces array
         setCustomPieces(prevPieces => {
             return prevPieces.map(piece => 
                 piece.id === tempSelected.id ? _.cloneDeep(tempSelected) : piece
             );
         });
-    
-        // Updating chess state with new pieces
+
         setChessState(prevState => {
             const newPieces = prevState.pieces.map(row =>
                 row.map(piece => {
                     if (piece.id === tempSelected.id) {
                         const newPiece = _.cloneDeep(tempSelected);
                         newPiece.isWhite = piece.isWhite; // Set isWhite explicitly
-                        console.log("Updated piece:", newPiece);
                         return newPiece;
                     }
                     return piece;
@@ -640,22 +634,28 @@ const Board = () => {
 
 
                     <div className="modal-text">
-                        <label htmlFor="canMoveAsKnight">canMoveAsKnight</label>
-
-                        <button style={{backgroundColor: tempSelected?.canMoveAsKnight ? "green" : "red"}} onMouseDown={() => {
+                        {/* <button style={{backgroundColor: tempSelected?.canMoveAsKnight ? "green" : "red"}} onMouseDown={() => {
                             setTempSelected((temp) => {
                                 if (!temp) return temp;
                                 return { ...temp, canMoveAsKnight: !temp.canMoveAsKnight };
                             });
                         }}>canMoveAsKnight</button>
 
-                        <button style={{backgroundColor: tempSelected?.canMoveDiagonally ? "green" : "red"}} onMouseDown={() => {
-                            setTempSelected((temp) => {
-                                if (!temp) return temp;
-                                return { ...temp, canMoveDiagonally: !temp.canMoveDiagonally };
-                            });
-                        }}>canMoveDiagonally</button>
-                        
+                        <label className="switch">
+                            <input type="checkbox" checked={tempSelected?.canMoveOrthagonally || false} onChange={() => {
+                                setTempSelected((temp) => {
+                                    if (!temp) return temp;
+                                    return { ...temp, canMoveOrthagonally: !temp.canMoveOrthagonally };
+                                });
+                            }}/>
+                            <span className="slider" style={{backgroundColor: tempSelected?.canMoveOrthagonally ? tempSelected?.colour : "gray"}}></span>
+                            <div className="switch-text">canMoveOrthagonally</div>
+                        </label> */}
+
+
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveOrthagonally"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveDiagonally"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKnight"/>
                     </div>
 
 
