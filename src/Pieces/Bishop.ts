@@ -6,5 +6,6 @@ export class Bishop extends Piece {
         this.name = "bishop";
         this.colour = "#FFF176";
         this.canMoveDiagonally = true;
+        this.id = 3;
     }
 }

@@ -5,6 +5,8 @@ export class Queen extends Piece {
         super(isWhite);
         this.name = "queen";
         this.colour = "#64B5F6";
+        this.id = 5;
+        
         this.canMoveDiagonally = true;
         this.canMoveOrthagonally = true;
     }

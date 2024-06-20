@@ -31,17 +31,18 @@ import { ICBM } from "./Pieces/ICBM";
 
 import { ResizableBox } from "react-resizable";
 import Color from "color";
+import _ from 'lodash';
 
 const Board = () => {
     const defaultState: ChessState = {
         pieces:  [
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
-            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+            [new Knight(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false),  new Bishop(false)],
             [new Queen(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Queen(false)],
             [new King(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new King(false)],
             [new Bishop(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Bishop(false)],
-            [new TrojanHorse(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
+            [new Knight(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Knight(false)],
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)]
         ],
         tiles: Array.from({ length: 8 }, () => Array(8).fill(new EmptyTile())),
@@ -61,26 +62,18 @@ const Board = () => {
     const [chessState, setChessState] = useState<ChessState>(defaultState);
     const [selectedX, setSelectedX] = useState<number | null>(null);
     const [selectedY, setSelectedY] = useState<number | null>(null);
-    const [selectingAction, setSelectingAction] = useState<number>(-1);
     const [highlighted, setHighlighted] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)));
     const [previousMove, setPreviousMove] = useState<Array<Array<number>>>(Array.from({ length: 8 }, () => Array(8).fill(0)));
     const [isDragging, setDragging] = useState(false);
     const [whitePOV, setWhitePOV] = useState(true);
 
     const [settingWhite, setSettingWhite] = useState(true);
-    const [showModal, setShowModal] = useState(true);
+    const [showModal, setShowModal] = useState(false);
 
-    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new TrojanHorse(true), new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new TrojanHorse(true)]);
+    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true)]);
 
-
-    // test
-    useEffect(() => {
-        setCustomPieces(prev => {
-            // prev[0].canMoveAsCamel = true;
-            return prev;
-        })
-    
-    }, []) 
+    const [selectingAction, setSelectingAction] = useState<number>(-1);
+    const [tempSelected, setTempSelected] = useState<Piece | null>(null);
 
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
@@ -438,7 +431,7 @@ const Board = () => {
                     return prev;
                 }
 
-                const nextPiece = customPieces[selectingAction].clone();
+                const nextPiece = _.cloneDeep(customPieces[selectingAction]);
                 nextPiece.isWhite = settingWhite;
 
                 prev.pieces[nextX][nextY] = nextPiece;
@@ -566,9 +559,49 @@ const Board = () => {
     }
 
     const handleShowThisModal = (i: number) => {
-        setShowModal(true);
+        if(chessState.result !== "PENDING") return;
+
+        setTempSelected(_.cloneDeep(customPieces[i]));
         setSelectingAction(i);
+        setShowModal(true);
+
     }
+
+    const updatePieceBehaviours = () => {
+        if (tempSelected === null) return;
+    
+        console.log(tempSelected.canMoveAsKnight);
+    
+        setCustomPieces(prevPieces => {
+            return prevPieces.map(piece => 
+                piece.id === tempSelected.id ? _.cloneDeep(tempSelected) : piece
+            );
+        });
+    
+        setChessState(prevState => {
+            const newPieces = prevState.pieces.map(row =>
+                row.map(piece => {
+                    if (piece.id === tempSelected.id) {
+                        const newPiece = _.cloneDeep(tempSelected);
+                        newPiece.isWhite = piece.isWhite;
+                        console.log(newPiece.canMoveAsKnight)
+                        return newPiece;
+                    }
+                    return piece;
+                })
+            );
+
+            console.log(newPieces[1][1].canMoveAsKnight);
+    
+            return {
+                ...prevState,
+                pieces: newPieces
+            };
+        });
+    
+        setTempSelected(null);
+    };
+    
 
     return (
         <div className="game-content">
@@ -579,7 +612,12 @@ const Board = () => {
                         <button className="inline-button"><i className="fa-solid fa-pencil"></i></button>
                     </h2>
                     
-                    <button className="modal-close" onClick={() => {setShowModal(false)}}><i className="fa-solid fa-x"></i></button>
+                    <button className="modal-close" onClick={() => { 
+                    updatePieceBehaviours(); 
+                    console.log(chessState.pieces[1][1].canMoveAsKnight);
+                    setShowModal(false); 
+                }}><i className="fa-solid fa-x"></i></button>
+
 
                     <div className="modal-description">
                         {customPieces[selectingAction]?.description || "undefined"}
@@ -600,7 +638,24 @@ const Board = () => {
                     </div>
 
 
-                    <div className="modal-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Saepe eveniet sapiente voluptatem consectetur id quia perferendis labore ipsum, iusto necessitatibus ea repellendus quisquam sed fugit eius, ullam ipsam! Voluptatibus, accusantium. Veniam blanditiis aliquid illum reiciendis, corrupti error porro fugit cupiditate libero asperiores facere adipisci assumenda quos tenetur voluptate. Atque, quisquam.</div>
+                    <div className="modal-text">
+                        <label htmlFor="canMoveAsKnight">canMoveAsKnight</label>
+
+                        <button style={{backgroundColor: tempSelected?.canMoveAsKnight ? "green" : "red"}} onMouseDown={() => {
+                            setTempSelected((temp) => {
+                                if (!temp) return temp;
+                                return { ...temp, canMoveAsKnight: !temp.canMoveAsKnight };
+                            });
+                        }}>canMoveAsKnight</button>
+
+                        <button style={{backgroundColor: tempSelected?.canMoveDiagonally ? "green" : "red"}} onMouseDown={() => {
+                            setTempSelected((temp) => {
+                                if (!temp) return temp;
+                                return { ...temp, canMoveDiagonally: !temp.canMoveDiagonally };
+                            });
+                        }}>canMoveDiagonally</button>
+                        
+                    </div>
 
 
 

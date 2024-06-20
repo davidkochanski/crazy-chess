@@ -38,6 +38,8 @@ export class Piece {
     colour: string = "#008080";
     isWhite: boolean;
     attachments: string[] = [];
+
+    id: number = -1;
     
     public isEmpty = (): boolean => {
         return false;
@@ -80,7 +82,8 @@ export class Piece {
         nextPiece.description = this.description;
         nextPiece.colour = this.colour;
         nextPiece.isWhite = this.isWhite;
-
+        nextPiece.id = this.id;
+        
         return nextPiece;
     }
 }

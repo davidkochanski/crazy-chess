@@ -6,5 +6,6 @@ export class Knight extends Piece {
         this.name = "knight";
         this.colour = "#FFB74D";
         this.canMoveAsKnight = true;
+        this.id = 2;
     }
 }
