@@ -1,7 +1,7 @@
 import { useState, MouseEvent, useEffect, useRef } from "react";
-import { Tile } from "./Tiles/Tile";
-import { generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, generateLegalPlays, getCoords } from "./Moves";
-import { getCardAction } from "./CardBehaviours";
+// import { Tile } from "./Tiles/Tile";
+import { generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, getCoords } from "./Moves";
+// import { getCardAction } from "./CardBehaviours";
 import Card from "./Card";
 import { Piece } from "./Pieces/Piece";
 import { Rook } from "./Pieces/Rook";
@@ -13,23 +13,23 @@ import { Pawn } from "./Pieces/Pawn";
 import TileSquare from "./TileSquare";
 import { EmptyTile } from "./Tiles/EmptyTile";
 import { EmptyPiece } from "./Pieces/EmptyPiece";
-import { TrojanHorse } from "./Pieces/TrojanHorse";
-import { Resizable } from 'react-resizable';
-import { Wall } from "./Tiles/Wall";
-import { OrangePortal } from "./Tiles/OrangePortal";
-import { BluePortal } from "./Tiles/BluePortal";
-import { CardBehaviour } from "./Cards/Card";
+// import { TrojanHorse } from "./Pieces/TrojanHorse";
+// import { Resizable } from 'react-resizable';
+// import { Wall } from "./Tiles/Wall";
+// import { OrangePortal } from "./Tiles/OrangePortal";
+// import { BluePortal } from "./Tiles/BluePortal";
+// import { CardBehaviour } from "./Cards/Card";
 
 import ChessState from "./ChessState";
-import { Log } from "./ChessState";
+// import { Log } from "./ChessState";
 import { produce } from "immer";
-import { Fox } from "./Pieces/Fox";
-import { Axolotl } from "./Pieces/Axolotl";
-import { PressurePlate } from "./Tiles/PressurePlate";
-import { Bow } from "./Tiles/Bow";
-import { ICBM } from "./Pieces/ICBM";
+// import { Fox } from "./Pieces/Fox";
+// import { Axolotl } from "./Pieces/Axolotl";
+// import { PressurePlate } from "./Tiles/PressurePlate";
+// import { Bow } from "./Tiles/Bow";
+// import { ICBM } from "./Pieces/ICBM";
 
-import { ResizableBox } from "react-resizable";
+// import { ResizableBox } from "react-resizable";
 import Color from "color";
 import _ from 'lodash';
 
@@ -122,6 +122,10 @@ const Board = () => {
     }
 
     const validateAndUpdateGame = async (nextX: number, nextY: number) => {
+        if(chessState.result === "PENDING") {
+            deselectAll();
+            return;
+        }
         if(wait || chessState.result !== "CONTINUE") return;
 
         setWait(_ => true);
@@ -417,31 +421,9 @@ const Board = () => {
     }
 
     const handleTileSelect = (nextX: number, nextY: number) => {
-        console.log(chessState.result);
-
         if(wait || (chessState.result !== "CONTINUE" && chessState.result !== "PENDING")) return;
 
-        if(chessState.result === "PENDING" && selectingAction !== -1) {
-            setChessState(prev => {
-                if(selectingAction === -2) {
-                    const nextPiece = new EmptyPiece();
-    
-                    prev.pieces[nextX][nextY] = nextPiece;
-    
-                    return prev;
-                }
-
-                const nextPiece = _.cloneDeep(customPieces[selectingAction]);
-                nextPiece.isWhite = settingWhite;
-
-                prev.pieces[nextX][nextY] = nextPiece;
-
-                return prev;
-            })
-            return;
-            
-        // Highlighting a new piece
-        } else if (selectedX === null || selectedY === null) {
+        if (selectedX === null || selectedY === null) {
             const legalMoves: number[][] = generateLegalMoves(nextX, nextY, chessState);
 
             setSelectedX(nextX);
@@ -468,6 +450,26 @@ const Board = () => {
             setHighlighted(newHighlighted);
 
         // Deselecting
+        } else if(chessState.result === "PENDING" && selectingAction !== -1) {
+            setChessState(prev => {
+                if(selectingAction === -2) {
+                    const nextPiece = new EmptyPiece();
+    
+                    prev.pieces[nextX][nextY] = nextPiece;
+    
+                    return prev;
+                }
+
+                const nextPiece = _.cloneDeep(customPieces[selectingAction]);
+                nextPiece.isWhite = settingWhite; 
+
+                prev.pieces[nextX][nextY] = nextPiece;
+
+                return prev;
+            })
+            return;
+            
+        // Highlighting a new piece
         } else if (selectedX === nextX && selectedY === nextY) {
             deselectAll();
            
@@ -570,28 +572,26 @@ const Board = () => {
     const updatePieceBehaviours = () => {
         if (tempSelected === null) return;
     
-        console.log(tempSelected.canMoveAsKnight);
-    
+        // Updating custom pieces array
         setCustomPieces(prevPieces => {
             return prevPieces.map(piece => 
                 piece.id === tempSelected.id ? _.cloneDeep(tempSelected) : piece
             );
         });
     
+        // Updating chess state with new pieces
         setChessState(prevState => {
             const newPieces = prevState.pieces.map(row =>
                 row.map(piece => {
                     if (piece.id === tempSelected.id) {
                         const newPiece = _.cloneDeep(tempSelected);
-                        newPiece.isWhite = piece.isWhite;
-                        console.log(newPiece.canMoveAsKnight)
+                        newPiece.isWhite = piece.isWhite; // Set isWhite explicitly
+                        console.log("Updated piece:", newPiece);
                         return newPiece;
                     }
                     return piece;
                 })
             );
-
-            console.log(newPieces[1][1].canMoveAsKnight);
     
             return {
                 ...prevState,
@@ -601,6 +601,7 @@ const Board = () => {
     
         setTempSelected(null);
     };
+    
     
 
     return (

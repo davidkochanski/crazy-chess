@@ -19,6 +19,13 @@ type TileProps = {
     isWhitePOV: boolean;
 }
 
+const toString = (piece: Piece): string => {
+    if(piece.isNeutral) return piece.name;
+    if(piece.isEmpty()) return "empty";
+    
+    return `${piece.isWhite ? "white" : "black"}-${piece.name}`
+}
+
 const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDragged, tile, previousMove, onSelect, onSelectUp, onRightClick, piece, isWhitePOV}) => {
 
     const getColour = () => {
@@ -92,7 +99,7 @@ const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBei
     return (
         <div onMouseDown={(e) => {handleClick(e)}} onMouseUp={handleUp} id={`tile-${x}-${y}`} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${styleTile()} ${previousMove === 1 ? "destination" : ""}`}>
             
-            {!isBeingDragged ? <img draggable={false} className="piece-img" src={"img/" + piece.toString() + ".png"} alt="" /> : <></>}
+            {!isBeingDragged ? <img draggable={false} className="piece-img" src={"img/" + toString(piece) + ".png"} alt="" /> : <></>}
             {putHighlightedMarker()}
             {putTileEffect()}
             <div className="tile-effects">
