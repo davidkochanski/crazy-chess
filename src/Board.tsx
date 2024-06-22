@@ -31,7 +31,7 @@ import { produce } from "immer";
 
 // import { ResizableBox } from "react-resizable";
 import Color from "color";
-import _ from 'lodash';
+import _, { some } from 'lodash';
 import PropertySwitch from "./PropertySwitch";
 
 const Board = () => {
@@ -266,7 +266,7 @@ const Board = () => {
                 }
             }
 
-            if(movingPiece instanceof Pawn) {
+            if(movingPiece.canEnPassant) {
                 if(nextX === chessState.enPassantSquare[0] && nextY === chessState.enPassantSquare[1]) {
                     moveString = `${String.fromCharCode(97 + selectedX)}x${getCoords(nextX, nextY)}. Holy Hell!`;
                 }
@@ -342,16 +342,16 @@ const Board = () => {
         setSelectingAction(-1);
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
     
-        let whiteKingIsAlive = false;
-        let blackKingIsAlive = false;
+        let whiteHasRoyalPiece = false;
+        let blackHasRoyalPiece = false;
     
         for(let x = 0; x < 8; x++) {
             for(let y = 0; y < 8; y++) {
-                if(nextState.pieces[x][y] instanceof King) {
+                if(nextState.pieces[x][y].isRoyal) {
                     if(nextState.pieces[x][y].isWhite) {
-                        whiteKingIsAlive = true;
+                        whiteHasRoyalPiece = true;
                     } else {
-                        blackKingIsAlive = true;
+                        blackHasRoyalPiece = true;
                     }
                 }
             }
@@ -370,8 +370,8 @@ const Board = () => {
             let x = coords[0];
             let y = coords[1];
 
-            if((!nextState.whiteToPlay && nextState.pieces[x][y] instanceof King && nextState.pieces[x][y].isWhite) 
-                || (nextState.whiteToPlay && nextState.pieces[x][y] instanceof King && !nextState.pieces[x][y].isWhite)) {
+            if((!nextState.whiteToPlay && nextState.pieces[x][y].isRoyal && nextState.pieces[x][y].isWhite) 
+                || (nextState.whiteToPlay && nextState.pieces[x][y].isRoyal && !nextState.pieces[x][y].isWhite)) {
                 newPreviousMove[x][y] = 3; // check
                 isInCheck = true;
             }
@@ -379,7 +379,7 @@ const Board = () => {
         setPreviousMove(newPreviousMove);
     
         // Temp
-        if(!whiteKingIsAlive && !blackKingIsAlive) {
+        if(!whiteHasRoyalPiece && !blackHasRoyalPiece) {
             setChessState(prev => ({
                 ...prev,
                 result: "DRAW",
@@ -389,7 +389,7 @@ const Board = () => {
             return;
         }
     
-        if(!whiteKingIsAlive) {
+        if(!whiteHasRoyalPiece) {
             setChessState(prev => ({
                 ...prev,
                 result: "BLACK_WON",
@@ -399,7 +399,7 @@ const Board = () => {
             return;
         }
     
-        if(!blackKingIsAlive) {
+        if(!blackHasRoyalPiece) {
             setChessState(prev => ({
                 ...prev,
                 result: "WHITE_WON",
@@ -458,7 +458,7 @@ const Board = () => {
                 let movingPiece = chessState.pieces[nextX][nextY];
 
                 // Warn if king is self-threatening
-                if(movingPiece instanceof King) {
+                if(movingPiece.isRoyal) {
                     getAllSeenSquares({...chessState, whiteToPlay: !movingPiece.isWhite}).forEach((coords) => {
                         let [x,y] = [coords[0], coords[1]];
                         
@@ -632,30 +632,26 @@ const Board = () => {
                         </div>
                     </div>
 
-
+                    <h3>Attributes</h3>
                     <div className="modal-text">
-                        {/* <button style={{backgroundColor: tempSelected?.canMoveAsKnight ? "green" : "red"}} onMouseDown={() => {
-                            setTempSelected((temp) => {
-                                if (!temp) return temp;
-                                return { ...temp, canMoveAsKnight: !temp.canMoveAsKnight };
-                            });
-                        }}>canMoveAsKnight</button>
-
-                        <label className="switch">
-                            <input type="checkbox" checked={tempSelected?.canMoveOrthagonally || false} onChange={() => {
-                                setTempSelected((temp) => {
-                                    if (!temp) return temp;
-                                    return { ...temp, canMoveOrthagonally: !temp.canMoveOrthagonally };
-                                });
-                            }}/>
-                            <span className="slider" style={{backgroundColor: tempSelected?.canMoveOrthagonally ? tempSelected?.colour : "gray"}}></span>
-                            <div className="switch-text">canMoveOrthagonally</div>
-                        </label> */}
-
-
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveOrthagonally"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveDiagonally"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKnight"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveOrthagonally"label="Moves Orthagonally" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveDiagonally" label="Moves Diagonally"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKnight" label="Moves like a Knight"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKing" label="Moves like a King"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsPawn" label="Moves like a Pawn"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsCamel" label="Moves like a Camel"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAnywhere" label="Moves to Any Vacant Square"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsGold" label="Moves like a Shogi Gold"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsRotatedKnight" label="Moves like a Rotated Knight"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsVillager" label="Moves like a Villager"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isMovableByPlayer" label="Can Be Moved"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isCastleable" label="Can Castle"/>
+                        {/* <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isNeutral" label=""/> */}
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isCapturable" label="Can Be Captured"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canCapture" label="Can Capture Others"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isRoyal" label="Is Royal"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canEnPassant" label="Can En Passant"/>
+                        {/* <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="maximumRange" /> */}
                     </div>
 
 
@@ -725,7 +721,10 @@ const Board = () => {
             {chessState.result === "PENDING" ? <button
                     onClick={() => {
                     setChessState((state) => {
-                        if (boardHasAtLeastOne(new King(true)) && boardHasAtLeastOne(new King(false))) {
+                        const whiteHasRoyalPiece = state.pieces.some(row => row.some(piece => piece.isRoyal && piece.isWhite));
+                        const blackHasRoyalPiece = state.pieces.some(row => row.some(piece => piece.isRoyal && !piece.isWhite));                        
+                
+                        if (whiteHasRoyalPiece && blackHasRoyalPiece) {
                             setSelectingAction(-1);
                             return { ...state, result: "CONTINUE" };
                         }

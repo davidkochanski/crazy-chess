@@ -16,7 +16,7 @@ const Card: React.FC<CardProps> = ({ piece, onClick, selected, settingWhite, han
     const textColor = bgColor.isLight() ? 'black' : 'white';
 
     return (
-        <div className="card-wrapper" style={{ scale: selected ? "1.025" : "1", outline: selected ? "white 5px solid" : "none", zIndex: selected ? 10000 : 1}}>
+        <div className="card-wrapper" style={{ scale: selected ? "1.025" : "1", outline: selected ? "white 5px solid" : "none", zIndex: selected ? 100 : 1}}>
             <button className="card" style={{ backgroundColor: piece.colour}} onClick={onClick}>
                 <div className="card-top" style={{ backgroundColor: piece.colour, filter: "brightness(0.75)" }}></div>
                 <div className="card-top-text" style={{ color: textColor }}>

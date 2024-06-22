@@ -190,14 +190,15 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                 if(includePieceVision || (x-1 >= MIN && areDifferentColours(board[x-1][y+1], board[x][y]))) {
                     updateLegalMoves(x-1, y+1);
                 }
-                
-                // En passant
-                if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
-                    updateLegalMoves(x+1, y+1);
-                }
-    
-                if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) ||(y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x-1))) {
-                    updateLegalMoves(x-1, y+1);
+                if(movingPiece.canEnPassant) {
+                    // En passant
+                    if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x+1)) || (y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x+1))) {
+                        updateLegalMoves(x+1, y+1);
+                    }
+        
+                    if((y === 4 && (enPassantSquare[1] === 5 && enPassantSquare[0] === x-1)) ||(y === 5 && (enPassantSquare[1] === 6 && enPassantSquare[0] === x-1))) {
+                        updateLegalMoves(x-1, y+1);
+                    }
                 }
             }
 
@@ -224,14 +225,16 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                 if(includePieceVision || (x-1 >= MIN && areDifferentColours(board[x-1][y-1], board[x][y]))) {
                     updateLegalMoves(x-1, y-1);
                 }
-    
-                // En passant
-                if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
-                    updateLegalMoves(x+1, y-1);
-                }
-    
-                if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x-1))) {
-                    updateLegalMoves(x-1, y-1);
+                
+                if(movingPiece.canEnPassant) {
+                    // En passant
+                    if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x+1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x+1))) {
+                        updateLegalMoves(x+1, y-1);
+                    }
+        
+                    if((y === 3 && (enPassantSquare[1] === 2 && enPassantSquare[0] === x-1)) || (y === 2 && (enPassantSquare[1] === 1 && enPassantSquare[0] === x-1))) {
+                        updateLegalMoves(x-1, y-1);
+                    }
                 }
             }
         }
@@ -348,45 +351,45 @@ export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: nu
         }
 
         // Played en passant
-        if(movingPiece.canMoveAsPawn && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+        if(movingPiece.canEnPassant && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
             pieces[nextX][nextY-1] = new EmptyPiece();
         }
 
-        if(movingPiece.canMoveAsPawn && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
+        if(movingPiece.canEnPassant && nextX === enPassantSquare[0] && nextY === enPassantSquare[1]) {
             pieces[nextX][nextY+1] = new EmptyPiece();
         }
 
         // En passant square
         enPassantSquare = [null, null];
 
-        if(movingPiece.canMoveAsPawn && ((selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2))) {
+        if(movingPiece.canEnPassant && ((selectedY === 1 && nextY === 3) || (selectedY === 0 && nextY === 2))) {
             enPassantSquare = [nextX, nextY-1];
         }
 
-        if(movingPiece.canMoveAsPawn && ((selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5))) {
+        if(movingPiece.canEnPassant && ((selectedY === 6 && nextY === 4) || (selectedY === 7 && nextY === 5))) {
             enPassantSquare = [nextX, nextY+1];
         }
 
         // Move rook if castling
-        if(castlingRights[0] && movingPiece.toString() === "white-king" && nextX === 2 && nextY === 0) {
+        if(castlingRights[0] && movingPiece.isRoyal && movingPiece.isWhite && nextX === 2 && nextY === 0) {
             const castlingPiece = pieces[0][0];
             pieces[0][0] = new EmptyPiece();
             pieces[3][0] = castlingPiece;
         }
 
-        if(castlingRights[1] && movingPiece.toString() === "white-king" && nextX === 6 && nextY === 0) {
+        if(castlingRights[1] && movingPiece.isRoyal && movingPiece.isWhite && nextX === 6 && nextY === 0) {
             const castlingPiece = pieces[7][0];
             pieces[7][0] = new EmptyPiece();
             pieces[5][0] = castlingPiece;
         }
 
-        if(castlingRights[2] && movingPiece.toString() === "black-king" && nextX === 2 && nextY === 7) {
+        if(castlingRights[2] && movingPiece.isRoyal && !movingPiece.isWhite && nextX === 2 && nextY === 7) {
             const castlingPiece = pieces[0][7];
             pieces[0][7] = new EmptyPiece();
             pieces[3][7] = castlingPiece;
         }
 
-        if(castlingRights[3] && movingPiece.toString() === "black-king" && nextX === 6 && nextY === 7) {
+        if(castlingRights[3] && movingPiece.isRoyal && !movingPiece.isWhite && nextX === 6 && nextY === 7) {
             const castlingPiece = pieces[7][7];
             pieces[7][7] = new EmptyPiece();
             pieces[5][7] = castlingPiece;

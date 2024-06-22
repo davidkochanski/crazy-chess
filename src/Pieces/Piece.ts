@@ -32,6 +32,8 @@ export class Piece {
     isBouncy: boolean = false;
     canCapture: boolean = true;
     maximumRange: number = Infinity;
+    canEnPassant: boolean = false;
+    isRoyal: boolean = false;
 
     name: string = "unknown";
     description: string = "yep, this certainly is a piece";
@@ -76,7 +78,9 @@ export class Piece {
         nextPiece.isCapturable = this.isCapturable
         nextPiece.isBouncy = this.isBouncy
         nextPiece.canCapture = this.canCapture
-        nextPiece.maximumRange = this.maximumRange
+        nextPiece.maximumRange = this.maximumRange;
+        nextPiece.canEnPassant = this.canEnPassant;
+        nextPiece.isRoyal = this.isRoyal;
     
         nextPiece.name = this.name;
         nextPiece.description = this.description;

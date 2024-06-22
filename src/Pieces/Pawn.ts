@@ -9,6 +9,7 @@ export class Pawn extends Piece {
         this.name = "pawn";
         this.colour = "#E57373";
         this.canMoveAsPawn = true;
+        this.canEnPassant = true;
         this.id = 1;
     }
 }
