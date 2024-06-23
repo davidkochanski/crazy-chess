@@ -76,6 +76,11 @@ const Board = () => {
     const [selectingAction, setSelectingAction] = useState<number>(-1);
     const [tempSelected, setTempSelected] = useState<Piece | null>(null);
 
+    const [isEditingName, setEditingName] = useState(false);
+    const [newName, setNewName] = useState("");
+    const [isEditingDesc, setEditingDesc] = useState(false);
+    const [newDesc, setNewDesc] = useState("");
+
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
     }, [chessState.log])
@@ -83,17 +88,6 @@ const Board = () => {
     useEffect(() => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
     }, [wait])
-
-
-    const boardHasAtLeastOne = (piece: Piece) => {
-        for(let x = 0; x < 8; x++) {
-            for(let y = 0; y < 8; y++) {
-                if(piece.toString() === chessState.pieces[x][y].toString()) return true;
-            }
-        }
-
-        return false;
-    }
 
     const deselectAll = () => {
         setSelectedX(null);
@@ -558,7 +552,7 @@ const Board = () => {
     }
 
     const handleShowThisModal = (i: number) => {
-        if(chessState.result !== "PENDING") return;
+        // if(chessState.result !== "PENDING") return;
 
         setTempSelected(_.cloneDeep(customPieces[i]));
         setSelectingAction(i);
@@ -600,62 +594,142 @@ const Board = () => {
 
     return (
         <div className="game-content">
-            <div className="modal" style={{display: showModal ? "grid" : "none"}}>
-                <div className="modal-content" style={{ backgroundColor: customPieces[selectingAction]?.colour || "red"}}>
-                    <div className="modal-top" style={{ backgroundColor: customPieces[selectingAction]?.colour || "red", filter: "brightness(0.75)"}}></div>
-                    <h2 className="modal-top-text" style={{color: Color(customPieces[selectingAction]?.colour).isLight() ? 'black' : 'white'}}>{customPieces[selectingAction]?.name.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()).replace("-", " ") || "undefined"}
-                        <button className="inline-button"><i className="fa-solid fa-pencil"></i></button>
+            <div className="modal" style={{ display: showModal ? "grid" : "none" }}>
+                <div className="modal-content" style={{ backgroundColor: customPieces[selectingAction]?.colour || "white" }}>
+                    <div className="modal-top" style={{ backgroundColor: customPieces[selectingAction]?.colour || "white", filter: "brightness(0.75)" }}></div>
+                    <h2 className="modal-top-text" style={{ color: Color(customPieces[selectingAction]?.colour).isLight() ? 'black' : 'white' }}>
+                        {isEditingName ? (
+                            <div className="modal-name-input">
+                                <input
+                                    type="text"
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value.length <= 32 ? e.target.value : e.target.value.substring(0, 32))}
+                                    onBlur={() => {
+                                        if(!tempSelected) return;
+                                        setCustomPieces(prev => {
+                                            const updatedPieces = [...prev];
+                                            tempSelected.name = newName || tempSelected.name;
+                                            return updatedPieces;
+                                        });
+                                        setEditingName(false);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            if(!tempSelected) return;
+                                            setCustomPieces(prev => {
+                                                const updatedPieces = [...prev];
+                                                tempSelected.name = newName || tempSelected.name;
+                                                return updatedPieces;
+                                            });
+                                            setEditingName(false);
+                                        } else if(e.key === "Escape") {
+                                            setEditingName(false);
+                                        }
+                                    }}
+                                    autoFocus
+                                />
+                            </div>
+                        ) : (
+                            <>
+                                {tempSelected?.name || "undefined"}
+                                <button className="inline-button" onClick={() => {
+                                    setNewName(tempSelected?.name || "");
+                                    setEditingName(true);
+                                }}>
+                                    <i className="fa-solid fa-pencil"></i>
+                                </button>
+                            </>
+                        )}
                     </h2>
-                    
-                    <button className="modal-close" onClick={() => { 
-                    updatePieceBehaviours(); 
-                    console.log(chessState.pieces[1][1].canMoveAsKnight);
-                    setShowModal(false); 
-                }}><i className="fa-solid fa-x"></i></button>
 
+                    <button className="modal-close" onClick={() => {
+                        updatePieceBehaviours();
+                        setShowModal(false);
+                        setEditingName(false);
+                        setEditingDesc(false);
+                    }}>
+                        <i className="fa-solid fa-x"></i>
+                    </button>
 
                     <div className="modal-description">
-                        {customPieces[selectingAction]?.description || "undefined"}
-                        <button className="inline-button"><i className="fa-solid fa-pencil"></i></button>
+                    {isEditingDesc ? (
+                            <div className="modal-desc-input">
+                                <input
+                                    type="text"
+                                    value={newDesc}
+                                    onChange={(e) => setNewDesc(e.target.value.length <= 140 ? e.target.value : e.target.value.substring(0, 140))}
+                                    onBlur={() => {
+                                        if(!tempSelected) return;
+
+                                        setCustomPieces(prev => {
+                                            const updatedPieces = [...prev];
+                                            tempSelected.description = newDesc || tempSelected.description;
+                                            return updatedPieces;
+                                        });
+                                        setEditingDesc(false);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            if(!tempSelected) return;
+                                            setCustomPieces(prev => {
+                                                const updatedPieces = [...prev];
+                                                tempSelected.description = newDesc || tempSelected.description;
+                                                return updatedPieces;
+                                            });
+                                            setEditingDesc(false);
+                                        } else if(e.key === "Escape") {
+                                            setEditingDesc(false);
+                                        }
+                                    }}
+                                    autoFocus
+                                />
+                            </div>
+                        ) : (
+                            <>
+                                {tempSelected?.description || "undefined"}
+                                <button className="inline-button" onClick={() => {
+                                    setNewDesc(tempSelected?.description || "");
+                                    setEditingDesc(true);
+                                }}>
+                                    <i className="fa-solid fa-pencil"></i>
+                                </button>
+                            </>
+                        )}
                     </div>
 
                     <div className="modal-img-array">
                         <div className="modal-img">
-                            <img src={`img/white-${customPieces[selectingAction]?.name}.png`} alt="white" />
+                            <img src={`img/white-${tempSelected?.name}.png`} alt="white" />
                             <button className="edit-image">Edit White Image</button>
                         </div>
 
                         <div className="modal-img">
-                            <img src={`img/black-${customPieces[selectingAction]?.name}.png`} alt="black" />
+                            <img src={`img/black-${tempSelected?.name}.png`} alt="black" />
                             <button className="edit-image">Edit Black Image</button>
-
                         </div>
                     </div>
 
                     <h3>Attributes</h3>
                     <div className="modal-text">
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveOrthagonally"label="Moves Orthagonally" />
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveDiagonally" label="Moves Diagonally"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKnight" label="Moves like a Knight"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKing" label="Moves like a King"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsPawn" label="Moves like a Pawn"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsCamel" label="Moves like a Camel"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAnywhere" label="Moves to Any Vacant Square"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsGold" label="Moves like a Shogi Gold"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsRotatedKnight" label="Moves like a Rotated Knight"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsVillager" label="Moves like a Villager"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isMovableByPlayer" label="Can Be Moved"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isCastleable" label="Can Castle"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveOrthagonally" label="Moves Orthagonally" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveDiagonally" label="Moves Diagonally" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKnight" label="Moves like a Knight" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKing" label="Moves like a King" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsPawn" label="Moves like a Pawn" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsCamel" label="Moves like a Camel" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAnywhere" label="Moves to Any Vacant Square" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsGold" label="Moves like a Shogi Gold" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsRotatedKnight" label="Moves like a Rotated Knight" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsVillager" label="Moves like a Villager" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isMovableByPlayer" label="Can Be Moved" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isCastleable" label="Can Castle" />
                         {/* <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isNeutral" label=""/> */}
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isCapturable" label="Can Be Captured"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canCapture" label="Can Capture Others"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isRoyal" label="Is Royal"/>
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canEnPassant" label="Can En Passant"/>
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isCapturable" label="Can Be Captured" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canCapture" label="Can Capture Others" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="isRoyal" label="Is Royal" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canEnPassant" label="Can En Passant" />
                         {/* <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="maximumRange" /> */}
                     </div>
-
-
-
                 </div>
             </div>
 
@@ -731,7 +805,15 @@ const Board = () => {
                         return state;
                     });
                     }}
-                >Start Game</button> : <></>}
+                >Start Game</button> : 
+                
+                <button style={{backgroundColor: chessState.whiteToPlay ? "white" : "black", color: chessState.whiteToPlay ? "black" : "white", border: chessState.whiteToPlay ? "none" : "2px solid white"}}> 
+                    {chessState.whiteToPlay ? "White to Play" : "Black to Play"}
+                </button>
+                
+                
+                
+                }
 
                 {<button onClick={() => {setWhitePOV(prev => !prev)}}>Flip board</button>}
                 {wait && <div className="wait"><img src="img/hourglass.png" alt="..." /></div>}

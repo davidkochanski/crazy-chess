@@ -11,7 +11,7 @@ type CardProps = {
 };
 
 const Card: React.FC<CardProps> = ({ piece, onClick, selected, settingWhite, handleShowThisModal}) => {
-    const properName = piece.name.toLowerCase().replace(/\b\w/g, s => s.toUpperCase()).replace("-", " ");
+    const properName = piece.name;
     const bgColor = Color(piece.colour);
     const textColor = bgColor.isLight() ? 'black' : 'white';
 
