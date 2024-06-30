@@ -8,7 +8,7 @@ import { EmptyPiece } from "./Pieces/EmptyPiece";
 import ChessState from "./ChessState";
 
 export const areDifferentColours = (attacker: Piece, defender: Piece) => {
-    if(attacker.isEmpty() || defender.isEmpty()) return false;
+    if(attacker.isEmpty || defender.isEmpty) return false;
 
     if(attacker.isNeutral || defender.isNeutral) {
         return defender.isCapturable;
@@ -28,7 +28,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
     const enPassantSquare = state.enPassantSquare;
 
     const movingPiece = board[x][y];
-    if(movingPiece.isEmpty()) return [];
+    if(movingPiece.isEmpty) return [];
 
     const updateLegalMoves = (x: number, y: number) => {
         if(x < MIN || x > MAX || y < MIN || y > MAX) return false;
@@ -41,7 +41,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
 
         const piece = board[x][y];
 
-        if(!piece.isEmpty()) {
+        if(!piece.isEmpty) {
             if(!piece.isCapturable) return true;
             
             if(areDifferentColours(piece, movingPiece) || piece.isNeutral || includePieceVision) {
@@ -147,20 +147,20 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
             })
     
             if(movingPiece.isWhite) {
-                if(castlingRights[0] && board[1][0].isEmpty() && !tiles[1][0]?.isBlocking && board[2][0].isEmpty() && !tiles[2][0]?.isBlocking && board[3][0].isEmpty() && !tiles[3][0]?.isBlocking && board[0][0]?.isCastleable) {
+                if(castlingRights[0] && board[1][0].isEmpty && !tiles[1][0]?.isBlocking && board[2][0].isEmpty && !tiles[2][0]?.isBlocking && board[3][0].isEmpty && !tiles[3][0]?.isBlocking && board[0][0]?.isCastleable) {
                     updateLegalMoves(2, 0);
                 }
     
-                if(castlingRights[1] && board[5][0].isEmpty() && !tiles[5][0]?.isBlocking && board[6][0].isEmpty()  && !tiles[6][0]?.isBlocking && board[7][0]?.isCastleable) {
+                if(castlingRights[1] && board[5][0].isEmpty && !tiles[5][0]?.isBlocking && board[6][0].isEmpty  && !tiles[6][0]?.isBlocking && board[7][0]?.isCastleable) {
                     updateLegalMoves(6, 0);
                 }
     
             } else {
-                if(castlingRights[2] && board[1][7].isEmpty()  && !tiles[1][7]?.isBlocking && board[2][7].isEmpty()  && !tiles[2][7]?.isBlocking && board[3][7].isEmpty()  && !tiles[3][7]?.isBlocking && board[0][7]?.isCastleable) {
+                if(castlingRights[2] && board[1][7].isEmpty  && !tiles[1][7]?.isBlocking && board[2][7].isEmpty  && !tiles[2][7]?.isBlocking && board[3][7].isEmpty  && !tiles[3][7]?.isBlocking && board[0][7]?.isCastleable) {
                     updateLegalMoves(2, 7);
                 }
     
-                if(castlingRights[3] && board[5][7].isEmpty()  && !tiles[5][7]?.isBlocking && board[6][7].isEmpty()  && !tiles[6][7]?.isBlocking && board[7][7]?.isCastleable) {
+                if(castlingRights[3] && board[5][7].isEmpty  && !tiles[5][7]?.isBlocking && board[6][7].isEmpty  && !tiles[6][7]?.isBlocking && board[7][7]?.isCastleable) {
                     updateLegalMoves(6, 7);
                 }
             }
@@ -171,14 +171,14 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
         if(movingPiece.isWhite) {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if(!includePieceVision && (y <= 1) && board[x][y+1].isEmpty() && board[x][y+2].isEmpty() && !tiles[x][y+1]?.isBlocking) {
+                if(!includePieceVision && (y <= 1) && board[x][y+1].isEmpty && board[x][y+2].isEmpty && !tiles[x][y+1]?.isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
             }
 
             if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
-                if(!includePieceVision && board[x][y+1].isEmpty()) {
+                if(!includePieceVision && board[x][y+1].isEmpty) {
                     updateLegalMoves(x, y+1);
                 }
                 
@@ -206,14 +206,14 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
         } else {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if(!includePieceVision && (y >= 6) && board[x][y-1].isEmpty() && board[x][y-2].isEmpty() && !tiles[x][y-1]?.isBlocking) {
+                if(!includePieceVision && (y >= 6) && board[x][y-1].isEmpty && board[x][y-2].isEmpty && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
             }
 
             if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
-                if(!includePieceVision && board[x][y-1].isEmpty()) {
+                if(!includePieceVision && board[x][y-1].isEmpty) {
                     updateLegalMoves(x, y-1);
                 }
                 
@@ -258,7 +258,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
     if(movingPiece.canMoveAnywhere) {
         for(let i = 0; i < 8; i++) {
             for(let j = 0; j < 8; j++) {
-                if(board[i][j].isEmpty() && tiles[i][j]?.isOccupyable) legalMoves.push([i, j]);
+                if(board[i][j].isEmpty && tiles[i][j]?.isOccupyable) legalMoves.push([i, j]);
             }
         }
     }
@@ -281,7 +281,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
         if(movingPiece.isWhite) {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y <= 1) && board[x][y+1].isEmpty() && !tiles[x][y-1]?.isBlocking) {
+                if((y <= 1) && board[x][y+1].isEmpty && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
             }
@@ -294,7 +294,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
         } else {
             if(movingPiece.maximumRange >= 2) {
                 // Double step move option
-                if((y >= 6) && board[x][y-1].isEmpty() && !tiles[x][y-1]?.isBlocking) {
+                if((y >= 6) && board[x][y-1].isEmpty && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
             }
@@ -472,14 +472,14 @@ export const generateLegalPlays = (card: string, state: ChessState): number[][] 
 
 export const decodePiece = (piece: Piece) => {
     try {
-        piece.isEmpty()
+        piece.isEmpty
     } catch {
         console.log(piece.name);
         console.log(piece instanceof EmptyPiece);
     }
 
 
-    if(piece.isEmpty()) return "empty";
+    if(piece.isEmpty) return "empty";
 
     let out = piece.name;
 
@@ -491,7 +491,7 @@ export const decodePiece = (piece: Piece) => {
 }
 
 export const decodeEffects = (piece: Piece) => {
-    if(piece.isEmpty()) return [];
+    if(piece.isEmpty) return [];
 
     return piece.attachments;
 }

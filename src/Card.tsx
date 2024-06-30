@@ -1,6 +1,7 @@
 import React from "react";
 import Color from "color";
 import { Piece } from "./Pieces/Piece";
+import { toImage } from "./TileSquare";
 
 type CardProps = {
     piece: Piece;
@@ -22,7 +23,7 @@ const Card: React.FC<CardProps> = ({ piece, onClick, selected, settingWhite, han
                 <div className="card-top-text" style={{ color: textColor }}>
                     <h2>{properName}</h2>
                 </div>
-                <img src={`img/${settingWhite ? `white-${piece.name}` : `black-${piece.name}`}.png`} alt={piece.name} />
+                <img src={`img/${settingWhite ? `white-${piece.image}` : `black-${piece.image}`}`} alt={piece.name} />
                 <div className="card-description" style={{ color: textColor }}>
                     {piece.description}
                 </div>

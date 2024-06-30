@@ -5,9 +5,6 @@ export class EmptyPiece extends Piece {
         super(true);
         this.name = "empty";
         this.id = 0;
-    }
-
-    public isEmpty = (): boolean => {
-        return true;
+        this.isEmpty = true;
     }
 }

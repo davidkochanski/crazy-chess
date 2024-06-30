@@ -19,11 +19,11 @@ type TileProps = {
     isWhitePOV: boolean;
 }
 
-const toString = (piece: Piece): string => {
-    if(piece.isNeutral) return piece.name;
-    if(piece.isEmpty()) return "empty";
+export const toImage = (piece: Piece): string => {
+    if(piece.isNeutral) return `img/${piece.image}`;
+    if(piece.isEmpty) return "img/empty.png";
     
-    return `${piece.isWhite ? "white" : "black"}-${piece.name}`
+    return `img/${piece.isWhite ? "white" : "black"}-${piece.image}`
 }
 
 const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBeingDragged, tile, previousMove, onSelect, onSelectUp, onRightClick, piece, isWhitePOV}) => {
@@ -57,11 +57,11 @@ const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBei
         if(!tile.isEmpty()) return <img className="tile-ring" src="img/ring.png"/>
 
         if(isHighlighted === 2) { // moving to threatened square
-            return piece.isEmpty() ? <img className="tile-dot-red" src="img/dot-red.png"/>
+            return piece.isEmpty ? <img className="tile-dot-red" src="img/dot-red.png"/>
             : <img className="tile-cross-red" src="img/cross-red.png"/>;
         } 
 
-        return piece.isEmpty() ? <img className="tile-dot" src="img/dot.png"/>
+        return piece.isEmpty ? <img className="tile-dot" src="img/dot.png"/>
         : <img className="tile-cross" src="img/cross.png"/>;
 
 
@@ -96,10 +96,17 @@ const TileSquare: React.FC<TileProps> = ({x, y, isSelected, isHighlighted, isBei
         ))
     }
 
+    const toImage = (piece: Piece): string => {
+        if(piece.isNeutral) return `img/piece.image`;
+        if(piece.isEmpty) return "img/empty.png";
+        
+        return `img/${piece.isWhite ? "white" : "black"}-${piece.image}`
+    }
+
     return (
         <div onMouseDown={(e) => {handleClick(e)}} onMouseUp={handleUp} id={`tile-${x}-${y}`} className={`tile ${getColour()} ${isSelected ? "selected" : ""} ${styleTile()} ${previousMove === 1 ? "destination" : ""}`}>
             
-            {!isBeingDragged ? <img draggable={false} className="piece-img" src={"img/" + toString(piece) + ".png"} alt="" /> : <></>}
+            {!isBeingDragged ? <img draggable={false} className="piece-img" src={toImage(piece)} alt="" /> : <></>}
             {putHighlightedMarker()}
             {putTileEffect()}
             <div className="tile-effects">

@@ -6,7 +6,8 @@ import { King } from "./King";
 export class Pawn extends Piece {
     constructor(isWhite: boolean) {
         super(isWhite);
-        this.name = "pawn";
+        this.name = "Pawn";
+        this.image = "pawn.png";
         this.colour = "#E57373";
         this.canMoveAsPawn = true;
         this.canEnPassant = true;

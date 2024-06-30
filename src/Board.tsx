@@ -31,8 +31,12 @@ import { produce } from "immer";
 
 // import { ResizableBox } from "react-resizable";
 import Color from "color";
-import _, { some } from 'lodash';
+import _ from 'lodash';
 import PropertySwitch from "./PropertySwitch";
+import { toImage } from "./TileSquare";
+import { Camel } from "./Pieces/Camel";
+import { Knook } from "./Pieces/Knook";
+import { Villager } from "./Pieces/Villager";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -71,7 +75,7 @@ const Board = () => {
     const [settingWhite, setSettingWhite] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
-    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true)]);
+    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new Camel(true), new Knook(true), new Villager(true)]);
 
     const [selectingAction, setSelectingAction] = useState<number>(-1);
     const [tempSelected, setTempSelected] = useState<Piece | null>(null);
@@ -699,12 +703,12 @@ const Board = () => {
 
                     <div className="modal-img-array">
                         <div className="modal-img">
-                            <img src={`img/white-${tempSelected?.name}.png`} alt="white" />
+                            <img src={`img/white-${tempSelected?.image}`} alt="white" />
                             <button className="edit-image">Edit White Image</button>
                         </div>
 
                         <div className="modal-img">
-                            <img src={`img/black-${tempSelected?.name}.png`} alt="black" />
+                            <img src={`img/black-${tempSelected?.image}`} alt="black" />
                             <button className="edit-image">Edit Black Image</button>
                         </div>
                     </div>
@@ -752,7 +756,7 @@ const Board = () => {
                         isWhitePOV={whitePOV}
                     />
                 ))}
-            <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `img/${decodePiece(chessState.pieces[selectedX][selectedY])}.png` : "img/empty.png"} alt="" />
+            <img id="dragging-piece" src={selectedX !== null && selectedY !== null ? `${toImage(chessState.pieces[selectedX][selectedY])}` : "img/empty.png"} alt="" />
 
             </div>
 

@@ -37,19 +37,18 @@ export class Piece {
 
     name: string = "unknown";
     description: string = "yep, this certainly is a piece";
+    image: string = "empty.png";
     colour: string = "#008080";
     isWhite: boolean;
     attachments: string[] = [];
 
     id: number = -1;
     
-    public isEmpty = (): boolean => {
-        return false;
-    }
+    isEmpty: boolean = false;
 
     public toString = (): string => {
         if(this.isNeutral) return this.name;
-        if(this.isEmpty()) return "empty";
+        if(this.isEmpty) return "empty";
         
         return `${this.isWhite ? "white" : "black"}-${this.name}`
     }
