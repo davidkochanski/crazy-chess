@@ -13,6 +13,7 @@ import { Pawn } from "./Pieces/Pawn";
 import TileSquare from "./TileSquare";
 import { EmptyTile } from "./Tiles/EmptyTile";
 import { EmptyPiece } from "./Pieces/EmptyPiece";
+import { HexColorInput, HexColorPicker } from "react-colorful";
 // import { TrojanHorse } from "./Pieces/TrojanHorse";
 // import { Resizable } from 'react-resizable';
 // import { Wall } from "./Tiles/Wall";
@@ -37,6 +38,7 @@ import { toImage } from "./TileSquare";
 import { Camel } from "./Pieces/Camel";
 import { Knook } from "./Pieces/Knook";
 import { Villager } from "./Pieces/Villager";
+import { NewPiece } from "./Pieces/NewPiece";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -84,6 +86,10 @@ const Board = () => {
     const [newName, setNewName] = useState("");
     const [isEditingDesc, setEditingDesc] = useState(false);
     const [newDesc, setNewDesc] = useState("");
+
+    const [isEditingColour, setEditingColour] = useState(false);
+
+    const [colour, setColour] = useState("#123456");
 
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
@@ -598,10 +604,10 @@ const Board = () => {
 
     return (
         <div className="game-content">
-            <div className="modal" style={{ display: showModal ? "grid" : "none" }}>
-                <div className="modal-content" style={{ backgroundColor: customPieces[selectingAction]?.colour || "white" }}>
-                    <div className="modal-top" style={{ backgroundColor: customPieces[selectingAction]?.colour || "white", filter: "brightness(0.75)" }}></div>
-                    <h2 className="modal-top-text" style={{ color: Color(customPieces[selectingAction]?.colour).isLight() ? 'black' : 'white' }}>
+            <div className="modal" style={{ display: showModal ? "grid" : "none", color: Color(tempSelected?.colour).isLight() ? 'black' : 'white' }}>
+                <div className="modal-content" style={{ backgroundColor: tempSelected?.colour || "white" }}>
+                    <div className="modal-top" style={{ backgroundColor: tempSelected?.colour || "white", filter: "brightness(0.75)" }}></div>
+                    <h2 className="modal-top-text">
                         {isEditingName ? (
                             <div className="modal-name-input">
                                 <input
@@ -647,6 +653,7 @@ const Board = () => {
                     </h2>
 
                     <button className="modal-close" onClick={() => {
+                        if(tempSelected) tempSelected.colour = colour;
                         updatePieceBehaviours();
                         setShowModal(false);
                         setEditingName(false);
@@ -699,6 +706,26 @@ const Board = () => {
                                 </button>
                             </>
                         )}
+
+
+
+                        {isEditingColour ?
+                            <div className="editing-colour">
+                                <button onClick={() => {
+                                    setEditingColour(false);
+                                    if (tempSelected) tempSelected.colour = colour;
+                                }}> 
+                                
+                                <i className="fa-solid fa-check"></i></button>
+
+                                <HexColorPicker className="colour-picker" color={tempSelected?.colour || "red"} onChange={setColour} />
+
+                            </div>
+                            :
+                            <button className="edit-colour" onClick={() => { setEditingColour(true) }}>
+                                <i className="fa-solid fa-paint-brush">
+                                </i>
+                            </button>}
                     </div>
 
                     <div className="modal-img-array">
@@ -765,7 +792,13 @@ const Board = () => {
 
             <div className="cards">
                 <div className="cards-settings">
-                        <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-plus"></i></button>
+                        <button type="button"  onClick={() => {setCustomPieces(prev => {
+                            const nextPiece = new NewPiece(true);
+                            nextPiece.id = prev.length;
+                            
+                            return [...prev, nextPiece]
+                            
+                        })}}><i className="fa-solid fa-plus"></i></button>
 
                         {/* -2 is defined as eraser, -1 is defined as no selection, >0 is the index of the selected card in the cards array. */}
                         <button type="button" style={{border: selectingAction === -2 ? "white 3px solid" : "none"}} onClick={() => {setSelectingAction(prev => prev === -2 ? -1 : -2)}}><i className="fa-solid fa-eraser"></i></button> 

@@ -13,9 +13,10 @@
     "@types/lodash": "^4.17.5",
     "@types/react-resizable": "^3.0.7",
     "color": "^4.2.3",
-    "immer": "^10.0.3",
+    "immer": "^10.1.1",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
+    "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
     "react-resizable": "^3.0.5"
   },
