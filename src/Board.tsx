@@ -653,7 +653,6 @@ const Board = () => {
                     </h2>
 
                     <button className="modal-close" onClick={() => {
-                        if(tempSelected) tempSelected.colour = colour;
                         updatePieceBehaviours();
                         setShowModal(false);
                         setEditingName(false);
@@ -794,7 +793,7 @@ const Board = () => {
                 <div className="cards-settings">
                         <button type="button"  onClick={() => {setCustomPieces(prev => {
                             const nextPiece = new NewPiece(true);
-                            nextPiece.id = prev.length;
+                            nextPiece.id = prev.length + 1;
                             
                             return [...prev, nextPiece]
                             
