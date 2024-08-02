@@ -91,7 +91,7 @@ const Board = () => {
     const [isEditingColour, setEditingColour] = useState(false);
     const [colour, setColour] = useState("#123456");
 
-    const [nextId, setNextId] = useState(10);
+    const [nextId, setNextId] = useState(customPieces.length);
 
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
@@ -118,7 +118,7 @@ const Board = () => {
                 if(piece !== null) {
                     if((piece.isWhite && !byWhite) || (!piece.isWhite && byWhite)) return;
 
-                    generateLegalMoves(i, j, {...currentState, whiteToPlay: !currentState.whiteToPlay}, true).forEach((tuple) => {
+                    generateLegalMoves(i, j, {...currentState, whiteToPlay: !currentState.whiteToPlay}, true, true).forEach((tuple) => {
                         if(!allMoves.includes(tuple)) allMoves.push(tuple);
                     });
                 }
@@ -635,7 +635,7 @@ const Board = () => {
                                 <input
                                     type="text"
                                     value={newName}
-                                    onChange={(e) => setNewName(e.target.value.length <= 32 ? e.target.value : e.target.value.substring(0, 32))}
+                                    onChange={(e) => setNewName(e.target.value.length <= 16 ? e.target.value : e.target.value.substring(0, 16))}
                                     onBlur={() => {
                                         if(!tempSelected) return;
                                         setCustomPieces(prev => {
@@ -759,6 +759,9 @@ const Board = () => {
                         <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="camel.png"/>
                         <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="knook.png"/>
                         <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="villager.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="icbm.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="grassh.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="amazon.png"/>
                     </div>
 
                     <h3>Attributes</h3>

@@ -8,6 +8,7 @@ export class Camel extends Piece {
         this.image = "camel.png"
         this.colour = "#fff0db";
         this.canMoveAsCamel = true;
+        this.description = "The Knight's older cousin, moves in a longer L."
 
     }
 }

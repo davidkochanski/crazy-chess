@@ -18,7 +18,7 @@ export const areDifferentColours = (attacker: Piece, defender: Piece) => {
 }
 
 
-export const generateLegalMoves = (x: number, y: number, state: ChessState, includePieceVision: boolean = false) => {
+export const generateLegalMoves = (x: number, y: number, state: ChessState, includePieceVision: boolean = false, ignoreKing: boolean = false) => {
     const MAX = 7;
     const MIN = 0;
 
@@ -48,7 +48,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                 legalMoves.push([x,y]);
             }
 
-            if(piece instanceof King) return false;
+            if(ignoreKing && piece instanceof King) return false;
             return true;
         } else {
             legalMoves.push([x, y]);

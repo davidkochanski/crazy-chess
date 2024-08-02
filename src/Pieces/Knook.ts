@@ -10,5 +10,6 @@ export class Knook extends Piece {
         this.canMoveOrthagonally = true;
         this.canMoveAsKnight = true;
         this.isCastleable = true;
+        this.description = "An epic fusion of the Knight and Rook!"
     }
 }

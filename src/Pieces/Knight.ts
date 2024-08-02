@@ -8,5 +8,6 @@ export class Knight extends Piece {
         this.colour = "#FFB74D";
         this.canMoveAsKnight = true;
         this.id = 2;
+        this.description = "Jump over pieces and dominate by moving in an L-shape."
     }
 }

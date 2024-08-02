@@ -7,7 +7,7 @@ export class Queen extends Piece {
         this.colour = "#64B5F6";
         this.image = "queen.png"
         this.id = 5;
-        
+        this.description = "The Queen can move in any straight direction!"
         this.canMoveDiagonally = true;
         this.canMoveOrthagonally = true;
     }
