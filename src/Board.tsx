@@ -1,6 +1,6 @@
 import { useState, MouseEvent, useEffect, useRef } from "react";
 // import { Tile } from "./Tiles/Tile";
-import { generateLegalMoves, handleCastlingPromotionEnPassant, decodePiece, getCoords } from "./Moves";
+import { generateLegalMoves, handleCastlingPromotionEnPassant, getCoords } from "./Moves";
 // import { getCardAction } from "./CardBehaviours";
 import Card from "./Card";
 import { Piece } from "./Pieces/Piece";
@@ -13,7 +13,7 @@ import { Pawn } from "./Pieces/Pawn";
 import TileSquare from "./TileSquare";
 import { EmptyTile } from "./Tiles/EmptyTile";
 import { EmptyPiece } from "./Pieces/EmptyPiece";
-import { HexColorInput, HexColorPicker } from "react-colorful";
+import { HexColorPicker } from "react-colorful";
 // import { TrojanHorse } from "./Pieces/TrojanHorse";
 // import { Resizable } from 'react-resizable';
 // import { Wall } from "./Tiles/Wall";
@@ -21,7 +21,7 @@ import { HexColorInput, HexColorPicker } from "react-colorful";
 // import { BluePortal } from "./Tiles/BluePortal";
 // import { CardBehaviour } from "./Cards/Card";
 
-import ChessState from "./ChessState";
+import ChessState, { Log } from "./ChessState";
 // import { Log } from "./ChessState";
 import { produce } from "immer";
 // import { Fox } from "./Pieces/Fox";
@@ -39,6 +39,7 @@ import { Camel } from "./Pieces/Camel";
 import { Knook } from "./Pieces/Knook";
 import { Villager } from "./Pieces/Villager";
 import { NewPiece } from "./Pieces/NewPiece";
+import ImageSelectionButton from "./ImageSelectionButton";
 
 const Board = () => {
     const defaultState: ChessState = {
@@ -58,7 +59,7 @@ const Board = () => {
         whiteToPlay: true,
         enPassantSquare: [null, null],
         castlingRights: [true, true, true, true],
-        log: [{content: "The game has begin!", byWhite: true, author: "CONSOLE"}],
+        log: [],
         result: "PENDING"
     };
 
@@ -88,8 +89,9 @@ const Board = () => {
     const [newDesc, setNewDesc] = useState("");
 
     const [isEditingColour, setEditingColour] = useState(false);
-
     const [colour, setColour] = useState("#123456");
+
+    const [nextId, setNextId] = useState(10);
 
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
@@ -567,6 +569,26 @@ const Board = () => {
         setTempSelected(_.cloneDeep(customPieces[i]));
         setSelectingAction(i);
         setShowModal(true);
+        setColour(customPieces[i].colour); // the react-colourful package needs its own state
+
+    }
+
+    const deleteCard = (id: number) => {
+        if(chessState.result !== "PENDING") return;
+        setCustomPieces(pieces => {
+            return pieces.filter((piece) => {return piece.id !== id})
+        })
+
+        setChessState(prevChessState => {
+            for(let i = 0; i < 8; i++) {
+                for(let j = 0; j < 8; j++) {
+                    if(prevChessState.pieces[i][j].id === id) {
+                        prevChessState.pieces[i][j] = new EmptyPiece();
+                    }
+                }
+            }
+            return prevChessState;
+        })
 
     }
 
@@ -584,7 +606,7 @@ const Board = () => {
                 row.map(piece => {
                     if (piece.id === tempSelected.id) {
                         const newPiece = _.cloneDeep(tempSelected);
-                        newPiece.isWhite = piece.isWhite; // Set isWhite explicitly
+                        newPiece.isWhite = piece.isWhite;
                         return newPiece;
                     }
                     return piece;
@@ -717,7 +739,7 @@ const Board = () => {
                                 
                                 <i className="fa-solid fa-check"></i></button>
 
-                                <HexColorPicker className="colour-picker" color={tempSelected?.colour || "red"} onChange={setColour} />
+                                <HexColorPicker className="colour-picker" color={tempSelected?.colour || "#000000"} onChange={setColour} />
 
                             </div>
                             :
@@ -727,16 +749,16 @@ const Board = () => {
                             </button>}
                     </div>
 
-                    <div className="modal-img-array">
-                        <div className="modal-img">
-                            <img src={`img/white-${tempSelected?.image}`} alt="white" />
-                            <button className="edit-image">Edit White Image</button>
-                        </div>
-
-                        <div className="modal-img">
-                            <img src={`img/black-${tempSelected?.image}`} alt="black" />
-                            <button className="edit-image">Edit Black Image</button>
-                        </div>
+                    <div id="modal-img-array" className="modal-img-array">
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="pawn.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="knight.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="bishop.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="rook.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="queen.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="king.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="camel.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="knook.png"/>
+                        <ImageSelectionButton tempSelected={tempSelected} setTempSelected={setTempSelected} image="villager.png"/>
                     </div>
 
                     <h3>Attributes</h3>
@@ -793,7 +815,9 @@ const Board = () => {
                 <div className="cards-settings">
                         <button type="button"  onClick={() => {setCustomPieces(prev => {
                             const nextPiece = new NewPiece(true);
-                            nextPiece.id = prev.length + 1;
+                            nextPiece.id = nextId;
+
+                            setNextId(id => id + 1);
                             
                             return [...prev, nextPiece]
                             
@@ -814,6 +838,7 @@ const Board = () => {
                             selected={selectingAction === i}
                             settingWhite={settingWhite}
                             handleShowThisModal={() => handleShowThisModal(i)}
+                            deleteCard={() => deleteCard(piece.id)}
                         />
                     ))}
                 </div>
@@ -832,11 +857,15 @@ const Board = () => {
                     onClick={() => {
                     setChessState((state) => {
                         const whiteHasRoyalPiece = state.pieces.some(row => row.some(piece => piece.isRoyal && piece.isWhite));
-                        const blackHasRoyalPiece = state.pieces.some(row => row.some(piece => piece.isRoyal && !piece.isWhite));                        
+                        const blackHasRoyalPiece = state.pieces.some(row => row.some(piece => piece.isRoyal && !piece.isWhite));
                 
                         if (whiteHasRoyalPiece && blackHasRoyalPiece) {
                             setSelectingAction(-1);
-                            return { ...state, result: "CONTINUE" };
+                            const nextLog = [...state.log, {content: "The game has begin!", byWhite: true, author: "CONSOLE"}] as Log[];
+                            return { ...state, result: "CONTINUE", log: nextLog};
+                        } else {
+                            const nextLog = [...state.log,  {content: "ERROR: You need at least 1 royal piece of each colour!", byWhite: true, author: "CONSOLE"}] as Log[];
+                            return {...state, log: nextLog};
                         }
                         return state;
                     });

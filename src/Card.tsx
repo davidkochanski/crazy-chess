@@ -1,7 +1,6 @@
 import React from "react";
 import Color from "color";
 import { Piece } from "./Pieces/Piece";
-import { toImage } from "./TileSquare";
 
 type CardProps = {
     piece: Piece;
@@ -9,9 +8,10 @@ type CardProps = {
     selected: boolean;
     settingWhite: boolean;
     handleShowThisModal: () => void;
+    deleteCard: () => void;
 };
 
-const Card: React.FC<CardProps> = ({ piece, onClick, selected, settingWhite, handleShowThisModal}) => {
+const Card: React.FC<CardProps> = ({ piece, onClick, selected, settingWhite, handleShowThisModal, deleteCard}) => {
     const properName = piece.name;
     const bgColor = Color(piece.colour);
     const textColor = bgColor.isLight() ? 'black' : 'white';
@@ -30,6 +30,7 @@ const Card: React.FC<CardProps> = ({ piece, onClick, selected, settingWhite, han
             </button>
 
             <button className="edit-card" type="button" onClick={() => {handleShowThisModal()}}><i className="fa-solid fa-pencil"></i></button>
+            <button className="delete-card" type="button" onClick={() => {deleteCard()}}><i className="fa-solid fa-trash"></i></button>
 
         </div>
     );

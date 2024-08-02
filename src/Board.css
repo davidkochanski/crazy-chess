@@ -242,6 +242,7 @@ button:hover {
 .card-description {
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -326,11 +327,11 @@ button:hover {
     transform: scale(1.025);
 }
 
-.card-wrapper:hover .card + .edit-card {
+.card-wrapper:hover .card + .edit-card, .card-wrapper:hover .card + * + .delete-card {
     display: grid;
 }
 
-.edit-card {
+.edit-card, .delete-card {
     display: none;
     position: absolute;
     aspect-ratio: 1/1;
@@ -341,7 +342,16 @@ button:hover {
     right: 0;
     z-index: 10000;
     margin: 0;
+}
 
+.delete-card {
+    left: 0;
+    right: unset;
+    background-color: red;
+}
+
+.delete-card:hover {
+    background-color: #880808;
 }
 
 
@@ -565,6 +575,12 @@ button:hover {
     /* overflow: hidden; */
 }
 
+.modal .react-colorful {
+    position: absolute;
+    z-index: 1000;
+    right: 0;
+}
+
 .inline-button {
     display: inline-block;
     width: 24px;
@@ -591,35 +607,52 @@ button:hover {
 .modal-img-array {
     display: flex;
     gap: 25px;
-    padding: 10px 50px;
-}
-
-.modal-img-array > * {
-    flex-grow: 1;
-    flex-shrink: 1;
-    width: 100%;
-
+    padding: 25px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    margin: 0 5px;
+    border: 3px solid white;
+    border-radius: 8px;
+    border-bottom: none;
 }
 
 .modal-img {
-    border: 3px solid white;
-    border-radius: 10px;
-    overflow: hidden;
+    position: relative;
+
+    width: 150px;
+    height: 150px;
+    aspect-ratio: 1/1;
+    padding: 0;
+    background-color: transparent
 }
+
+.modal-img:hover {
+    background-color: unset;
+    scale: 1.05;
+}
+
 
 .modal-img > img {
+    position: absolute;
+    top: 0;
     display: block;
-    aspect-ratio: 1/1;
     width: 100%;
-    background-color: gainsboro;
-    overflow: hidden;
+    height: 100%;
+    z-index: 3;
 }
 
-.modal-img > button {
-    padding: 10px 0;
-    border-radius: 0;
-    border-top: 3px solid white;
+.modal-img > .modal-img-background {
+    position: absolute;
+    top: 0;
+    border-radius: 8px;
+    display: block;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }
+
+
+
 
 .switch {
     position: relative;
