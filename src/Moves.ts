@@ -48,7 +48,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                 legalMoves.push([x,y]);
             }
 
-            if(ignoreKing && piece instanceof King) return false;
+            if(ignoreKing && piece.isRoyal) return false;
             return true;
         } else {
             legalMoves.push([x, y]);

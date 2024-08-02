@@ -229,8 +229,8 @@ const Board = () => {
                 let x = coords[0];
                 let y = coords[1];
     
-                if((!draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && draftState.pieces[x][y].isWhite) 
-                  || (draftState.whiteToPlay && draftState.pieces[x][y] instanceof King && !draftState.pieces[x][y].isWhite)) {
+                if((!draftState.whiteToPlay && draftState.pieces[x][y].isRoyal && draftState.pieces[x][y].isWhite) 
+                  || (draftState.whiteToPlay && draftState.pieces[x][y].isRoyal && !draftState.pieces[x][y].isWhite)) {
                     // newPreviousMove[x][y] = 3; // check
                     isInCheck = true;
                 }
