@@ -612,6 +612,7 @@ const Board = () => {
     
 
     return (
+        <div className="game">
         <div className="game-content">
             <div className="modal" style={{ display: showModal ? "grid" : "none", color: Color(tempSelected?.colour).isLight() ? 'black' : 'white' }}>
                 <div className="modal-content" style={{ backgroundColor: tempSelected?.colour || "white" }}>
@@ -878,6 +879,7 @@ const Board = () => {
             </aside>
 
 
+        </div>
         </div>
     )
 };
