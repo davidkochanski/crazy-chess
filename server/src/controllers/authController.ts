@@ -1,7 +1,10 @@
+import { NODE_ENV } from "../constants/env";
+import { createAccount } from "../services/authService";
 import catchErrorsAsynchronously from "../utils/catchErrorsAsynchonously";
 import { z } from "zod"
 
 const registerSchema = z.object({ // zod makes this easy.
+    name: z.string().min(1).max(31),
     email: z.string().email().min(1).max(255),
     password: z.string().min(1).max(255),
     confirmPassword: z.string().min(1).max(255),
@@ -26,9 +29,30 @@ export const registerHandler = catchErrorsAsynchronously( // wrapped in error mi
     async (req, res) => {
         const request = registerSchema.parse(req.body); // turn the raw express into a format that zod likes
 
-        console.log(request.password);
+        const newAccount = await createAccount(request);
 
+        if(!newAccount) return res.status(500).json({message: "Couldn't create user"})
 
-        res.status(200).json({message: `success!`})
+        res.cookie("accessToken", newAccount.accessToken, {
+            sameSite: "strict",
+            httpOnly: true,
+            secure: NODE_ENV !== "development",
+            expires: new Date(Date.now() + 1000 * 60 * 15),
+        })
+        res.cookie("refreshToken", newAccount.refreshToken, {
+            sameSite: "strict",
+            httpOnly: true,
+            secure: NODE_ENV !== "development",
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+            path: "auth/refresh"
+        });
+        
+        return res.status(201).json(newAccount)
+    }
+)
+
+export const loginHandler = catchErrorsAsynchronously(
+    async (req, res) => {
+        
     }
 )

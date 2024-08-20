@@ -22,7 +22,6 @@ app.use(cookieParser());
 
 
 app.get("/", catchErrorsAsynchronously(async (_, res, nextFn) => {
-    throw new Error("test error!!!!!!!!! muahaha");
     return res.status(200).json({
         status: "healthy!",
     });

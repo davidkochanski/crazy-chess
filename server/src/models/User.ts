@@ -3,6 +3,7 @@ import { boolean } from "zod";
 import { compare, hash } from "bcrypt";
 
 export interface UserDocument extends mongoose.Document {
+    name: string;
     email: string;
     password: string;
     isVerified: boolean;
@@ -13,6 +14,11 @@ export interface UserDocument extends mongoose.Document {
 
 const User = new mongoose.Schema<UserDocument>({
     // defining the fields and their requiredness, default behavious, types, etc.
+    name: {
+        type: String,
+        unique: false,
+        required: true
+    },
     email: {
         type: String,
         unique: true,
@@ -38,10 +44,7 @@ const User = new mongoose.Schema<UserDocument>({
 // in this case before the save happens
 // we want to hash it before we save it.
 User.pre("save", async function (nextFn) {
-    if(!this.isModified("password")) {
-        return nextFn();
-    }
-
+    if(!this.isModified("password")) return nextFn();
 
     this.password = await hash(this.password, 10);
     nextFn();
