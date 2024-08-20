@@ -6,6 +6,7 @@ import connectToDatabase from "./config/db";
 import { APP_ORIGIN, NODE_ENV, PORT } from "./constants/env";
 import errorHandler from "./middleware/errorHandler";
 import catchErrorsAsynchronously from "./utils/catchErrorsAsynchonously";
+import authRoutes from "./routes/authRoutes";
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.get("/", catchErrorsAsynchronously(async (_, res, nextFn) => {
         status: "healthy!",
     });
 }));
+
+app.use("/auth", authRoutes);
 
 app.use(errorHandler);
 
