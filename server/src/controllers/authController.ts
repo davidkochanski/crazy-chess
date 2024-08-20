@@ -3,6 +3,12 @@ import { createAccount } from "../services/authService";
 import catchErrorsAsynchronously from "../utils/catchErrorsAsynchonously";
 import { z } from "zod"
 
+
+// --------------------------------
+// /auth/register
+// --------------------------------
+
+
 const registerSchema = z.object({ // zod makes this easy.
     name: z.string().min(1).max(31),
     email: z.string().email().min(1).max(255),
@@ -51,8 +57,23 @@ export const registerHandler = catchErrorsAsynchronously( // wrapped in error mi
     }
 )
 
+// --------------------------------
+// /auth/login
+// --------------------------------
+
+
+const loginSchema = z.object({
+    email: z.string().email().min(1).max(255),
+    password: z.string().min(1).max(255)
+})
+
+
 export const loginHandler = catchErrorsAsynchronously(
     async (req, res) => {
+        const request = loginSchema.parse(req);
         
+        return res.status(500).json({
+            message: "Not implemented..."
+        })
     }
 )

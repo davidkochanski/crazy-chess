@@ -3,6 +3,9 @@ import { sign } from "jsonwebtoken";
 import Verification from "../models/Verification";
 import Session from "../models/Session";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
+import appAssert from "../utils/appAssert";
+import { AppErrorCode } from "../utils/AppErrorCode";
+import AppError from "../utils/AppError";
 
 export type CreateAccountParams = {
     name: string;
@@ -20,9 +23,18 @@ export const createAccount = async ( data: CreateAccountParams) => {
         email: data.email
     })
 
-    if(existingUser) {
-        throw new Error("User with this email already exists.");
-    }
+    // if(existingUser) {
+    //     throw new Error("User with this email already exists.");
+    // }
+
+    // now we have an AppError interface to work with
+    
+    appAssert(
+        !existingUser,
+        409,
+        "User with this email already exists.",
+        AppErrorCode.UserAlreadyExists
+    )
 
     
     const newUser = await User.create({
