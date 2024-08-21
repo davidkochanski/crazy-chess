@@ -108,10 +108,10 @@ export const logoutHandler = catchErrorsAsynchronously(
     async (req, res) => {
         const accessToken = req.cookies["accessToken"];
         
-        const { payload,} = verifyToken(accessToken);
+        const { payload } = verifyToken(accessToken); // first authenticate it...
 
         if(payload) {
-            await Sessions.findByIdAndDelete(payload.sessionId);
+            await Sessions.findByIdAndDelete(payload.sessionId); // very simple: delete the session that has this ID that is logged in.
         }
 
         clearAuthCookies(res);

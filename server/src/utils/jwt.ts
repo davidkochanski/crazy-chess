@@ -7,66 +7,79 @@ import { SessionDocument } from "../models/Sessions";
 export const enum Audience {
     User = "User",
     Admin = "Admin",
-  }
+}
 
 export type RefreshTokenPayload = {
-  sessionId: SessionDocument["_id"];
+    sessionId: SessionDocument["_id"];
 };
-
 
 
 export type AccessTokenPayload = {
-  userId: UserDocument["_id"];
-  sessionId: SessionDocument["_id"];
+    userId: UserDocument["_id"];
+    sessionId: SessionDocument["_id"];
 };
 
 type SignOptionsAndSecret = SignOptions & {
-  secret: string;
+    secret: string;
 };
 
 const defaults: SignOptions = {
-  audience: [Audience.User],
+    audience: [Audience.User],
 };
 
 const accessTokenSignOptions: SignOptionsAndSecret = {
-  expiresIn: "15m",
-  secret: JWT_SECRET,
+    expiresIn: "15m",
+    secret: JWT_SECRET,
 };
 
 export const refreshTokenSignOptions: SignOptionsAndSecret = {
-  expiresIn: "30d",
-  secret: JWT_REFRESH_SECRET,
+    expiresIn: "30d",
+    secret: JWT_REFRESH_SECRET,
 };
 
+
+/**
+ * 
+ * @param payload the object to be signed
+ * @param options 
+ * @returns signed (encrypted) token
+ */
 export const signToken = (
-  payload: AccessTokenPayload | RefreshTokenPayload,
-  options?: SignOptionsAndSecret
+    payload: AccessTokenPayload | RefreshTokenPayload,
+    options?: SignOptionsAndSecret
 ) => {
-  const { secret, ...signOpts } = options || accessTokenSignOptions;
-  return jwt.sign(payload, secret, {
-    ...defaults,
-    ...signOpts,
-  });
+    const { secret, ...signOpts } = options || accessTokenSignOptions;
+    return jwt.sign(payload, secret, {
+        ...defaults,
+        ...signOpts,
+    });
 };
 
+/**
+ * Verifies the given JWT using the provided options and returns the decoded payload or an error message.
+ * 
+ * @param token The JWT to verify. (it's a hashed string, probably in user's cookies)
+ * @param options
+ * @returns An object containing the decoded payload if successful, or an error message on failure
+ */
 export const verifyToken = <TPayload extends object = AccessTokenPayload>(
-  token: string,
-  options?: VerifyOptions & {
-    secret?: string;
-  }
+    token: string,
+    options?: VerifyOptions & {
+        secret?: string;
+    }
 ) => {
-  const { secret = JWT_SECRET, ...verifyOpts } = options || {};
-  try {
-    const payload = jwt.verify(token, secret, {
-      ...defaults,
-      ...verifyOpts,
-    }) as TPayload;
-    return {
-      payload,
-    };
-  } catch (error: any) {
-    return {
-      error: error.message,
-    };
-  }
+    const { secret = JWT_SECRET, ...verifyOpts } = options || {};
+    try {
+        const payload = jwt.verify(token, secret, {
+            ...defaults,
+            ...verifyOpts,
+        }) as TPayload;
+        return {
+            payload,
+        };
+    } catch (error: any) {
+        return {
+            error: error.message,
+        };
+    }
 };
