@@ -22,12 +22,12 @@ const setNameSchema = z.object({
 
 export const setNameHandler = catchErrorsAsynchronously(
     async (req, res) => {
-        const request = setNameSchema.parse(req);
+        const request = setNameSchema.parse({...req.body, userId: req.userId }); // the userId from middleware
 
         const user = await Users.findById(request.userId)
         appAssert(user, 404, "User not found.");
 
-        user.name = req.body.newName; // obv this should be more sanitary
+        user.name = request.newName; // obv this should be more sanitary
         await user.save();
         appAssert(user, 500, "Something went wrong saving the name.");
 
