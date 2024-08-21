@@ -1,5 +1,5 @@
 import { NODE_ENV } from "../constants/env";
-import { createAccount } from "../services/authService";
+import { createAccount, loginUser } from "../services/authService";
 import catchErrorsAsynchronously from "../utils/catchErrorsAsynchonously";
 import { z } from "zod"
 
@@ -64,16 +64,47 @@ export const registerHandler = catchErrorsAsynchronously( // wrapped in error mi
 
 const loginSchema = z.object({
     email: z.string().email().min(1).max(255),
-    password: z.string().min(1).max(255)
+    password: z.string().min(1).max(255),
+    userAgent: z.string().optional()
 })
 
 
 export const loginHandler = catchErrorsAsynchronously(
     async (req, res) => {
-        const request = loginSchema.parse(req);
-        
-        return res.status(500).json({
-            message: "Not implemented..."
+        const reqWithUserAgent = {...req.body, userAgent: req.headers["user-agent"]} // convention
+
+        const request = loginSchema.parse(reqWithUserAgent);
+
+        const loggedInUser = await loginUser(request);
+
+        res.cookie("accessToken", loggedInUser.accessToken, {
+            sameSite: "strict",
+            httpOnly: true,
+            secure: NODE_ENV !== "development",
+            expires: new Date(Date.now() + 1000 * 60 * 15),
         })
+        res.cookie("refreshToken", loggedInUser.refreshToken, {
+            sameSite: "strict",
+            httpOnly: true,
+            secure: NODE_ENV !== "development",
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+            path: "auth/refresh"
+        });
+        
+        return res.status(200).json({ message: "Logged In!"});
+    }
+)
+
+
+
+// --------------------------------
+// /auth/logout
+// --------------------------------
+
+export const logoutHandler = catchErrorsAsynchronously(
+    async (req, res) => {
+        const accessToken = req.cookies["accessToken"];
+        
+        // const { payload } 
     }
 )

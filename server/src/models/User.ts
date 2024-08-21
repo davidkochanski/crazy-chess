@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { boolean } from "zod";
 import { compare, hash } from "bcrypt";
+import { compareValue } from "../utils/bcrypt";
 
 export interface UserDocument extends mongoose.Document {
     name: string;
@@ -54,11 +55,16 @@ User.pre("save", async function (nextFn) {
 // static method on any user
 // also, defining a new function.
 User.methods.comparePassword = async function (value: string) { // NOTE: ARROW FUNCTION WONT WORK HERE!!!!!
-    await compare(value, this.password).catch(() => false);    // arrow functions do not create their own
+    return compareValue(value, this.password)   // arrow functions do not create their own
                                                                // `this` context. they "inherit" it from previous scope, and so God
                                                                // knows what it could be. But if we use an actual `async function`, it forces a new `this` context refering to the instance of User Schema.
                                                                // huge!
-
 } 
+
+User.methods.omitPassword = function () {
+    const user = this.toObject();
+    delete user.password;
+    return user;
+};
 
 export default mongoose.model<UserDocument>("User", User);

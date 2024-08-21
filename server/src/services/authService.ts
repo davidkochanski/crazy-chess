@@ -1,11 +1,13 @@
-import User from "../models/User";
+import Users from "../models/User";
 import { sign } from "jsonwebtoken";
 import Verification from "../models/Verification";
-import Session from "../models/Session";
+import Sessions from "../models/Session";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 import appAssert from "../utils/appAssert";
 import { AppErrorCode } from "../utils/AppErrorCode";
 import AppError from "../utils/AppError";
+import { UNAUTHORIZED } from "../constants/http";
+import { refreshTokenSignOptions, signToken } from "../utils/jwt";
 
 export type CreateAccountParams = {
     name: string;
@@ -15,19 +17,11 @@ export type CreateAccountParams = {
 }
 
 export const createAccount = async ( data: CreateAccountParams) => {
-    // What happens when an account is created?
-    
-    const existingUser = await User.exists({ // This is the connection to the database!
-                                     // User.exists() is built in, but User (model) we made earlier
-                                     // by using mongoose. that is what connects us to the database.
+    const existingUser = await Users.exists({ // This is the connection to the database!
+                                        // User.exists() is built in, but User (model) we made earlier
+                                        // by using mongoose. that is what connects us to the database.
         email: data.email
     })
-
-    // if(existingUser) {
-    //     throw new Error("User with this email already exists.");
-    // }
-
-    // now we have an AppError interface to work with
     
     appAssert(
         !existingUser,
@@ -37,7 +31,7 @@ export const createAccount = async ( data: CreateAccountParams) => {
     )
 
     
-    const newUser = await User.create({
+    const newUser = await Users.create({
         name: data.name,
         email: data.email,
         password: data.password,
@@ -49,22 +43,56 @@ export const createAccount = async ( data: CreateAccountParams) => {
     //     expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365)
     // })
 
-    const session = await Session.create({
+    const session = await Sessions.create({
         userId: newUser._id,
         userAgent: data.userAgent
     })
 
-    const refreshToken = sign(
-        { sessionId: session._id },   // what are we signing
-        JWT_REFRESH_SECRET,           // using what (I have the secret in a file, it's used to unlock it)
-        { expiresIn: "30d", audience: ["user"] } // extra settings
+    const refreshToken = signToken(
+        {
+          sessionId: session._id,
+        },
+        refreshTokenSignOptions
+      );
+      const accessToken = signToken({
+        userId: newUser._id,
+        sessionId: session._id,
+      });
+    return { user: newUser.omitPassword(), refreshToken, accessToken }
+}
+
+type LoginParams = {
+    email: string;
+    password: string;
+    userAgent?: string;
+}
+
+export const loginUser = async({email, password, userAgent}: LoginParams) => {
+
+    const user = await Users.findOne({email});
+    appAssert(user,
+        UNAUTHORIZED,
+        "Invalid email or password. 1"
     )
 
-    const accessToken = sign(
-        { userId: newUser._id, sessionId: session._id },
-        JWT_SECRET,
-        { expiresIn: "30d", audience: ["user"] }
+
+    const isValid = await user.comparePassword(password);
+
+    appAssert(isValid,
+        UNAUTHORIZED,
+        "Invalid email or password. 2"
     )
 
-    return { newUser, refreshToken, accessToken }
+    const session = await Sessions.create({
+        userId: user._id,
+        userAgent
+    })
+
+    const refreshToken = signToken( {sessionId: session._id}, refreshTokenSignOptions);
+    const accessToken = signToken( {sessionId: session._id, userId: user._id });
+
+    // when we log in, the accessToken and refreshToken are (later) placed in the cookies.
+    // Then the front end reads the cookies to see if we're logged in.
+    // But it was decrypted long before
+    return { user: user.omitPassword(), accessToken, refreshToken }
 }

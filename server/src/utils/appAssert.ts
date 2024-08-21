@@ -6,7 +6,7 @@ type AppAssert = (
   condition: any,
   httpStatusCode: HttpStatusCode,
   message: string,
-  appErrorCode: AppErrorCode
+  appErrorCode?: AppErrorCode
 ) => asserts condition;
 /**
  * Asserts a condition and throws an AppError if the condition is falsy.
