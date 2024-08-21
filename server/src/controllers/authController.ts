@@ -1,10 +1,11 @@
 import { NODE_ENV } from "../constants/env";
-import { createAccount, loginUser } from "../services/authService";
+import { createAccount, loginUser, refreshAccessToken } from "../services/authService";
 import catchErrorsAsynchronously from "../utils/catchErrorsAsynchonously";
 import { z } from "zod"
 import { verifyToken } from "../utils/jwt";
 import Sessions from "../models/Sessions";
-import { clearAuthCookies } from "../utils/cookies";
+import { clearAuthCookies, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, setAuthCookies } from "../utils/cookies";
+import appAssert from "../utils/appAssert";
 
 
 // --------------------------------
@@ -117,5 +118,26 @@ export const logoutHandler = catchErrorsAsynchronously(
         clearAuthCookies(res);
 
         return res.status(200).json({ message: "Success: Logged out!" })
+    }
+)
+
+// --------------------------------
+// auth/refresh
+// --------------------------------
+
+export const refreshHandler = catchErrorsAsynchronously(
+    async (req, res) => {
+        const refreshToken = req.cookies["refreshToken"];
+        appAssert(refreshToken, 401, "Cannot refresh: missing refresh token")
+
+        let { accessToken, newRefreshToken } = await refreshAccessToken(refreshToken);
+        
+
+        // set the new tokens
+        if(newRefreshToken) {
+            res.cookie("refreshToken", newRefreshToken, getRefreshTokenCookieOptions());
+        }
+
+        return res.cookie("accessToken", accessToken, getAccessTokenCookieOptions()).status(200).json({ message: "Access token successfully refreshed." })
     }
 )

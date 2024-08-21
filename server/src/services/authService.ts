@@ -7,7 +7,7 @@ import appAssert from "../utils/appAssert";
 import { AppErrorCode } from "../utils/AppErrorCode";
 import AppError from "../utils/AppError";
 import { UNAUTHORIZED } from "../constants/http";
-import { refreshTokenSignOptions, signToken } from "../utils/jwt";
+import { refreshTokenSignOptions, signToken, verifyToken } from "../utils/jwt";
 
 export type CreateAccountParams = {
     name: string;
@@ -95,4 +95,34 @@ export const loginUser = async({email, password, userAgent}: LoginParams) => {
     // Then the front end reads the cookies to see if we're logged in.
     // But it was decrypted long before
     return { user: user.omitPassword(), accessToken, refreshToken }
+}
+
+export const refreshAccessToken = async (token: string) => {
+    const { payload } = verifyToken(token, {
+        secret: refreshTokenSignOptions.secret
+    })
+    appAssert(payload, 401, "Cannot refresh: Invalid access token")
+
+    const session = await Sessions.findById(payload.sessionId);
+    appAssert(session && session.expiresAt.getTime() > Date.now() , 401, "Session expired") // The session is gone! 
+
+    const sessionMustRefresh = session.expiresAt.getTime() - Date.now() < 1000 * 60 * 60 * 24
+
+    if(sessionMustRefresh) {
+        // if will expire "soon", set the expiry date later
+        session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+        await session.save(); // mongoose method
+    }
+
+    const accessToken = signToken({
+        userId: session.userId,
+        sessionId: session._id
+    })
+
+    return { 
+        accessToken: accessToken,
+        newRefreshToken: sessionMustRefresh ? signToken({
+            sessionId: session._id,
+        }, refreshTokenSignOptions) : undefined  // send a new refresh token only if we changed it
+    };
 }
