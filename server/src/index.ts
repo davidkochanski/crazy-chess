@@ -7,6 +7,8 @@ import { APP_ORIGIN, NODE_ENV, PORT } from "./constants/env";
 import errorHandler from "./middleware/errorHandler";
 import catchErrorsAsynchronously from "./utils/catchErrorsAsynchonously";
 import authRoutes from "./routes/authRoutes";
+import { protectWithAuth } from "./middleware/protectWithAuth";
+import userRoutes from "./routes/userRoutes";
 
 const app = express();
 
@@ -28,6 +30,8 @@ app.get("/", catchErrorsAsynchronously(async (_, res, nextFn) => {
 }));
 
 app.use("/auth", authRoutes);
+
+app.use("/user", protectWithAuth, userRoutes);
 
 app.use(errorHandler);
 
