@@ -1,7 +1,7 @@
-import Users from "../models/User";
+import Users from "../models/Users";
 import { sign } from "jsonwebtoken";
 import Verification from "../models/Verification";
-import Sessions from "../models/Session";
+import Sessions from "../models/Sessions";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 import appAssert from "../utils/appAssert";
 import { AppErrorCode } from "../utils/AppErrorCode";

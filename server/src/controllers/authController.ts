@@ -2,6 +2,9 @@ import { NODE_ENV } from "../constants/env";
 import { createAccount, loginUser } from "../services/authService";
 import catchErrorsAsynchronously from "../utils/catchErrorsAsynchonously";
 import { z } from "zod"
+import { verifyToken } from "../utils/jwt";
+import Sessions from "../models/Sessions";
+import { clearAuthCookies } from "../utils/cookies";
 
 
 // --------------------------------
@@ -91,7 +94,7 @@ export const loginHandler = catchErrorsAsynchronously(
             path: "auth/refresh"
         });
         
-        return res.status(200).json({ message: "Logged In!"});
+        return res.status(200).json({ message: "Success: Logged In!"});
     }
 )
 
@@ -105,6 +108,14 @@ export const logoutHandler = catchErrorsAsynchronously(
     async (req, res) => {
         const accessToken = req.cookies["accessToken"];
         
-        // const { payload } 
+        const { payload,} = verifyToken(accessToken);
+
+        if(payload) {
+            await Sessions.findByIdAndDelete(payload.sessionId);
+        }
+
+        clearAuthCookies(res);
+
+        return res.status(200).json({ message: "Success: Logged out!" })
     }
 )

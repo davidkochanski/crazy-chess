@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { boolean } from "zod";
 import { compare, hash } from "bcrypt";
 import { compareValue } from "../utils/bcrypt";
 
