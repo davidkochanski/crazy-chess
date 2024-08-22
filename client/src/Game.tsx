@@ -5,12 +5,10 @@ import Login from "./pages/Login.jsx"
 
 const Game = () => {
     return (
-        <>
-            <Routes>
-                <Route path="/" element={<Board/>}/>
-                <Route path="/login" element={<Login/>}/>
-            </Routes>
-        </>
+        <Routes>
+            <Route path="/" element={<Board/>}/>
+            <Route path="/login" element={<Login/>}/>
+        </Routes>
     )
 }
 

@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.52.1",
     "@types/lodash": "^4.17.5",
     "@types/react-resizable": "^3.0.7",
     "color": "^4.2.3",
@@ -19,7 +20,7 @@
     "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
     "react-resizable": "^3.0.5",
-    "react-router-dom": "^6.26.0"
+    "react-router-dom": "^6.26.1"
   },
   "devDependencies": {
     "@types/color": "^3.0.6",
@@ -32,6 +33,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.5.3"
   }
 }
