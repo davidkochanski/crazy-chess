@@ -9,8 +9,9 @@ export interface UserDocument extends mongoose.Document {
     isVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
+    cards: object[];
     comparePassword(value: string): Promise<Boolean>;
-    omitPassword(): Pick<UserDocument, "_id" | "email" | "isVerified" | "createdAt" | "updatedAt" | "__v">
+    omitPassword(): Pick<UserDocument, "_id" | "email" | "isVerified" | "createdAt" | "updatedAt" | "__v" | "cards">
 }
 
 const User = new mongoose.Schema<UserDocument>({
@@ -34,6 +35,11 @@ const User = new mongoose.Schema<UserDocument>({
         type: Boolean,
         default: false,
         required: true
+    },
+    cards: {
+        type: [Object],
+        default: [],
+        required: false
     }
 },
     { // other options: for ex. mongoose will automagically fill in the created/updated fields!

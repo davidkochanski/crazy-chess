@@ -1,5 +1,3 @@
-import ChessState from "../scripts/ChessState";
-
 export class Piece {
 
     constructor (isWhite: boolean) {

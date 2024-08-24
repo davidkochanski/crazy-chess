@@ -35,6 +35,7 @@ export const createAccount = async ( data: CreateAccountParams) => {
         name: data.name,
         email: data.email,
         password: data.password,
+        cards: []
     })
 
     // const verification = await Verification.create({
