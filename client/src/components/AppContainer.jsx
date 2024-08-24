@@ -17,7 +17,8 @@ const AppContainer = () => {
         onSettled: () => {
             queryClient.clear(); // clear cached things about the user. complete reset
             // btw, this queryClient was originally in a jsx file, but it was moved so that it can be imported and one singular query instance exists for the whole file.
-            navigate("/login", { replace: true });
+            
+            // navigate("/login", { replace: true });
         }
     })
 
@@ -26,7 +27,7 @@ const AppContainer = () => {
         
         (user ? <div>Welcome, {user.name}!. <button onClick={handleLogout}>Log Out</button> <Outlet /> </div> // the Outlet renders the child of the route. in Game.tsx, that is the Board component.
 
-            : <Navigate to="/login" replace state={{ redirectUrl: window.location.pathname }} />
+            :  <div>You are not logged in!. <button onClick={() => {navigate("/login")}}>Log In</button> <Outlet /> </div>
         )
     )
 }
