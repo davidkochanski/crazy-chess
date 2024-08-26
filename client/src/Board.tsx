@@ -31,8 +31,8 @@ import useAuth from "./hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const Board = () => {
-    const { user, isAuthenticated, isLoading } = useAuth();
-    // const { user, isLoading } = {user: null, isLoading: false}
+    // const { user, isLoading } = useAuth();
+    const { user, isLoading } = {user: null, isLoading: false}
 
     const navigate = useNavigate();
 
