@@ -27,8 +27,15 @@ import { Knook } from "./GameData/Pieces/Knook";
 import { Villager } from "./GameData/Pieces/Villager";
 import { NewPiece } from "./GameData/Pieces/NewPiece";
 import ImageSelectionButton from "./components/ImageSelectionButton";
+import useAuth from "./hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Board = () => {
+    const { user, isAuthenticated, isLoading } = useAuth();
+    // const { user, isLoading } = {user: null, isLoading: false}
+
+    const navigate = useNavigate();
+
     const defaultState: ChessState = {
         pieces:  [
             [new Rook(true), new Pawn(true), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new EmptyPiece(), new Pawn(false), new Rook(false)],
@@ -87,6 +94,12 @@ const Board = () => {
     useEffect(() => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
     }, [wait])
+
+    // useEffect(() => {
+    //     if(!user) {
+    //         navigate("/login");
+    //     }
+    // }, [user])
 
     const deselectAll = () => {
         setSelectedX(null);
@@ -821,17 +834,35 @@ const Board = () => {
                         <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-retweet"></i></button>
                 </div>
                 <div className="cards-container">
-                    {customPieces.map((piece, i) => (
-                        <Card
-                            key={i}
-                            piece={piece}
-                            onClick={() => {setSelectingAction(prevSelected => prevSelected === i ? -1 : i)}}
-                            selected={selectingAction === i}
-                            settingWhite={settingWhite}
-                            handleShowThisModal={() => handleShowThisModal(i)}
-                            deleteCard={() => deleteCard(piece.id)}
-                        />
-                    ))}
+                    {
+                        isLoading ? <div>Loading...</div> : (
+
+                            // @ts-ignore
+                            user ? (user.cards.map((piece, i) => (
+                                <Card
+                                    key={i}
+                                    piece={piece}
+                                    onClick={() => {setSelectingAction(prevSelected => prevSelected === i ? -1 : i)}}
+                                    selected={selectingAction === i}
+                                    settingWhite={settingWhite}
+                                    handleShowThisModal={() => handleShowThisModal(i)}
+                                    deleteCard={() => deleteCard(piece.id)}
+                                />
+                            ))) : (customPieces.map((piece, i) => (
+                                <Card
+                                    key={i}
+                                    piece={piece}
+                                    onClick={() => {setSelectingAction(prevSelected => prevSelected === i ? -1 : i)}}
+                                    selected={selectingAction === i}
+                                    settingWhite={settingWhite}
+                                    handleShowThisModal={() => handleShowThisModal(i)}
+                                    deleteCard={() => deleteCard(piece.id)}
+                                />
+                            )))
+                        )
+
+
+                    }
                 </div>
             </div>
 

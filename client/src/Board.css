@@ -3,7 +3,6 @@
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     aspect-ratio: 1/1;
-
     min-width: 256px;
     max-width: min(75vh, 75vw);
     max-height: min(75vh, 75vw);

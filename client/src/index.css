@@ -12,6 +12,7 @@ html {
 
 #root {
     min-height: 100vh;
+    color: white;
 }
 
 body {
