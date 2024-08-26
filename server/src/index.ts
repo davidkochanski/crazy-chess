@@ -30,8 +30,7 @@ app.get("/", catchErrorsAsynchronously(async (_, res, nextFn) => {
 }));
 
 app.use("/auth", authRoutes);
-
-app.use("/user", userRoutes);
+app.use("/user", protectWithAuth, userRoutes);
 
 app.use(errorHandler);
 

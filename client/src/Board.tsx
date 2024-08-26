@@ -1,4 +1,4 @@
-import { useState, MouseEvent, useEffect, useRef } from "react";
+import { useState, MouseEvent, useEffect, useRef, Key } from "react";
 import { getCoords } from "./scripts/util";
 import {generateLegalMoves, handleCastlingPromotionEnPassant } from "./scripts/Moves";
 
@@ -28,10 +28,13 @@ import { Villager } from "./GameData/Pieces/Villager";
 import { NewPiece } from "./GameData/Pieces/NewPiece";
 import ImageSelectionButton from "./components/ImageSelectionButton";
 import useAuth from "./hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { useUser } from "./components/AppContainer";
+
 
 const Board = () => {
-    const { user, isLoading } = useAuth();
+    const { user, isLoading } = useUser(); // the auth API call is actually done in the AppContainer
+                                          // this custom hook uses Outlet Contexts to pass the user (or null) to this main component.
 
     // const navigate = useNavigate();
 
@@ -99,6 +102,10 @@ const Board = () => {
     //         navigate("/login");
     //     }
     // }, [user])
+
+    useEffect(() => {
+        console.log(new Pawn(true).clone());
+    }, [])
 
     const deselectAll = () => {
         setSelectedX(null);
@@ -836,8 +843,7 @@ const Board = () => {
                     {
                         isLoading ? <div>Loading...</div> : (
 
-                            // @ts-ignore
-                            isAuthenticated ? (user.cards.map((piece, i) => (
+                            user ? (user.cards.map((piece: Piece, i: number) => (
                                 <Card
                                     key={i}
                                     piece={piece}
@@ -847,7 +853,9 @@ const Board = () => {
                                     handleShowThisModal={() => handleShowThisModal(i)}
                                     deleteCard={() => deleteCard(piece.id)}
                                 />
-                            ))) : (customPieces.map((piece, i) => (
+                            ))) :
+                            
+                            (customPieces.map((piece, i) => (
                                 <Card
                                     key={i}
                                     piece={piece}

@@ -7,8 +7,12 @@ export const userHandler = catchErrorsAsynchronously(
     async (req, res) => {
         // get the user from the database, assume it's already verified and all that
         const user = await Users.findById(req.userId);
-        appAssert(user, 404, "User not found.");
-        return res.status(200).json(user.omitPassword());
+
+        if(user) {
+            return res.status(200).json(user.omitPassword());
+        } else {
+            return res.status(404).json(null);
+        }
     }
 )
 

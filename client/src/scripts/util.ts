@@ -2,12 +2,12 @@ import { EmptyPiece } from "../GameData/Pieces/EmptyPiece";
 import { Piece } from "../GameData/Pieces/Piece";
 
 export const decodePiece = (piece: Piece) => {
-    try {
-        piece.isEmpty
-    } catch {
-        console.log(piece.name);
-        console.log(piece instanceof EmptyPiece);
-    }
+    // try {
+    //     piece.isEmpty
+    // } catch {
+    //     console.log(piece.name);
+    //     console.log(piece instanceof EmptyPiece);
+    // }
 
 
     if(piece.isEmpty) return "empty";
