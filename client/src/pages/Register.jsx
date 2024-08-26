@@ -36,7 +36,7 @@ const Register = () => {
             <input type="password" autoFocus value={confirmPassword} onChange={(e) => {setConfirmPassword(e.target.value)}} />
 
             {/* Email and password are sent to login mutation function, which sends it to axios client, which sends it to backend via an HTTP request. woo! */}
-            <button type="submit" disabled={!email || !password} onClick={() => handleRegister( {email, password, name, confirmPassword } )}>Sign in</button>
+            <button type="submit" disabled={!email || !password} onClick={() => handleRegister( {email, password, name, confirmPassword } )}>Register</button>
 
             {isPending && <div>Loading...</div>}
         </div>

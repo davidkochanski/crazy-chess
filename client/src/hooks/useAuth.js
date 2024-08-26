@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "../config/api";
+import { useState, useEffect } from "react";
 
 export const AUTH = "auth";
 
@@ -10,10 +11,12 @@ const useAuth = (opts = {}) => {
         staleTime: Infinity,
         ...opts,
     });
+
     return {
         user,
         ...rest,
     };
 };
+
 
 export default useAuth;
