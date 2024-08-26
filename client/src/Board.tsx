@@ -31,10 +31,9 @@ import useAuth from "./hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const Board = () => {
-    // const { user, isLoading } = useAuth();
-    const { user, isLoading } = {user: null, isLoading: false}
+    const { user, isLoading } = useAuth();
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const defaultState: ChessState = {
         pieces:  [
@@ -838,7 +837,7 @@ const Board = () => {
                         isLoading ? <div>Loading...</div> : (
 
                             // @ts-ignore
-                            user ? (user.cards.map((piece, i) => (
+                            isAuthenticated ? (user.cards.map((piece, i) => (
                                 <Card
                                     key={i}
                                     piece={piece}
