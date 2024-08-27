@@ -31,6 +31,8 @@ import useAuth from "./hooks/useAuth";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { useUser } from "./components/AppContainer";
 
+const DEFAULT_CUSTOM_PIECES = [new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new Camel(true), new Knook(true), new Villager(true)];
+
 
 const Board = () => {
     const { user, isLoading } = useUser(); // the auth API call is actually done in the AppContainer
@@ -74,7 +76,7 @@ const Board = () => {
     const [settingWhite, setSettingWhite] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
-    const [customPieces, setCustomPieces] = useState<Piece[]>([new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new Camel(true), new Knook(true), new Villager(true)]);
+    const [customPieces, setCustomPieces] = useState<Piece[]>(DEFAULT_CUSTOM_PIECES);
 
     const [selectingAction, setSelectingAction] = useState<number>(-1);
     const [tempSelected, setTempSelected] = useState<Piece | null>(null);
@@ -97,16 +99,12 @@ const Board = () => {
         setHighlighted(Array.from({ length: 8 }, () => Array(8).fill(0)));
     }, [wait])
 
-    // useEffect(() => {
-    //     if(!user) {
-    //         navigate("/login");
-    //     }
-    // }, [user])
-
+    // when user logs in, set the custom pieces in the UI to the ones the user has
+    // otherwise, just the default set
     useEffect(() => {
-        console.log(new Pawn(true).clone());
-    }, [])
-
+        setCustomPieces(user ? user.cards : DEFAULT_CUSTOM_PIECES);
+    }, [user])
+    
     const deselectAll = () => {
         setSelectedX(null);
         setSelectedY(null);
