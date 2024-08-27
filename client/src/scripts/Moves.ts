@@ -394,12 +394,12 @@ export const handleCastlingPromotionEnPassant = (nextX: number | null, nextY: nu
     
 
     // Update castling rights
-    if(movingPiece.toString() === "white-king") {
+    if(movingPiece.isRoyal && movingPiece.isWhite) {
         castlingRights[0] = false;
         castlingRights[1] = false;
     }
 
-    if(movingPiece.toString() === "black-king") {
+    if(movingPiece.isRoyal && !movingPiece.isWhite) {
         castlingRights[2] = false;
         castlingRights[3] = false;
     }
