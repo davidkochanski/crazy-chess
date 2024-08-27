@@ -36,7 +36,7 @@ const Register = () => {
                 </div>
 
                 <div className="form-content">
-                    {isError && <div>Error: {error.message}</div>}
+                    {isError && <div className="form-error">Error: {error.message}</div>}
 
                     <h4 className="form-label">Username</h4>
 

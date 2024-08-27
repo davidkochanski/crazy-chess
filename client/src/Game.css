@@ -11,9 +11,7 @@
     flex-shrink: 1;
 }
 
-.form > * {
-    font-family: Lato, sans-serif;
-}
+
 
 .form-wrapper {
     display: flex;
@@ -21,6 +19,9 @@
     justify-content: center;
     width: 100%;
     height: 100vh;
+    background-image: url("../public/bg.svg");
+    background-position: bottom;
+    background-size: cover;
 }
 
 .form {
@@ -29,7 +30,10 @@
     position: relative;
     border-radius: 10px;
     overflow: hidden;
+}
 
+.form > * {
+    font-family: Lato, sans-serif;
 }
 
 .form-content {
@@ -130,4 +134,12 @@
 
 .bottom-link a:hover {
     text-decoration: underline;
+}
+
+.form-error {
+    background-color: #430000;
+    text-align: center;
+    padding: 20px;
+    margin: 10px 25px 0;
+    border-radius: 8px;
 }
