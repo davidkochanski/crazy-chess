@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { setNameHandler } from "../controllers/userController";
+import { addDummyCardHandler, setNameHandler } from "../controllers/userController";
 import { userHandler } from "../controllers/userController";
 
 const userRoutes = Router();
@@ -9,5 +9,6 @@ userRoutes.get("/", userHandler); // NO /user in the first param.
                                   // so this is just /user, NOT /user/user.
 
 userRoutes.patch("/setName", setNameHandler)
+userRoutes.post("/addDummyCard", addDummyCardHandler)
 
 export default userRoutes;

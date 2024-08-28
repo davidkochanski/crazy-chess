@@ -27,11 +27,11 @@ import { Knook } from "./GameData/Pieces/Knook";
 import { Villager } from "./GameData/Pieces/Villager";
 import { NewPiece } from "./GameData/Pieces/NewPiece";
 import ImageSelectionButton from "./components/ImageSelectionButton";
-import useAuth from "./hooks/useAuth";
-import { useNavigate, useOutletContext } from "react-router-dom";
 import { useUser } from "./components/AppContainer";
+import { addDummyCard } from "./config/api";
 
 const DEFAULT_CUSTOM_PIECES = [new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new Camel(true), new Knook(true), new Villager(true)];
+
 
 
 const Board = () => {
@@ -821,15 +821,19 @@ const Board = () => {
 
             <div className="cards">
                 <div className="cards-settings">
-                        <button type="button"  onClick={() => {setCustomPieces(prev => {
-                            const nextPiece = new NewPiece(true);
-                            nextPiece.id = nextId;
+                        <button type="button"  onClick={() => {
+                            
+                            if(user) addDummyCard();
+                            
+                            setCustomPieces(prev => {
+                                const nextPiece = new NewPiece(true);
+                                nextPiece.id = nextId;
 
-                            setNextId(id => id + 1);
-                            
-                            return [...prev, nextPiece]
-                            
-                        })}}><i className="fa-solid fa-plus"></i></button>
+                                setNextId(id => id + 2);
+                                
+                                return [...prev, nextPiece]
+                            }
+                        )}}><i className="fa-solid fa-plus"></i></button>
 
                         {/* -2 is defined as eraser, -1 is defined as no selection, >0 is the index of the selected card in the cards array. */}
                         <button type="button" style={{border: selectingAction === -2 ? "white 3px solid" : "none"}} onClick={() => {setSelectingAction(prev => prev === -2 ? -1 : -2)}}><i className="fa-solid fa-eraser"></i></button> 

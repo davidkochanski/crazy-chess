@@ -2,6 +2,7 @@ import { z } from "zod";
 import Users from "../models/Users";
 import appAssert from "../utils/appAssert";
 import catchErrorsAsynchronously from "../utils/catchErrorsAsynchonously";
+import { CardsDocument } from "../models/Cards";
 
 export const userHandler = catchErrorsAsynchronously(
     async (req, res) => {
@@ -36,5 +37,20 @@ export const setNameHandler = catchErrorsAsynchronously(
         appAssert(user, 500, "Something went wrong saving the name.");
 
         return res.status(200).json({ message: "Successfully updated name." })
+    }
+)
+
+export const addDummyCardHandler = catchErrorsAsynchronously(
+    async (req, res) => {
+        console.log("here");
+        const user = await Users.findById(req.userId);
+        console.log(user)
+        appAssert(user, 404, "User not found.");
+        
+        user.cards.push({"canMoveAsKnight":false,"canMoveDiagonally":false,"canMoveOrthagonally":false,"canMoveAsKing":false,"canMoveAsPawn":true,"canMoveAsCamel":false,"canMoveAnywhere":false,"canMoveAsGold":false,"canMoveAsRotatedKnight":false,"canMoveAsVillager":false,"isMovableByPlayer":true,"isCastleable":false,"isNeutral":false,"isCapturable":true,"isBouncy":false,"canCapture":true,"canEnPassant":true,"isRoyal":false,"name":"Pawn","description":"Basic chessmen. Can move forwards, sometimes twice, can promote, and can even en passant.","image":"pawn.png","colour":"#E57373","isWhite":true,"id":1,"isEmpty":false} as CardsDocument);
+
+        await user.save();
+
+        return res.status(200).json( {message: "Added dummy card." } )
     }
 )

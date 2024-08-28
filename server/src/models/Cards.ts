@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { number } from "zod";
 
 export interface CardsDocument extends mongoose.Document {
     objectId: mongoose.Types.ObjectId;
@@ -114,6 +115,30 @@ const Cards = new mongoose.Schema<CardsDocument>({
         type: Boolean,
         default: false
     },
+    name: {
+        type: String,
+        default: "New Piece",
+    },
+    description: {
+        type: String,
+        default: "Yes! This is a piece."
+    }, 
+    image: {
+        type: String,
+        default: "pawn.png"
+    },
+    colour: {
+        type: String,
+        default: "#cccccc"
+    },
+    isWhite: {
+        type: Boolean,
+        default: true
+    },
+    isEmpty: {
+        type: Boolean,
+        default: true
+    }
 }, { timestamps: true })
 
 export default mongoose.model<CardsDocument>("Cards", Cards);

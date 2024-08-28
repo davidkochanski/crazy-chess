@@ -9,3 +9,5 @@ export const register = async (data) => API.post("/auth/register", data);
 export const getUser = async (data) => API.get("/user", data);
 
 export const logout = async (data) => API.get("/auth/logout", data)
+
+export const addDummyCard = async (data) => API.post("/user/addDummyCard", data)
