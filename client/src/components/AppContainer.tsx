@@ -1,6 +1,6 @@
 import { Outlet, useOutletContext } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { logout, addDummyCard } from "../config/api";
+import { logout, addDummyCard, setCards } from "../config/api";
 import { useNavigate } from "react-router-dom";
 import { UseMutateFunction, useMutation } from "@tanstack/react-query";
 import queryClient from "../config/queryClient";
@@ -10,6 +10,7 @@ type ContextType = {
     user: any;
     isLoading: boolean;
     handleAddDummyCard: UseMutateFunction<AxiosResponse<any, any>, Error, any, unknown> // ts voodoo magic
+    handleSetCards: UseMutateFunction<AxiosResponse<any, any>, Error, any, unknown> // ts voodoo magic
 }
 
 const AppContainer = () => {
@@ -33,10 +34,20 @@ const AppContainer = () => {
         }
     });
 
+    const { mutate: handleSetCards } = useMutation({
+        mutationFn: setCards,
+        onSuccess: (data) => {
+            console.log("Cards set successfully", data);
+        },
+        onError: (error) => {
+            console.error("Failed", error);
+        }
+    });
+
     return (
         isLoading ? <div>Loading...</div> :
-            (user ? <div>Welcome, {(user as any).name}! <button onClick={handleLogout}>Log Out</button> <Outlet context={{ user, isLoading, handleAddDummyCard } satisfies ContextType} /> </div>
-                : <div>You are not logged in! <button onClick={() => { navigate("/login") }}>Log In</button> <Outlet context={{ user, isLoading, handleAddDummyCard } satisfies ContextType} /> </div>
+            (user ? <div>Welcome, {(user as any).name}! <button onClick={handleLogout}>Log Out</button> <Outlet context={{ user, isLoading, handleAddDummyCard, handleSetCards  } satisfies ContextType} /> </div>
+                : <div>You are not logged in! <button onClick={() => { navigate("/login") }}>Log In</button> <Outlet context={{ user, isLoading, handleAddDummyCard, handleSetCards } satisfies ContextType} /> </div>
             )
     );
 }

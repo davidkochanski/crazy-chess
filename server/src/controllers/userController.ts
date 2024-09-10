@@ -42,9 +42,7 @@ export const setNameHandler = catchErrorsAsynchronously(
 
 export const addDummyCardHandler = catchErrorsAsynchronously(
     async (req, res) => {
-        console.log("here");
         const user = await Users.findById(req.userId);
-        console.log(user)
         appAssert(user, 404, "User not found.");
         
         user.cards.push({"canMoveAsKnight":false,"canMoveDiagonally":false,"canMoveOrthagonally":false,"canMoveAsKing":false,"canMoveAsPawn":true,"canMoveAsCamel":false,"canMoveAnywhere":false,"canMoveAsGold":false,"canMoveAsRotatedKnight":false,"canMoveAsVillager":false,"isMovableByPlayer":true,"isCastleable":false,"isNeutral":false,"isCapturable":true,"isBouncy":false,"canCapture":true,"canEnPassant":true,"isRoyal":false,"name":"Pawn","description":"Basic chessmen. Can move forwards, sometimes twice, can promote, and can even en passant.","image":"pawn.png","colour":"#E57373","isWhite":true,"id":1,"isEmpty":false} as CardsDocument);
@@ -52,5 +50,21 @@ export const addDummyCardHandler = catchErrorsAsynchronously(
         await user.save();
 
         return res.status(200).json( {message: "Added dummy card." } )
+    }
+)
+
+export const setCardHandler = catchErrorsAsynchronously(
+    async (req, res) => {
+        const user = await Users.findById(req.userId);
+        appAssert(user, 404, "User not found.");
+        
+
+        user.cards = req.body.cards;
+
+        console.log(req.body);
+
+        await user.save();
+
+        return res.status(200).json( {message: "Set cards." } )
     }
 )

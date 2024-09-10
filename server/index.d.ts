@@ -8,4 +8,18 @@ declare global {
     }
   }
 }
+import { CardsDocument } from "../../models/Cards";
+
+declare global {
+  namespace Express {
+    interface Request {
+      cards?: CardsDocument[]; 
+    }
+  }
+}
+
+
+
 export {};
+
+

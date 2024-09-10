@@ -11,3 +11,5 @@ export const getUser = async (data) => API.get("/user", data);
 export const logout = async (data) => API.get("/auth/logout", data)
 
 export const addDummyCard = async (data) => API.post("/user/addDummyCard", data)
+
+export const setCards = async (data) => API.patch("/user/setCards", data)

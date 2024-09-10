@@ -28,7 +28,7 @@ import { Villager } from "./GameData/Pieces/Villager";
 import { NewPiece } from "./GameData/Pieces/NewPiece";
 import ImageSelectionButton from "./components/ImageSelectionButton";
 import { useUser } from "./components/AppContainer";
-import { addDummyCard } from "./config/api";
+import { addDummyCard, getUser, setCards } from "./config/api";
 
 const DEFAULT_CUSTOM_PIECES = [new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new Camel(true), new Knook(true), new Villager(true)];
 
@@ -174,12 +174,12 @@ const Board = () => {
                             captureHappened = true;
                         }
 
-                        movingPiece.onMove(nextX, nextY, draftState);
+                        // movingPiece.onMove(nextX, nextY, draftState);
 
-                        if(captureHappened) {
-                            movingPiece.onCapture(nextX, nextY, draftState);
-                            pieceBefore.onGetsCaptured(nextX, nextY, draftState);
-                        }
+                        // if(captureHappened) {
+                        //     movingPiece.onCapture(nextX, nextY, draftState);
+                        //     pieceBefore.onGetsCaptured(nextX, nextY, draftState);
+                        // }
 
                         movePlayed = true;
                         break;
@@ -329,7 +329,7 @@ const Board = () => {
             let y = 7 - Math.floor(id / 8);
     
             if (nextPieces[x][y]) {
-                nextState = await nextPieces[x][y].onMoveEnd(x, y, nextState);
+                // nextState = await nextPieces[x][y].onMoveEnd(x, y, nextState);
                 setChessState(nextState);
             }
         }
@@ -823,16 +823,26 @@ const Board = () => {
                 <div className="cards-settings">
                         <button type="button"  onClick={() => {
                             
-                            if(user) addDummyCard();
-                            
                             setCustomPieces(prev => {
                                 const nextPiece = new NewPiece(true);
                                 nextPiece.id = nextId;
 
                                 setNextId(id => id + 2);
+
+                                if(user) { 
+                                    setCards({
+                                        cards: [...prev, nextPiece]
+                                    });
+                                };
+
+                                console.log(JSON.stringify(nextPiece));
+
                                 
                                 return [...prev, nextPiece]
                             }
+
+
+
                         )}}><i className="fa-solid fa-plus"></i></button>
 
                         {/* -2 is defined as eraser, -1 is defined as no selection, >0 is the index of the selected card in the cards array. */}
