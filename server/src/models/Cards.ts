@@ -5,7 +5,7 @@ export interface CardsDocument extends mongoose.Document {
     objectId: mongoose.Types.ObjectId;
     canMoveAsKnight: boolean;
     canMoveDiagonally: boolean;
-    canMoveOrthagonally: boolean;
+    canMoveOrthogonally: boolean;
     canMoveAsKing: boolean;
     canMoveAsPawn: boolean;
     canMoveAsCamel: boolean;
@@ -30,7 +30,7 @@ export interface CardsDocument extends mongoose.Document {
     isWhite: boolean;
     attachments: string[];
 
-    id: number;
+    pieceId: string;
     isEmpty: boolean;
 
     createdAt: Date;
@@ -51,7 +51,7 @@ const Cards = new mongoose.Schema<CardsDocument>({
         type: Boolean,
         default: false
     },
-    canMoveOrthagonally: {
+    canMoveOrthogonally: {
         type: Boolean,
         default: false
     },
@@ -138,6 +138,10 @@ const Cards = new mongoose.Schema<CardsDocument>({
     isEmpty: {
         type: Boolean,
         default: true
+    },
+    pieceId: {
+        type: String,
+        default: "default",
     }
 }, { timestamps: true })
 

@@ -4,7 +4,7 @@ export class RotatedQueen extends Piece {
     constructor(isWhite: boolean) {
         super(isWhite);
         this.name = "rotatedqueen";
-        this.canMoveOrthagonally = true;
+        this.canMoveOrthogonally = true;
         this.canMoveDiagonally = true;
     }
 }

@@ -91,7 +91,7 @@ const Board = () => {
     const [isEditingColour, setEditingColour] = useState(false);
     const [colour, setColour] = useState("#123456");
 
-    const [nextId, setNextId] = useState(customPieces.length);
+    const [newPiecesNumber, setNewPiecesNumber] = useState(1);
 
     useEffect(() => {
         if(logRef.current) logRef.current.scrollTop = logRef.current?.scrollHeight
@@ -579,10 +579,10 @@ const Board = () => {
 
     }
 
-    const deleteCard = (id: string) => {
+    const deleteCard = (pieceId: string) => {
         if(chessState.result !== "PENDING") return;
         setCustomPieces(pieces => {
-            const newCards = pieces.filter((piece) => {return piece.id !== id});
+            const newCards = pieces.filter((piece) => {console.log(piece); return piece.pieceId !== pieceId});
 
             if(user) {
                 setCards({
@@ -595,7 +595,7 @@ const Board = () => {
         setChessState(prevChessState => {
             for(let i = 0; i < 8; i++) {
                 for(let j = 0; j < 8; j++) {
-                    if(prevChessState.pieces[i][j].id === id) {
+                    if(prevChessState.pieces[i][j].pieceId === pieceId) {
                         prevChessState.pieces[i][j] = new EmptyPiece();
                     }
                 }
@@ -611,7 +611,7 @@ const Board = () => {
     
         setCustomPieces(prevPieces => {
             const nextCards = prevPieces.map(piece => 
-                piece.id === tempSelected.id ? _.cloneDeep(tempSelected) : piece
+                piece.pieceId === tempSelected.pieceId ? _.cloneDeep(tempSelected) : piece
             );
 
             if(user) {
@@ -625,7 +625,7 @@ const Board = () => {
         setChessState(prevState => {
             const newPieces = prevState.pieces.map(row =>
                 row.map(piece => {
-                    if (piece.id === tempSelected.id) {
+                    if (piece.pieceId === tempSelected.pieceId) {
                         const newPiece = _.cloneDeep(tempSelected);
                         newPiece.isWhite = piece.isWhite;
                         return newPiece;
@@ -790,7 +790,7 @@ const Board = () => {
 
                     <h3>Attributes</h3>
                     <div className="modal-text">
-                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveOrthagonally" label="Moves Orthagonally" />
+                        <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveOrthogonally" label="Moves Orthogonally" />
                         <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveDiagonally" label="Moves Diagonally" />
                         <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKnight" label="Moves like a Knight" />
                         <PropertySwitch tempSelected={tempSelected} setTempSelected={setTempSelected} attr="canMoveAsKing" label="Moves like a King" />
@@ -844,7 +844,9 @@ const Board = () => {
                             
                             setCustomPieces(prev => {
                                 const nextPiece = new NewPiece(true);
-                                nextPiece.id = uuidv4();
+                                nextPiece.pieceId = uuidv4();
+                                nextPiece.name = `New Piece ${newPiecesNumber}`;
+                                setNewPiecesNumber(n => n + 1)
 
                                 if(user) { 
                                     setCards({
@@ -853,9 +855,6 @@ const Board = () => {
                                 };
                                 return [...prev, nextPiece]
                             }
-
-
-
                         )}}><i className="fa-solid fa-plus"></i></button>
 
                         {/* -2 is defined as eraser, -1 is defined as no selection, >0 is the index of the selected card in the cards array. */}
@@ -863,6 +862,14 @@ const Board = () => {
 
 
                         <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-retweet"></i></button>
+
+                        <button type="button"  onClick={() => {setChessState(prevState => {
+                            return {
+                                ...prevState,
+                                pieces: Array.from({length: 8}, () => Array(8).fill(new EmptyPiece()))
+                            }
+                        })}}><i className="fa-solid fa-trash"></i></button>
+
                 </div>
                 <div className="cards-container">
                     {
@@ -875,7 +882,7 @@ const Board = () => {
                                     selected={selectingAction === i}
                                     settingWhite={settingWhite}
                                     handleShowThisModal={() => handleShowThisModal(i)}
-                                    deleteCard={() => deleteCard(piece.id)}
+                                    deleteCard={() => deleteCard(piece.pieceId)}
                                 />
                             )))
                         )

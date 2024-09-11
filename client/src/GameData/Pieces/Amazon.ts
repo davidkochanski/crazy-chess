@@ -5,7 +5,7 @@ export class Amazon extends Piece {
         super(isWhite);
         this.name = "amazon";
         this.canMoveDiagonally = true;
-        this.canMoveOrthagonally = true;
+        this.canMoveOrthogonally = true;
         this.canMoveAsKnight = true;
     }
 }

@@ -45,7 +45,7 @@ export const addDummyCardHandler = catchErrorsAsynchronously(
         const user = await Users.findById(req.userId);
         appAssert(user, 404, "User not found.");
         
-        user.cards.push({"canMoveAsKnight":false,"canMoveDiagonally":false,"canMoveOrthagonally":false,"canMoveAsKing":false,"canMoveAsPawn":true,"canMoveAsCamel":false,"canMoveAnywhere":false,"canMoveAsGold":false,"canMoveAsRotatedKnight":false,"canMoveAsVillager":false,"isMovableByPlayer":true,"isCastleable":false,"isNeutral":false,"isCapturable":true,"isBouncy":false,"canCapture":true,"canEnPassant":true,"isRoyal":false,"name":"Pawn","description":"Basic chessmen. Can move forwards, sometimes twice, can promote, and can even en passant.","image":"pawn.png","colour":"#E57373","isWhite":true,"id":1,"isEmpty":false} as CardsDocument);
+        user.cards.push({"canMoveAsKnight":false,"canMoveDiagonally":false,"canMoveOrthogonally":false,"canMoveAsKing":false,"canMoveAsPawn":true,"canMoveAsCamel":false,"canMoveAnywhere":false,"canMoveAsGold":false,"canMoveAsRotatedKnight":false,"canMoveAsVillager":false,"isMovableByPlayer":true,"isCastleable":false,"isNeutral":false,"isCapturable":true,"isBouncy":false,"canCapture":true,"canEnPassant":true,"isRoyal":false,"name":"Pawn","description":"Basic chessmen. Can move forwards, sometimes twice, can promote, and can even en passant.","image":"pawn.png","colour":"#E57373","isWhite":true,"pieceId":"13a8e2d4-85db-484b-be9e-f88a9ef4d641","isEmpty":false} as unknown as CardsDocument);
 
         await user.save();
 

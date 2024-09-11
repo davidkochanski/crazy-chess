@@ -4,6 +4,6 @@ export class RotatedBishop extends Piece {
     constructor(isWhite: boolean) {
         super(isWhite);
         this.name = "rotatedbishop";
-        this.canMoveOrthagonally = true;
+        this.canMoveOrthogonally = true;
     }
 }

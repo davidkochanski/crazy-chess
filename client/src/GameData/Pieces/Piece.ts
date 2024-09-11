@@ -15,7 +15,7 @@ export class Piece {
 
     canMoveAsKnight: boolean = false;
     canMoveDiagonally: boolean = false;
-    canMoveOrthagonally: boolean = false;
+    canMoveOrthogonally: boolean = false;
     canMoveAsKing: boolean = false;
     canMoveAsPawn: boolean = false;
     canMoveAsCamel: boolean = false;
@@ -40,7 +40,7 @@ export class Piece {
     isWhite: boolean;
     attachments: string[] = [];
 
-    id: string = "default";
+    pieceId: string = "default";
     
     isEmpty: boolean = false;
 

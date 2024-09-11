@@ -77,7 +77,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
         }
     }
 
-    if(movingPiece.canMoveOrthagonally) {
+    if(movingPiece.canMoveOrthogonally) {
         for (let i = x + 1, j = y, range = 0; i <= MAX && j <= MAX; i++, range++) {
             if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
