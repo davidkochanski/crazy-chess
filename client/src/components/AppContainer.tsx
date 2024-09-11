@@ -45,11 +45,45 @@ const AppContainer = () => {
     });
 
     return (
-        isLoading ? <div>Loading...</div> :
-            (user ? <div>Welcome, {(user as any).name}! <button onClick={handleLogout}>Log Out</button> <Outlet context={{ user, isLoading, handleAddDummyCard, handleSetCards  } satisfies ContextType} /> </div>
-                : <div>You are not logged in! <button onClick={() => { navigate("/login") }}>Log In</button> <Outlet context={{ user, isLoading, handleAddDummyCard, handleSetCards } satisfies ContextType} /> </div>
+        isLoading ? (
+            <div className="loading">Loading...</div>
+        ) : (
+            user ? (
+                <div>
+                    <nav>
+                        <h2><i className="fa-solid fa-chess"></i> Crazy Chess</h2>
+                        <p>Welcome, {(user as any).name}!</p>
+                        <button onClick={handleLogout}>Log Out</button>
+                    </nav>
+                    <Outlet 
+                        context={{ 
+                            user, 
+                            isLoading, 
+                            handleAddDummyCard, 
+                            handleSetCards 
+                        } satisfies ContextType} 
+                    />
+                </div>
+            ) : (
+                <div>
+                    <nav>
+                        <h2><i className="fa-solid fa-chess"></i> Crazy Chess</h2>
+                        <p>You are not logged in! </p>
+                        <button onClick={() => navigate("/login")}>Log In</button>
+                    </nav>
+                    <Outlet 
+                        context={{ 
+                            user, 
+                            isLoading, 
+                            handleAddDummyCard, 
+                            handleSetCards 
+                        } satisfies ContextType} 
+                    />
+                </div>
             )
+        )
     );
+    
 }
 
 export default AppContainer;

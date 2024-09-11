@@ -8,6 +8,7 @@ import { AppErrorCode } from "../utils/AppErrorCode";
 import AppError from "../utils/AppError";
 import { UNAUTHORIZED } from "../constants/http";
 import { refreshTokenSignOptions, signToken, verifyToken } from "../utils/jwt";
+import { DEFAULT_CARDS } from "./defaultCards";
 
 export type CreateAccountParams = {
     name: string;
@@ -35,7 +36,7 @@ export const createAccount = async ( data: CreateAccountParams) => {
         name: data.name,
         email: data.email,
         password: data.password,
-        cards: []
+        cards: DEFAULT_CARDS
     })
 
     // const verification = await Verification.create({

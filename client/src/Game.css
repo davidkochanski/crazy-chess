@@ -4,12 +4,10 @@
     display: flex;
     place-content: center;
     align-items: center;
+    font-family: Lato, sans-serif;
+
 }
 
-.game > * {
-    flex-grow: 1;
-    flex-shrink: 1;
-}
 
 
 
@@ -142,4 +140,56 @@
     padding: 20px;
     margin: 10px 25px 0;
     border-radius: 8px;
+}
+
+.game > * {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+
+nav {
+    background-color: #2e2953cc;
+    height: 75px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 18px;
+    z-index: 100;
+    font-family: Lato, sans-serif;
+
+}
+
+nav p {
+    display: block;
+    margin-left: auto;
+
+}
+
+nav button {
+    width: 150px;
+    margin: 10px;
+    padding: 15px 25px;
+}
+
+nav h2 {
+    vertical-align: middle;
+    margin: 10px 10px 10px 25px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #bab1ff;
+}
+
+.loading {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 32px;
+    font-family: Lato, sans-serif;
 }

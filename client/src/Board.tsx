@@ -1,4 +1,4 @@
-import { useState, MouseEvent, useEffect, useRef, Key } from "react";
+import { useState, MouseEvent, useEffect, useRef } from "react";
 import { getCoords } from "./scripts/util";
 import {generateLegalMoves, handleCastlingPromotionEnPassant } from "./scripts/Moves";
 
@@ -29,7 +29,7 @@ import { NewPiece } from "./GameData/Pieces/NewPiece";
 import ImageSelectionButton from "./components/ImageSelectionButton";
 
 import { useUser } from "./components/AppContainer";
-import { addDummyCard, getUser, setCards } from "./config/api";
+import { setCards } from "./config/api";
 import { v4 as uuidv4 } from 'uuid';
 
 const DEFAULT_CUSTOM_PIECES = [new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new Camel(true), new Knook(true), new Villager(true)];
@@ -104,7 +104,7 @@ const Board = () => {
     // when user logs in, set the custom pieces in the UI to the ones the user has
     // otherwise, just the default set
     useEffect(() => {
-        setCustomPieces(user ? user.cards : DEFAULT_CUSTOM_PIECES);
+        if(user) setCustomPieces(user.cards);
     }, [user])
     
     const deselectAll = () => {
@@ -863,7 +863,7 @@ const Board = () => {
 
                         <button type="button"  onClick={() => {setSettingWhite(prev => !prev)}}><i className="fa-solid fa-retweet"></i></button>
 
-                        <button type="button"  onClick={() => {setChessState(prevState => {
+                        <button type="button"  onClick={() => {if(chessState.result === "PENDING") setChessState(prevState => {
                             return {
                                 ...prevState,
                                 pieces: Array.from({length: 8}, () => Array(8).fill(new EmptyPiece()))
