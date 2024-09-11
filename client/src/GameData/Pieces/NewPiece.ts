@@ -5,6 +5,6 @@ export class NewPiece extends Piece {
         this.name = "New Piece";
         this.image = "pawn.png";
         this.colour = "#E57373";
-        this.id = 0;
+        this.id = "default";
     }
 }

@@ -57,12 +57,8 @@ export const setCardHandler = catchErrorsAsynchronously(
     async (req, res) => {
         const user = await Users.findById(req.userId);
         appAssert(user, 404, "User not found.");
-        
 
         user.cards = req.body.cards;
-
-        console.log(req.body);
-
         await user.save();
 
         return res.status(200).json( {message: "Set cards." } )

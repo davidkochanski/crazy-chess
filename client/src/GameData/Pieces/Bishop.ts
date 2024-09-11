@@ -8,6 +8,6 @@ export class Bishop extends Piece {
         this.colour = "#FFF176";
         this.canMoveDiagonally = true;
         this.description = "Bishops can move diagonally."
-        this.id = 3;
+        this.id = "6b2c1dc7-c035-4318-8e16-6ce15f61cdac";
     }
 }

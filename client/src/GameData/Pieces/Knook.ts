@@ -4,7 +4,7 @@ export class Knook extends Piece {
     constructor(isWhite: boolean) {
         super(isWhite);
         this.name = "Knook";
-        this.id = 8;
+        this.id = "6156f08c-d7ca-47d3-8a38-0ac1a1439d3f";
         this.image = "knook.png";
         this.colour = "#cccccc"
         this.canMoveOrthagonally = true;

@@ -5,7 +5,7 @@ export class King extends Piece {
         super(isWhite);
         this.name = "King";
         this.image = "king.png"
-        this.id = 6;
+        this.id = "3376620c-a4be-467e-8111-e27f7de562a5";
         this.colour = "#BA68C8";
         
         this.canMoveAsKing = true;

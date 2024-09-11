@@ -27,8 +27,10 @@ import { Knook } from "./GameData/Pieces/Knook";
 import { Villager } from "./GameData/Pieces/Villager";
 import { NewPiece } from "./GameData/Pieces/NewPiece";
 import ImageSelectionButton from "./components/ImageSelectionButton";
+
 import { useUser } from "./components/AppContainer";
 import { addDummyCard, getUser, setCards } from "./config/api";
+import { v4 as uuidv4 } from 'uuid';
 
 const DEFAULT_CUSTOM_PIECES = [new Pawn(true), new Knight(true), new Bishop(true), new Rook(true), new Queen(true), new King(true), new Camel(true), new Knook(true), new Villager(true)];
 
@@ -577,10 +579,17 @@ const Board = () => {
 
     }
 
-    const deleteCard = (id: number) => {
+    const deleteCard = (id: string) => {
         if(chessState.result !== "PENDING") return;
         setCustomPieces(pieces => {
-            return pieces.filter((piece) => {return piece.id !== id})
+            const newCards = pieces.filter((piece) => {return piece.id !== id});
+
+            if(user) {
+                setCards({
+                    cards: newCards
+                });
+            }
+            return newCards;
         })
 
         setChessState(prevChessState => {
@@ -593,6 +602,7 @@ const Board = () => {
             }
             return prevChessState;
         })
+        
 
     }
 
@@ -600,9 +610,16 @@ const Board = () => {
         if (tempSelected === null) return;
     
         setCustomPieces(prevPieces => {
-            return prevPieces.map(piece => 
+            const nextCards = prevPieces.map(piece => 
                 piece.id === tempSelected.id ? _.cloneDeep(tempSelected) : piece
             );
+
+            if(user) {
+                setCards({
+                    cards: nextCards
+                });
+            }
+            return nextCards;
         });
 
         setChessState(prevState => {
@@ -684,6 +701,8 @@ const Board = () => {
                         setShowModal(false);
                         setEditingName(false);
                         setEditingDesc(false);
+
+
                     }}>
                         <i className="fa-solid fa-x"></i>
                     </button>
@@ -825,19 +844,13 @@ const Board = () => {
                             
                             setCustomPieces(prev => {
                                 const nextPiece = new NewPiece(true);
-                                nextPiece.id = nextId;
-
-                                setNextId(id => id + 2);
+                                nextPiece.id = uuidv4();
 
                                 if(user) { 
                                     setCards({
                                         cards: [...prev, nextPiece]
                                     });
                                 };
-
-                                console.log(JSON.stringify(nextPiece));
-
-                                
                                 return [...prev, nextPiece]
                             }
 
@@ -854,19 +867,6 @@ const Board = () => {
                 <div className="cards-container">
                     {
                         isLoading ? <div>Loading...</div> : (
-
-                            user ? (user.cards.map((piece: Piece, i: number) => (
-                                <Card
-                                    key={i}
-                                    piece={piece}
-                                    onClick={() => {setSelectingAction(prevSelected => prevSelected === i ? -1 : i)}}
-                                    selected={selectingAction === i}
-                                    settingWhite={settingWhite}
-                                    handleShowThisModal={() => handleShowThisModal(i)}
-                                    deleteCard={() => deleteCard(piece.id)}
-                                />
-                            ))) :
-                            
                             (customPieces.map((piece, i) => (
                                 <Card
                                     key={i}

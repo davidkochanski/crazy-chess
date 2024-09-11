@@ -40,7 +40,7 @@ export class Piece {
     isWhite: boolean;
     attachments: string[] = [];
 
-    id: number = -1;
+    id: string = "default";
     
     isEmpty: boolean = false;
 
