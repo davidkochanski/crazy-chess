@@ -9,7 +9,7 @@
 
 ## A totally normal chess game, with no twists whatsoever
 
-![Crazy Chess Game](client\public\img\md\chess2.jpg)
+![Crazy Chess Game](client/public/img/md/chess2.jpg)
 
 </div>
 
@@ -19,7 +19,7 @@ Ever wanted to fuse a Knight and a Rook's abilities, but make the piece look lik
 
 <div style="text-align: center;">
 
-![Epic Piece Modal](client\public\img\md\knightrook.jpg)
+![Epic Piece Modal](client/public/img/md/knightrook.jpg)
 
 </div>
 
@@ -29,7 +29,7 @@ Ever wanted to fuse a Knight and a Rook's abilities, but make the piece look lik
 
 <div style="text-align: center;">
 
-![Login page](client\public\img\md\loginpage.jpg)
+![Login page](client/public/img/md/loginpage.jpg)
 
 </div>
 
