@@ -55,6 +55,10 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
 
     let legalMoves: Array<Array<number>> = [];
 
+    if(movingPiece.maximumRange !== 0 && !movingPiece.maximumRange) {
+        movingPiece.maximumRange = Infinity;
+    }
+
     if (movingPiece.canMoveDiagonally) {
         for (let i = x + 1, j = y + 1, range = 0; i <= MAX && j <= MAX; i++, j++, range++) {
             if(range >= movingPiece.maximumRange) break;
@@ -98,7 +102,7 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
             if(updateLegalMoves(i, j)) break;
         }
     }
-
+    
     if(movingPiece.canMoveAsKnight) {
         const possibleMoves = [[x + 1, y + 2],[x + 2, y + 1],[x + 2, y - 1],[x + 1, y - 2],[x - 1, y - 2],[x - 2, y - 1],[x - 2, y + 1],[x - 1, y + 2]];
 
@@ -303,14 +307,6 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
 
     return legalMoves;
 };
-
-
-// export const isWhite = (piece: String) => {
-//     const info = piece.split(null);
-//     piece = info[info.length-1];
-
-//     return piece.toUpperCase() === piece;
-// }
 
 interface HandledGameState {
     pieces: (Piece)[][];

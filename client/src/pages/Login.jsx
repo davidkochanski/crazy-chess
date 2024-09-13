@@ -45,7 +45,7 @@ const Login = () => {
 
                     {/* Email and password are sent to login mutation function, which sends it to axios client, which sends it to backend via an HTTP request. woo! */}
                     <button type="submit" disabled={!isValidForm()} onClick={() => handleSignIn({ email, password })}>
-                        {isPending ? <i class="fas fa-spinner fa-pulse"></i> : "Sign in"}
+                        {isPending ? <i className="fas fa-spinner fa-pulse"></i> : "Sign in"}
 
                     </button>
 
