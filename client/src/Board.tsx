@@ -582,7 +582,7 @@ const Board = () => {
     const deleteCard = (pieceId: string) => {
         if(chessState.result !== "PENDING") return;
         setCustomPieces(pieces => {
-            const newCards = pieces.filter((piece) => {console.log(piece); return piece.pieceId !== pieceId});
+            const newCards = pieces.filter((piece) => piece.pieceId !== pieceId);
 
             if(user) {
                 setCards({
@@ -639,8 +639,6 @@ const Board = () => {
                 pieces: newPieces
             };
         });
-    
-        setTempSelected(null);
     };
     
     
@@ -698,6 +696,7 @@ const Board = () => {
 
                     <button className="modal-close" onClick={() => {
                         updatePieceBehaviours();
+                        setTempSelected(null);
                         setShowModal(false);
                         setEditingName(false);
                         setEditingDesc(false);
