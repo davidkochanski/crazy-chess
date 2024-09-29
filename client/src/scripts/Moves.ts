@@ -55,50 +55,38 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
 
     let legalMoves: Array<Array<number>> = [];
 
-    if(movingPiece.maximumRange !== 0 && !movingPiece.maximumRange) {
-        movingPiece.maximumRange = Infinity;
-    }
-
     if (movingPiece.canMoveDiagonally) {
         for (let i = x + 1, j = y + 1, range = 0; i <= MAX && j <= MAX; i++, j++, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
         for (let i = x + 1, j = y - 1, range = 0; i <= MAX && j >= MIN; i++, j--, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
         for (let i = x - 1, j = y + 1, range = 0; i >= MIN && j <= MAX; i--, j++, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
         for (let i = x - 1, j = y - 1, range = 0; i >= MIN && j >= MIN; i--, j--, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
     }
 
     if(movingPiece.canMoveOrthogonally) {
         for (let i = x + 1, j = y, range = 0; i <= MAX && j <= MAX; i++, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
         for (let i = x, j = y - 1, range = 0; i <= MAX && j >= MIN; j--, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
         for (let i = x, j = y + 1, range = 0; i >= MIN && j <= MAX; j++, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
 
         for (let i = x - 1, j = y, range = 0; i >= MIN && j >= MIN; i--, range++) {
-            if(range >= movingPiece.maximumRange) break;
             if(updateLegalMoves(i, j)) break;
         }
     }
@@ -106,7 +94,6 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
     if(movingPiece.canMoveAsKnight) {
         const possibleMoves = [[x + 1, y + 2],[x + 2, y + 1],[x + 2, y - 1],[x + 1, y - 2],[x - 1, y - 2],[x - 2, y - 1],[x - 2, y + 1],[x - 1, y + 2]];
 
-        if(movingPiece.maximumRange > 2) {
             possibleMoves.forEach((move) => {
                 let x = move[0];
                 let y = move[1];
@@ -115,13 +102,11 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                     updateLegalMoves(x, y);
                 }
             })
-        }
     }
 
     if(movingPiece.canMoveAsRotatedKnight) {
         const possibleMoves = [[x + 2, y + 2],[x, y + 2],[x - 2, y + 2],[x + 2, y],[x - 2, y],[x - 2, y - 2],[x, y - 2],[x + 2, y - 2]];
 
-        if(movingPiece.maximumRange >= 2) {
             possibleMoves.forEach((move) => {
                 let x = move[0];
                 let y = move[1];
@@ -130,13 +115,12 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                     updateLegalMoves(x, y);
                 }
             })
-        }
     }
 
     if(movingPiece.canMoveAsKing) {
         const possibleMoves = [[x + 1, y],[x - 1, y],[x, y + 1],[x, y - 1],[x + 1, y + 1],[x + 1, y - 1],[x - 1, y + 1],[x - 1, y - 1]];
 
-        if(movingPiece.maximumRange > 0) {
+
             possibleMoves.forEach((move) => {
                 let x = move[0];
                 let y = move[1];
@@ -164,19 +148,15 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                     updateLegalMoves(6, 7);
                 }
             }
-        } 
     }
 
     if(movingPiece.canMoveAsPawn) {
         if(movingPiece.isWhite) {
-            if(movingPiece.maximumRange >= 2) {
                 // Double step move option
                 if(!includePieceVision && (y <= 1) && board[x][y+1].isEmpty && board[x][y+2].isEmpty && !tiles[x][y+1]?.isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
-            }
 
-            if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
                 if(!includePieceVision && board[x][y+1].isEmpty) {
                     updateLegalMoves(x, y+1);
@@ -200,18 +180,14 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                         updateLegalMoves(x-1, y+1);
                     }
                 }
-            }
 
     
         } else {
-            if(movingPiece.maximumRange >= 2) {
                 // Double step move option
                 if(!includePieceVision && (y >= 6) && board[x][y-1].isEmpty && board[x][y-2].isEmpty && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
-            }
 
-            if(movingPiece.maximumRange >= 1) {
                 // Move 1 space forward
                 if(!includePieceVision && board[x][y-1].isEmpty) {
                     updateLegalMoves(x, y-1);
@@ -237,13 +213,11 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                     }
                 }
             }
-        }
     }
 
     if(movingPiece.canMoveAsCamel) {
         const possibleMoves = [[x + 1, y + 3],[x + 3, y + 1],[x + 3, y - 1],[x + 1, y - 3],[x - 1, y - 3],[x - 3, y - 1],[x - 3, y + 1],[x - 1, y + 3]];
 
-        if(movingPiece.maximumRange >= 4) {
             possibleMoves.forEach((move) => {
                 let x = move[0];
                 let y = move[1];
@@ -252,7 +226,6 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
                     updateLegalMoves(x, y);
                 }
             })
-        }
     }
 
     if(movingPiece.canMoveAnywhere) {
@@ -279,29 +252,21 @@ export const generateLegalMoves = (x: number, y: number, state: ChessState, incl
 
     if(movingPiece.canMoveAsVillager) {
         if(movingPiece.isWhite) {
-            if(movingPiece.maximumRange >= 2) {
                 // Double step move option
                 if((y <= 1) && board[x][y+1].isEmpty && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y+2);
                 }
-            }
 
-            if(movingPiece.maximumRange >= 1) {
                 updateLegalMoves(x, y+1);
-            }
 
     
         } else {
-            if(movingPiece.maximumRange >= 2) {
                 // Double step move option
                 if((y >= 6) && board[x][y-1].isEmpty && !tiles[x][y-1]?.isBlocking) {
                     updateLegalMoves(x, y-2);
                 }
-            }
 
-            if(movingPiece.maximumRange >= 1) {
                 updateLegalMoves(x, y-1);
-            }
         }
     }
 
